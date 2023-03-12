@@ -87,7 +87,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
                 .block();
 
         //TODO obviously
-        return apiResponse.getData();
+        return apiResponse.getOcs().getData();
     }
 
     public String getUserEmail(String username) {

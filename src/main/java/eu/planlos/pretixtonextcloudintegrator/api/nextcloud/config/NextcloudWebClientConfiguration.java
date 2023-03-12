@@ -5,8 +5,6 @@ import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientResponseFilter
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -25,8 +23,7 @@ public class NextcloudWebClientConfiguration {
                 .filter(WebClientResponseFilter.handleError())
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.set("OCS-APIRequest", "true");
-                    httpHeaders.set("Content-Type", "application/x-www-form-urlencoded");
-                    httpHeaders.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE);
+                    httpHeaders.set("Accept", "application/json");
                 })
                 .build();
     }

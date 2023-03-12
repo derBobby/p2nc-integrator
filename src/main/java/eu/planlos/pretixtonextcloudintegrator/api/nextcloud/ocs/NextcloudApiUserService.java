@@ -1,5 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.config.NextcloudApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudApiResponse;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUser;
@@ -36,7 +37,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
 
     public List<String> getAllUsernames() {
 
-//        if(log.isDebugEnabled()) {
+        if(log.isDebugEnabled()) {
             String apiResponseString = webClient
                     .get()
                     .uri(buildUriGetUserlist())
@@ -46,26 +47,32 @@ public class NextcloudApiUserService extends NextcloudApiService {
                     .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                     .block();
             log.debug(apiResponseString);
-//        }
 
-        ParameterizedTypeReference<NextcloudApiResponse<NextcloudUserList>> responseType =
-                new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUserList>>() {};
+            JsonNode jsonNode = webClient
+                    .get()
+                    .uri(buildUriGetUserlist())
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+            log.debug(jsonNode.toPrettyString());
+        }
 
         NextcloudApiResponse<NextcloudUserList> apiResponse = webClient
                 .get()
                 .uri(buildUriGetUserlist())
                 .retrieve()
-                .bodyToMono(responseType)
+                .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUserList>>(){})
                 .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
                 .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                 .block();
 
-        return apiResponse.getData().getUsers();
+        NextcloudUserList nextcloudUserList = apiResponse.getOcs().getData();
+        return nextcloudUserList.getUsers();
     }
 
     public NextcloudUser getUser(String username) {
 
-//        if(log.isDebugEnabled()) {
+        if(log.isDebugEnabled()) {
             String apiResponseString = webClient
                     .get()
                     .uri(buildUriGetUser(username))
@@ -75,7 +82,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
                     .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                     .block();
             log.debug(apiResponseString);
-//        }
+        }
 
         NextcloudApiResponse<NextcloudUser> apiResponse = webClient
                 .get()

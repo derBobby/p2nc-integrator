@@ -38,16 +38,6 @@ public class NextcloudApiUserService extends NextcloudApiService {
     public List<String> getAllUsernames() {
 
         if(log.isDebugEnabled()) {
-            String apiResponseString = webClient
-                    .get()
-                    .uri(buildUriGetUserlist())
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
-                    .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
-                    .block();
-            log.debug(apiResponseString);
-
             JsonNode jsonNode = webClient
                     .get()
                     .uri(buildUriGetUserlist())
@@ -56,6 +46,8 @@ public class NextcloudApiUserService extends NextcloudApiService {
                     .block();
             log.debug(jsonNode.toPrettyString());
         }
+
+
 
         NextcloudApiResponse<NextcloudUserList> apiResponse = webClient
                 .get()
@@ -66,35 +58,44 @@ public class NextcloudApiUserService extends NextcloudApiService {
                 .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                 .block();
 
-        NextcloudUserList nextcloudUserList = apiResponse.getOcs().getData();
+
+//        return webClient.get()
+//                .uri("users")
+//                .accept(MediaType.APPLICATION_JSON)
+//                .retrieve()
+//                .bodyToMono(responseType)
+//                .toProcessor()
+//                .peek();
+
+//        NextcloudUserList nextcloudUserList = apiResponse.getOcs().getData();
+        NextcloudUserList nextcloudUserList = apiResponse.getData();
         return nextcloudUserList.getUsers();
     }
 
     public NextcloudUser getUser(String username) {
 
         if(log.isDebugEnabled()) {
-            String apiResponseString = webClient
+            JsonNode jsonNode = webClient
                     .get()
                     .uri(buildUriGetUser(username))
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .bodyToMono(JsonNode.class)
                     .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
                     .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                     .block();
-            log.debug(apiResponseString);
+            log.debug(jsonNode.toPrettyString());
         }
 
         NextcloudApiResponse<NextcloudUser> apiResponse = webClient
                 .get()
                 .uri(buildUriGetUser(username))
                 .retrieve()
-                .bodyToMono(NextcloudApiResponse.class)
+                .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUser>>(){})
                 .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
                 .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                 .block();
 
-        //TODO obviously
-        return apiResponse.getOcs().getData();
+        return apiResponse.getData();
     }
 
     public String getUserEmail(String username) {

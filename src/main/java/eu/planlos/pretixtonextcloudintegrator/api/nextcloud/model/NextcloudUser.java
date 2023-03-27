@@ -10,10 +10,6 @@ import java.util.List;
 @Setter
 public class NextcloudUser {
 
-    public NextcloudUser() {
-        super();
-    }
-
     private String id;
     @JsonProperty("displayname")
     private String displayName;

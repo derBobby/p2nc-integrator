@@ -1,0 +1,46 @@
+{
+  "ocs" : {
+    "meta" : {
+      "status" : "ok",
+      "statuscode" : 100,
+      "message" : "OK",
+      "totalitems" : "",
+      "itemsperpage" : ""
+    },
+    "data" : {
+      "enabled" : true,
+      "storageLocation" : "/data/user",
+      "id" : "user",
+      "lastLogin" : 1680988251000,
+      "backend" : "Database",
+      "subadmin" : [ ],
+      "quota" : {
+        "free" : 483000000000,
+        "used" : 48300000,
+        "total" : 483000000000,
+        "relative" : 0,
+        "quota" : -3
+      },
+      "email" : "user@example.com",
+      "additional_mail" : [ ],
+      "displayname" : "User",
+      "phone" : "",
+      "address" : "",
+      "website" : "",
+      "twitter" : "",
+      "organisation" : "",
+      "role" : "",
+      "headline" : "",
+      "biography" : "",
+      "profile_enabled" : "1",
+      "groups" : [ "User Group" ],
+      "language" : "en",
+      "locale" : "",
+      "notify_email" : null,
+      "backendCapabilities" : {
+        "setDisplayName" : true,
+        "setPassword" : true
+      }
+    }
+  }
+}

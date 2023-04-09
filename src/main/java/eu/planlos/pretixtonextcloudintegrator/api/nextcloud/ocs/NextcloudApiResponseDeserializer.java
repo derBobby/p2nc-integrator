@@ -1,12 +1,15 @@
 package eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudApiResponse;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudMeta;
+import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUser;
+import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUserList;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -14,11 +17,8 @@ import java.io.IOException;
 @Slf4j
 public class NextcloudApiResponseDeserializer<T> extends StdDeserializer<NextcloudApiResponse<T>> {
 
-    private Class<T> type;
-
-    public NextcloudApiResponseDeserializer(Class<T> type) {
+    public NextcloudApiResponseDeserializer() {
         super(NextcloudApiResponse.class);
-        this.type = type;
     }
 
     @Override
@@ -26,10 +26,19 @@ public class NextcloudApiResponseDeserializer<T> extends StdDeserializer<Nextclo
         ObjectMapper mapper = (ObjectMapper) jsonParser.getCodec();
         JsonNode rootNode = mapper.readTree(jsonParser);
         JsonNode metaNode = rootNode.get("ocs").get("meta");
-        NextcloudMeta meta = mapper.treeToValue(metaNode, NextcloudMeta.class);
-
         JsonNode dataNode = rootNode.get("ocs").get("data");
-        T data = mapper.treeToValue(dataNode, type);
+
+        NextcloudMeta meta = mapper.treeToValue(metaNode, NextcloudMeta.class);
+        T data;
+
+        if (dataNode.has("users")) {
+            data = (T) mapper.readValue(dataNode.traverse(), new TypeReference<NextcloudUserList>() {});
+        } else if(dataNode.isArray() && dataNode.size() == 0) {
+            data = null;
+        }
+        else {
+            data = (T) mapper.treeToValue(dataNode, NextcloudUser.class);
+        }
 
         return new NextcloudApiResponse<>(meta, data);
     }

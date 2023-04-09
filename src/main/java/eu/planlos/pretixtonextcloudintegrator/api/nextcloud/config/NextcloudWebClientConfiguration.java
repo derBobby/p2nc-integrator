@@ -3,7 +3,6 @@ package eu.planlos.pretixtonextcloudintegrator.api.nextcloud.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudApiResponse;
-import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUserList;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs.NextcloudApiResponseDeserializer;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientRequestFilter;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientResponseFilter;
@@ -27,7 +26,8 @@ public class NextcloudWebClientConfiguration {
                 .codecs(configurer -> {
                     ObjectMapper objectMapper = new ObjectMapper();
                     SimpleModule module = new SimpleModule();
-                    module.addDeserializer(NextcloudApiResponse.class, new NextcloudApiResponseDeserializer<>(NextcloudUserList.class));
+                    module.addDeserializer(NextcloudApiResponse.class, new NextcloudApiResponseDeserializer<>());
+                    module.addDeserializer(NextcloudApiResponse.class, new NextcloudApiResponseDeserializer<>());
                     objectMapper.registerModule(module);
                     configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper));
                     configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper));

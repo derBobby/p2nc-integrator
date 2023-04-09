@@ -3,6 +3,7 @@ package eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs;
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.config.NextcloudApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudApiResponse;
+import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudResponse;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUser;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUserList;
 import eu.planlos.pretixtonextcloudintegrator.api.pretix.service.PretixApiOrderService;
@@ -47,8 +48,6 @@ public class NextcloudApiUserService extends NextcloudApiService {
             log.debug(jsonNode.toPrettyString());
         }
 
-
-
         NextcloudApiResponse<NextcloudUserList> apiResponse = webClient
                 .get()
                 .uri(buildUriGetUserlist())
@@ -58,16 +57,6 @@ public class NextcloudApiUserService extends NextcloudApiService {
                 .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                 .block();
 
-
-//        return webClient.get()
-//                .uri("users")
-//                .accept(MediaType.APPLICATION_JSON)
-//                .retrieve()
-//                .bodyToMono(responseType)
-//                .toProcessor()
-//                .peek();
-
-//        NextcloudUserList nextcloudUserList = apiResponse.getOcs().getData();
         NextcloudUserList nextcloudUserList = apiResponse.getData();
         return nextcloudUserList.getUsers();
     }
@@ -106,26 +95,30 @@ public class NextcloudApiUserService extends NextcloudApiService {
     public void createUser(String email, String name){
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("userid", email);
         formData.add("email", email);
         formData.add("displayName", name);
 
         try {
-            String resultXML = webClient
+            NextcloudApiResponse<NextcloudResponse> apiResponse = webClient
                     .post()
                     .uri(buildUriCreateUser(email))
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .bodyValue(formData)
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudResponse>>(){})
                     .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
                     .doOnError(error -> log.error(FAIL_MESSAGE_CREATE_USER, email, error.getMessage()))
                     .block();
 
-            if(resultXML!=null) {
-                log.info(SUCCESS_MESSAGE_CREATE_USER, resultXML);
+            //TODO error handling
+            if (apiResponse == null) {
+                throw new ApiException(ApiException.Cause.IS_NULL);
             }
-
-            throw new ApiException(ApiException.Cause.IS_NULL);
+            if(apiResponse.getMeta().getStatus().equals("failure")) {
+                log.error(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
+                throw new ApiException(apiResponse.toString(), apiResponse.getMeta().getStatusCode());
+            }
         } catch (WebClientResponseException e) {
             throw new ApiException(e);
         }
@@ -135,7 +128,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
      * Uri generators
      */
     private String buildUriCreateUser(String email) {
-        return String.format("%s", NC_API_USERS);
+        return String.format("%s%s", NC_API_USERS, NC_API_SUFFIX_JSON);
     }
 
     private String buildUriGetUserlist() {

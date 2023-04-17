@@ -35,11 +35,11 @@ jobs:
         push: true
         context: ${{ github.workspace }}
         tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest
-#    - name: Deploy on Server
-#      uses: garygrossgarten/github-action-ssh@0.7.0
-#      with:
-#        command: deploy
-#        host: ${{ secrets.DEPLOYMENT_HOST }}
-#        username: ${{ secrets.DEPLOYMENT_USER }}
-#        port: ${{ secrets.DEPLOYMENT_PORT }}
-#        privateKey: ${{ secrets.DEPLOYMENT_SSH_KEY }}
+    - name: Deploy on Server
+      uses: garygrossgarten/github-action-ssh@0.7.0
+      with:
+        command: -a pretixtonextcloudintegrator -e development -t latest
+        host: ${{ secrets.DEPLOYMENT_HOST }}
+        username: ${{ secrets.DEPLOYMENT_USER }}
+        port: ${{ secrets.DEPLOYMENT_PORT }}
+        privateKey: ${{ secrets.DEPLOYMENT_SSH_KEY }}

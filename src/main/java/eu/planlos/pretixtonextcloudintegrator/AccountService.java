@@ -43,8 +43,8 @@ public class AccountService implements IWebHookHandler {
         }
 
         log.info("Email address is still free -> creating user for WebHook {}", webHookDTO.code());
-        nextcloudApiUserService.createUser(orderDTO.getEmail(), orderDTO.getFirstName(), orderDTO.getLastName());
+        String userid = nextcloudApiUserService.createUser(orderDTO.getEmail(), orderDTO.getFirstName(), orderDTO.getLastName());
         //TODO Create Logging?
-        log.info("");
+        log.info("User creation successful. Username: {}", userid);
    }
 }

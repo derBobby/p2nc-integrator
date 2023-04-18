@@ -6,6 +6,7 @@ import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudApiRe
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs.NextcloudApiResponseDeserializer;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientRequestFilter;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientResponseFilter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +17,17 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
+@Slf4j
 public class NextcloudWebClientConfiguration {
 
     @Bean
     @Qualifier("NextcloudWebClient")
     public static WebClient configureNextcloudWebClient(NextcloudApiConfig apiConfig) {
+
+        log.info("Creating WebClient using:");
+        log.info("- Nextcloud address: {}", apiConfig.address());
+        log.info("- Nextcloud username: {}", apiConfig.user());
+        log.info("- Nextcloud default group: {}", apiConfig.defaultGroup());
 
         ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
                 .codecs(configurer -> {

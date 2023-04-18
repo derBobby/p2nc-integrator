@@ -92,10 +92,12 @@ public class NextcloudApiUserService extends NextcloudApiService {
         return nextcloudUser.getEmail();
     }
 
-    public void createUser(String email, String firstName, String lastName){
+    public String createUser(String email, String firstName, String lastName){
+
+        String userid = userid(firstName, lastName);
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("userid", userid(firstName, lastName));
+        formData.add("userid", userid);
         formData.add("email", email);
         formData.add("displayName", String.format("%s %s", firstName, lastName));
         formData.add("groups[]", nextcloudApiConfig.defaultGroup());
@@ -123,6 +125,8 @@ public class NextcloudApiUserService extends NextcloudApiService {
         } catch (WebClientResponseException e) {
             throw new ApiException(e);
         }
+
+        return userid;
     }
 
     private String userid(String firstName, String lastName) {

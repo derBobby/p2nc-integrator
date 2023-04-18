@@ -34,7 +34,10 @@ public final class OrderDTO {
         this.positions = positions;
     }
 
-    public String getName() {
-        return invoice_address.name();
+    public String getFirstName() {
+        return invoice_address.name_parts().given_name();
+    }
+    public String getLastName() {
+        return invoice_address.name_parts().family_name();
     }
 }

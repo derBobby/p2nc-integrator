@@ -6,5 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record NextcloudApiConfig(
         String address,
         String user,
-        String password) {
+        String password,
+        String defaultGroup) {
 }

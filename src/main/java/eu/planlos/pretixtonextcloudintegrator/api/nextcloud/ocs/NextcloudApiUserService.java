@@ -6,7 +6,6 @@ import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudApiRe
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudResponse;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUser;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUserList;
-import eu.planlos.pretixtonextcloudintegrator.api.pretix.service.PretixApiOrderService;
 import eu.planlos.pretixtonextcloudintegrator.common.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,6 +20,7 @@ import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -32,7 +32,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
     private static final String NC_API_USERS = "/ocs/v1.php/cloud/users";
     private static final String NC_API_SUFFIX_JSON = "?format=json";
 
-    public NextcloudApiUserService(NextcloudApiConfig nextcloudApiConfig, @Qualifier("NextcloudWebClient") WebClient webClient, PretixApiOrderService pretixApiOrderService) {
+    public NextcloudApiUserService(NextcloudApiConfig nextcloudApiConfig, @Qualifier("NextcloudWebClient") WebClient webClient ) {
         super(nextcloudApiConfig, webClient);
     }
 
@@ -41,7 +41,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         if(log.isDebugEnabled()) {
             JsonNode jsonNode = webClient
                     .get()
-                    .uri(buildUriGetUserlist())
+                    .uri(buildUriGetUserList())
                     .retrieve()
                     .bodyToMono(JsonNode.class)
                     .block();
@@ -50,7 +50,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
 
         NextcloudApiResponse<NextcloudUserList> apiResponse = webClient
                 .get()
-                .uri(buildUriGetUserlist())
+                .uri(buildUriGetUserList())
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUserList>>(){})
                 .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
@@ -87,14 +87,12 @@ public class NextcloudApiUserService extends NextcloudApiService {
         return apiResponse.getData();
     }
 
-    public String getUserEmail(String username) {
+    public Map<String, String> getUserMap(String username) {
         NextcloudUser nextcloudUser = getUser(username);
-        return nextcloudUser.getEmail();
+        return Map.of(username, nextcloudUser.getEmail());
     }
 
-    public String createUser(String email, String firstName, String lastName){
-
-        String userid = userid(firstName, lastName);
+    public void createUser(String userid, String email, String firstName, String lastName){
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("userid", userid);
@@ -105,7 +103,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         try {
             NextcloudApiResponse<NextcloudResponse> apiResponse = webClient
                     .post()
-                    .uri(buildUriCreateUser(email))
+                    .uri(buildUriCreateUser())
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .bodyValue(formData)
                     .retrieve()
@@ -125,25 +123,16 @@ public class NextcloudApiUserService extends NextcloudApiService {
         } catch (WebClientResponseException e) {
             throw new ApiException(e);
         }
-
-        return userid;
-    }
-
-    private String userid(String firstName, String lastName) {
-        return String.format(
-                "kv-kraichgau-%s%s",
-                firstName.substring(0, 1).toLowerCase(),
-                lastName.toLowerCase());
     }
 
     /*
      * Uri generators
      */
-    private String buildUriCreateUser(String email) {
+    private String buildUriCreateUser() {
         return String.format("%s%s", NC_API_USERS, NC_API_SUFFIX_JSON);
     }
 
-    private String buildUriGetUserlist() {
+    private String buildUriGetUserList() {
         return String.format("%s%s", NC_API_USERS, NC_API_SUFFIX_JSON);
     }
 

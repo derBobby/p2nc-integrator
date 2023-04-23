@@ -33,3 +33,4 @@ HELP.md
 
 /src/main/resources/nextcloud.properties
 /src/main/resources/pretix.properties
+/src/main/resources/mail.properties

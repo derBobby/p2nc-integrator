@@ -6,7 +6,7 @@ import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudApiRe
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudResponse;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUser;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUserList;
-import eu.planlos.pretixtonextcloudintegrator.common.exception.ApiException;
+import eu.planlos.pretixtonextcloudintegrator.api.common.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
@@ -117,9 +117,9 @@ public class NextcloudApiUserService extends NextcloudApiService {
                 throw new ApiException(ApiException.Cause.IS_NULL);
             }
             if(apiResponse.getMeta().getStatus().equals("failure")) {
-                log.error(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
                 throw new ApiException(apiResponse.toString(), apiResponse.getMeta().getStatusCode());
             }
+            log.debug(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
         } catch (WebClientResponseException e) {
             throw new ApiException(e);
         }

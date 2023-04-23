@@ -1,10 +1,12 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
+import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.exception.AccountCreationException;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.api.pretix.model.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.api.pretix.service.PretixApiOrderService;
 import eu.planlos.pretixtonextcloudintegrator.api.pretix.webhook.model.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.api.pretix.webhook.service.IWebHookHandler;
+import eu.planlos.pretixtonextcloudintegrator.common.mail.service.MailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +23,12 @@ public class AccountService implements IWebHookHandler {
 
     private final PretixApiOrderService pretixApiOrderService;
     private final NextcloudApiUserService nextcloudApiUserService;
+    private final MailService mailService;
 
-    public AccountService(PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService) {
+    public AccountService(PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService) {
         this.pretixApiOrderService = pretixApiOrderService;
         this.nextcloudApiUserService = nextcloudApiUserService;
+        this.mailService = mailService;
     }
 
     @Override
@@ -46,30 +50,43 @@ public class AccountService implements IWebHookHandler {
         boolean emailAlreadyInUse = userMap.containsValue(orderDTO.getEmail());
         if(emailAlreadyInUse) {
             log.info("Email address already in use -> nothing to do for WebHook {}", webHookDTO.code());
+            // TODO send info that mail address is already in use
             return;
         }
         log.info("Email address is still free. Proceeding for WebHook {}", webHookDTO.code());
 
-        // Find username to create account
-        String userid = generateUserId(userMap, orderDTO.getFirstName(), orderDTO.getLastName());
+        try {
+            // Find username to create account
+            String userid = generateUserId(userMap, orderDTO.getFirstName(), orderDTO.getLastName());
+            // Call Nextcloud API to create new user
+            nextcloudApiUserService.createUser(userid, orderDTO.getEmail(), orderDTO.getFirstName(), orderDTO.getLastName());
 
-        // Call Nextcloud API to create new user
-        nextcloudApiUserService.createUser(userid, orderDTO.getEmail(), orderDTO.getFirstName(), orderDTO.getLastName());
-        log.info("User {} created successfully for WebHook {} ", userid, webHookDTO.code());
+            log.info("User {} created successfully for WebHook {} ", userid, webHookDTO.code());
+        } catch (AccountCreationException e) {
+            log.error(e.getMessage());
+            mailService.notifyAdminOfException(
+                    "Account creation failed",
+                    String.format(
+                            "order code=%s, firstname=%s, lastname=%s",
+                            orderDTO.getCode(),
+                            orderDTO.getFirstName(),
+                            orderDTO.getLastName()),
+                    e.getMessage());
+        }
+
    }
 
-    private String generateUserId(Map<String, String> userMap, String firstName, String lastName) {
+    private String generateUserId(Map<String, String> userMap, String firstName, String lastName) throws AccountCreationException {
         return generateUserId(userMap, firstName, lastName, 1);
     }
 
-    private String generateUserId(Map<String, String> userMap, String firstName, String lastName, int charCount) {
+    private String generateUserId(Map<String, String> userMap, String firstName, String lastName, int charCount) throws AccountCreationException {
 
         // Assert because <= 0 can only happen for coding errors
         assert charCount > 0;
 
         if(charCount > firstName.length()) {
-            log.error("Even using all chars of the first name collided with an existing user. Duplicate booking?");
-            //TODO send email
+            throw new AccountCreationException("Existing userid can't be avoided: Duplicate booking or similar first name?");
         }
 
         String userid = String.format(
@@ -78,9 +95,11 @@ public class AccountService implements IWebHookHandler {
                 lastName.toLowerCase());
 
         if (userMap.containsKey(userid)) {
+            log.info("Minimal userid is already in use: {}", userid);
             return generateUserId(userMap, firstName, lastName, charCount+1);
         }
 
+        log.info("Created userid is {}", userid);
         return userid;
     }
 

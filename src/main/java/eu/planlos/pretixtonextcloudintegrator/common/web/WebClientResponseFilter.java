@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.common.web;
 
-import eu.planlos.pretixtonextcloudintegrator.common.exception.ApiException;
+import eu.planlos.pretixtonextcloudintegrator.api.common.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -19,7 +19,7 @@ public class WebClientResponseFilter {
      */
     public static ExchangeFilterFunction handleError() {
         return ExchangeFilterFunction.ofResponseProcessor(response -> {
-            log.info("##################### BEGIN ResponseFilter #####################");
+            log.debug("##################### BEGIN ResponseFilter #####################");
 
             try {
                 if (response.statusCode().is4xxClientError() || response.statusCode().is5xxServerError()) {
@@ -37,7 +37,7 @@ public class WebClientResponseFilter {
                     return Mono.just(response);
                 }
             } finally {
-                log.info("##################### END   ResponseFilter #####################");
+                log.debug("##################### END   ResponseFilter #####################");
             }
         });
     }
@@ -47,10 +47,10 @@ public class WebClientResponseFilter {
      */
     public static ExchangeFilterFunction logResponse() {
         return ExchangeFilterFunction.ofResponseProcessor(response -> {
-            log.info("##################### BEGIN ResponseFilter #####################");
+            log.debug("##################### BEGIN ResponseFilter #####################");
             logStatus(response);
             logHeaders(response);
-            log.info("##################### END   ResponseFilter #####################");
+            log.debug("##################### END   ResponseFilter #####################");
             return Mono.just(response);
         });
     }
@@ -58,7 +58,7 @@ public class WebClientResponseFilter {
     private static void logStatus(ClientResponse response) {
         int reasonCode = response.statusCode().value();
         String reasonPhrase = HttpStatus.resolve(reasonCode).getReasonPhrase();
-        log.info("Returned staus code {} ({})", reasonCode, reasonPhrase);
+        log.debug("Returned staus code {} ({})", reasonCode, reasonPhrase);
     }
 
     private static void logHeaders(ClientResponse response) {

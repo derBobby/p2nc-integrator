@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.common.exception;
+package eu.planlos.pretixtonextcloudintegrator.api.common;
 
 import lombok.Getter;
 import org.springframework.web.reactive.function.client.WebClientResponseException;

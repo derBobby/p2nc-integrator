@@ -2,7 +2,7 @@ package eu.planlos.pretixtonextcloudintegrator.api.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.api.pretix.config.PretixApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.api.pretix.model.OrderDTO;
-import eu.planlos.pretixtonextcloudintegrator.common.exception.ApiException;
+import eu.planlos.pretixtonextcloudintegrator.api.common.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

@@ -1,9 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.api.pretix.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,5 +36,10 @@ public final class OrderDTO {
     }
     public String getLastName() {
         return invoice_address.name_parts().family_name();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("code=%s, firstname=%s, lastname=%s, email=%s", code, getFirstName(), getLastName(), email);
     }
 }

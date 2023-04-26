@@ -36,17 +36,6 @@ public class MailService implements EnvironmentAware {
         this.mailConfig = mailConfig;
     }
 
-    @Async
-    public void notifyAdminOfException(String subject, String content, String exceptionMessage) {
-
-        try {
-            send(addSubjectPrefix(subject), String.format("%s\n%s", content, exceptionMessage));
-            logMailOK();
-        } catch (MailException e) {
-            logMailError(e);
-        }
-    }
-
     @PostConstruct
     @Async
     void notifyStart() {
@@ -55,6 +44,16 @@ public class MailService implements EnvironmentAware {
 
         try {
             send(addSubjectPrefix("Application started"), "empty");
+            logMailOK();
+        } catch (MailException e) {
+            logMailError(e);
+        }
+    }
+
+    @Async
+    public void notifyAdmin(String subject, String content) {
+        try {
+            send(addSubjectPrefix(subject), content);
             logMailOK();
         } catch (MailException e) {
             logMailError(e);

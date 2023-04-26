@@ -1,12 +1,12 @@
 package eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import eu.planlos.pretixtonextcloudintegrator.api.common.ApiException;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.config.NextcloudApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudApiResponse;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudResponse;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUser;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.model.NextcloudUserList;
-import eu.planlos.pretixtonextcloudintegrator.api.common.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
@@ -21,6 +21,7 @@ import reactor.util.retry.Retry;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,7 +37,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         super(nextcloudApiConfig, webClient);
     }
 
-    public List<String> getAllUsernames() {
+    public List<String> getAllUseridsFromNextcloud() {
 
         if(log.isDebugEnabled()) {
             JsonNode jsonNode = webClient
@@ -57,8 +58,8 @@ public class NextcloudApiUserService extends NextcloudApiService {
                 .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                 .block();
 
-        NextcloudUserList nextcloudUserList = apiResponse.getData();
-        return nextcloudUserList.getUsers();
+        NextcloudUserList nextcloudUseridList = apiResponse.getData();
+        return nextcloudUseridList.getUsers();
     }
 
     public NextcloudUser getUser(String username) {
@@ -87,9 +88,13 @@ public class NextcloudApiUserService extends NextcloudApiService {
         return apiResponse.getData();
     }
 
-    public Map<String, String> getUserMap(String username) {
-        NextcloudUser nextcloudUser = getUser(username);
-        return Map.of(username, nextcloudUser.getEmail());
+    public Map<String, String> getAllUsersAsUseridEmailMap() {
+
+        List<String> useridList = getAllUseridsFromNextcloud();
+        return useridList.stream().collect(Collectors.toMap(
+                userid -> userid,
+                userid -> getUser(userid).getEmail()
+        ));
     }
 
     public void createUser(String userid, String email, String firstName, String lastName){
@@ -114,10 +119,10 @@ public class NextcloudApiUserService extends NextcloudApiService {
 
             //TODO error handling
             if (apiResponse == null) {
-                throw new ApiException(ApiException.Cause.IS_NULL);
+                throw new ApiException("ApiResponse object is NULL");
             }
             if(apiResponse.getMeta().getStatus().equals("failure")) {
-                throw new ApiException(apiResponse.toString(), apiResponse.getMeta().getStatusCode());
+                throw new ApiException(String.format("Status is 'failure': %s", apiResponse));
             }
             log.debug(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
         } catch (WebClientResponseException e) {
@@ -139,4 +144,5 @@ public class NextcloudApiUserService extends NextcloudApiService {
     private String buildUriGetUser(String username) {
         return String.format("%s/%s%s", NC_API_USERS, username, NC_API_SUFFIX_JSON);
     }
+
 }

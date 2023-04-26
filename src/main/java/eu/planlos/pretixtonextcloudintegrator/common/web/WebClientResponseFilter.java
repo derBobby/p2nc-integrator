@@ -30,8 +30,9 @@ public class WebClientResponseFilter {
                     return response.bodyToMono(String.class)
                             .defaultIfEmpty(reasonPhrase)
                             .flatMap(body -> {
-                                log.error("Body is {}", body);
-                                return Mono.error(new ApiException(body, statusCode));
+                                String message = String.format("Connection error http/%s: %s", statusCode, body);
+                                log.error(message);
+                                return Mono.error(new ApiException(String.format("Server connection error: %s", message)));
                             });
                 } else {
                     return Mono.just(response);

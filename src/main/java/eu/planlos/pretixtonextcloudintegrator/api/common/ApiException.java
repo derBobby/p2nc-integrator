@@ -11,30 +11,12 @@ public class ApiException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 0L;
 
-    private final Integer statusCode;
-
+    // TODO How should this be done?
     public ApiException(WebClientResponseException e) {
         super(e.getMessage());
-        this.statusCode = e.getRawStatusCode();
     }
 
-    public enum Cause {
-        IS_NULL("Result is null");
-
-        private final String cause;
-
-        Cause(String cause) {
-            this.cause = cause;
-        }
-    }
-
-    public ApiException(String message, Integer statusCode) {
+    public ApiException(String message) {
         super(message);
-        this.statusCode = statusCode;
-    }
-
-    public ApiException(Cause cause) {
-        super(cause.name());
-        this.statusCode = null;
     }
 }

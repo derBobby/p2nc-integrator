@@ -1,5 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
+import eu.planlos.pretixtonextcloudintegrator.api.common.ApiException;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.exception.AccountCreationException;
 import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.api.pretix.model.OrderDTO;
@@ -10,9 +11,7 @@ import eu.planlos.pretixtonextcloudintegrator.common.mail.service.MailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Core class of the application. Has callback interface for Pretix package and runs request against Nextcloud API
@@ -20,6 +19,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class AccountService implements IWebHookHandler {
+
+    public static final String SUBJECT_OK = "Account creation successfull";
+    public static final String SUBJECT_FAIL = "Account creation failed";
 
     private final PretixApiOrderService pretixApiOrderService;
     private final NextcloudApiUserService nextcloudApiUserService;
@@ -34,59 +36,49 @@ public class AccountService implements IWebHookHandler {
     @Override
     public void handle(WebHookDTO webHookDTO) {
 
-        // Call Pretix API to get Order
-        OrderDTO orderDTO = pretixApiOrderService.queryOrder(webHookDTO.code());
+        log.info("Incoming webhook: {}", webHookDTO);
 
-        // Call Nextcloud API to get full list of usernames
-        List<String> usernameList = nextcloudApiUserService.getAllUsernames();
-
-        // Call Nextcloud API to get all users
-        Map<String, String> userMap = usernameList.stream()
-                .map(nextcloudApiUserService::getUserMap)
-                .flatMap(map -> map.entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        // Check if mail address is already in use
-        boolean emailAlreadyInUse = userMap.containsValue(orderDTO.getEmail());
-        if(emailAlreadyInUse) {
-            log.info("Email address already in use -> nothing to do for WebHook {}", webHookDTO.code());
-            // TODO send info that mail address is already in use
-            return;
-        }
-        log.info("Email address is still free. Proceeding for WebHook {}", webHookDTO.code());
+        // TODO better error handling
+        OrderDTO orderDTO = null;
 
         try {
-            // Find username to create account
+            orderDTO = pretixApiOrderService.fetchOrderFromPretix(webHookDTO.code());
+            log.info("Order found: {}", orderDTO);
+            Map<String, String> userMap = nextcloudApiUserService.getAllUsersAsUseridEmailMap();
+
+            failIfAddressAlreadyInUse(orderDTO, userMap);
+
+            // Create user
             String userid = generateUserId(userMap, orderDTO.getFirstName(), orderDTO.getLastName());
-            // Call Nextcloud API to create new user
             nextcloudApiUserService.createUser(userid, orderDTO.getEmail(), orderDTO.getFirstName(), orderDTO.getLastName());
+            mailService.notifyAdmin(SUBJECT_OK, "Account successfully created.");
+            log.info("Account {} successfully created", userid);
 
-            log.info("User {} created successfully for WebHook {} ", userid, webHookDTO.code());
-        } catch (AccountCreationException e) {
+        } catch (AccountCreationException | ApiException e) {
             log.error(e.getMessage());
-            mailService.notifyAdminOfException(
-                    "Account creation failed",
-                    String.format(
-                            "order code=%s, firstname=%s, lastname=%s",
-                            orderDTO.getCode(),
-                            orderDTO.getFirstName(),
-                            orderDTO.getLastName()),
-                    e.getMessage());
+            mailService.notifyAdmin(SUBJECT_FAIL, e.getMessage());
         }
+    }
 
-   }
+    private void failIfAddressAlreadyInUse(OrderDTO orderDTO, Map<String, String> userMap) {
+        boolean emailAlreadyInUse = userMap.containsValue(orderDTO.getEmail());
+        if (emailAlreadyInUse) {
+            throw new AccountCreationException("Email address is already in use");
+        }
+        log.info("Email address is still free, proceeding");
+    }
 
-    private String generateUserId(Map<String, String> userMap, String firstName, String lastName) throws AccountCreationException {
+    private String generateUserId(Map<String, String> userMap, String firstName, String lastName) {
         return generateUserId(userMap, firstName, lastName, 1);
     }
 
-    private String generateUserId(Map<String, String> userMap, String firstName, String lastName, int charCount) throws AccountCreationException {
+    private String generateUserId(Map<String, String> userMap, String firstName, String lastName, int charCount) {
 
         // Assert because <= 0 can only happen for coding errors
         assert charCount > 0;
 
-        if(charCount > firstName.length()) {
-            throw new AccountCreationException("Existing userid can't be avoided: Duplicate booking or similar first name?");
+        if (charCount > firstName.length()) {
+            throw new AccountCreationException("No free userid can be generated");
         }
 
         String userid = String.format(
@@ -96,7 +88,7 @@ public class AccountService implements IWebHookHandler {
 
         if (userMap.containsKey(userid)) {
             log.info("Minimal userid is already in use: {}", userid);
-            return generateUserId(userMap, firstName, lastName, charCount+1);
+            return generateUserId(userMap, firstName, lastName, charCount + 1);
         }
 
         log.info("Created userid is {}", userid);

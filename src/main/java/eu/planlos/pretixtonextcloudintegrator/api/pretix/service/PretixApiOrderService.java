@@ -25,7 +25,7 @@ public class PretixApiOrderService extends PretixApiService {
     /*
      * Query
      */
-    public OrderDTO queryOrder(String code) {
+    public OrderDTO fetchOrderFromPretix(String code) {
         try {
             OrderDTO orderDto = webClient
                     .get()
@@ -40,7 +40,7 @@ public class PretixApiOrderService extends PretixApiService {
                 return orderDto;
             }
 
-            throw new ApiException(ApiException.Cause.IS_NULL);
+            throw new ApiException("ApiResponse object is NULL");
         } catch (WebClientResponseException e) {
             throw new ApiException(e);
         }

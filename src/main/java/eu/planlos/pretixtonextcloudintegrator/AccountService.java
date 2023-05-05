@@ -1,13 +1,13 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
-import eu.planlos.pretixtonextcloudintegrator.api.common.ApiException;
-import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.exception.AccountCreationException;
-import eu.planlos.pretixtonextcloudintegrator.api.nextcloud.ocs.NextcloudApiUserService;
-import eu.planlos.pretixtonextcloudintegrator.api.pretix.model.OrderDTO;
-import eu.planlos.pretixtonextcloudintegrator.api.pretix.service.PretixApiOrderService;
-import eu.planlos.pretixtonextcloudintegrator.api.pretix.webhook.model.WebHookDTO;
-import eu.planlos.pretixtonextcloudintegrator.api.pretix.webhook.service.IWebHookHandler;
-import eu.planlos.pretixtonextcloudintegrator.common.mail.service.MailService;
+import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.ocs.AccountCreationException;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.ocs.NextcloudApiUserService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.OrderDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixApiOrderService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.webhook.model.WebHookDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
+import eu.planlos.pretixtonextcloudintegrator.common.mail.MailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.util.Map;
 @Service
 public class AccountService implements IWebHookHandler {
 
-    public static final String SUBJECT_OK = "Account creation successfull";
+    public static final String SUBJECT_OK = "Account creation successful";
     public static final String SUBJECT_FAIL = "Account creation failed";
 
     private final PretixApiOrderService pretixApiOrderService;

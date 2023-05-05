@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.common.web;
 
-import eu.planlos.pretixtonextcloudintegrator.api.common.ApiException;
+import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientResponse;

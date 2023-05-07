@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.nextcloud.ocs;
+package eu.planlos.pretixtonextcloudintegrator.nextcloud.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;

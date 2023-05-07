@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.nextcloud.ocs;
+package eu.planlos.pretixtonextcloudintegrator.nextcloud.service;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;

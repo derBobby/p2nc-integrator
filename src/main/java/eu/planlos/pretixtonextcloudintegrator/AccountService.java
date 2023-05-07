@@ -1,11 +1,11 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.ocs.AccountCreationException;
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.ocs.NextcloudApiUserService;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixApiOrderService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.webhook.model.WebHookDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.common.mail.MailService;
 import lombok.extern.slf4j.Slf4j;

@@ -1,11 +1,11 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.ocs.NextcloudApiUserService;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.InvoiceAddressDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.NamePartsDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixApiOrderService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.webhook.model.WebHookDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.common.mail.MailService;
 import org.junit.Test;
 import org.junit.runner.RunWith;

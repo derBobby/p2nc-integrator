@@ -1,6 +1,5 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.webhook.service;
+package eu.planlos.pretixtonextcloudintegrator.common.audit;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.webhook.model.AuditEntry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +10,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class WebHookAuditService implements IWebHookAuditService {
+public class AuditService implements IAuditService {
 
     private List<AuditEntry> webHookAuditRepository = new ArrayList<>();
 
-    public WebHookAuditService() {
+    public AuditService() {
     }
 
     public void log(String message) {

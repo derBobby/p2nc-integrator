@@ -1,7 +1,7 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.webhook.controller;
+package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.webhook.model.WebHookDTO;
-import eu.planlos.pretixtonextcloudintegrator.pretix.webhook.service.WebHookAuditService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTO;
+import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
  public class WebhookController {
 
-    private final WebHookAuditService webHookAuditService;
+    private final AuditService webHookAuditService;
     private final IWebHookHandler webHookHandler;
 
-    public WebhookController(WebHookAuditService webHookAuditService, IWebHookHandler webHookHandler) {
+    public WebhookController(AuditService webHookAuditService, IWebHookHandler webHookHandler) {
         this.webHookAuditService = webHookAuditService;
         this.webHookHandler = webHookHandler;
     }

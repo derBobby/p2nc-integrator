@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.nextcloud.ocs;
+package eu.planlos.pretixtonextcloudintegrator.nextcloud.service;
 
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.config.NextcloudApiConfig;
 import lombok.extern.slf4j.Slf4j;

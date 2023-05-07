@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.webhook.model;
+package eu.planlos.pretixtonextcloudintegrator.common.audit;
 
 import eu.planlos.pretixtonextcloudintegrator.common.util.ZonedDateTimeUtility;
 import lombok.*;

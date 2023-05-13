@@ -39,29 +39,30 @@ public class AccountService implements IWebHookHandler {
         log.info("Incoming webhook: {}", webHookDTO);
 
         // TODO better error handling
-        OrderDTO orderDTO = null;
-
         try {
-            orderDTO = pretixApiOrderService.fetchOrderFromPretix(webHookDTO.code());
+
+            OrderDTO orderDTO = pretixApiOrderService.fetchOrderFromPretix(webHookDTO.code());
             log.info("Order found: {}", orderDTO);
             Map<String, String> userMap = nextcloudApiUserService.getAllUsersAsUseridEmailMap();
 
-            failIfAddressAlreadyInUse(orderDTO, userMap);
+            failIfAddressAlreadyInUse(orderDTO.getEmail(), userMap);
 
             // Create user
             String userid = generateUserId(userMap, orderDTO.getFirstName(), orderDTO.getLastName());
             nextcloudApiUserService.createUser(userid, orderDTO.getEmail(), orderDTO.getFirstName(), orderDTO.getLastName());
-            mailService.notifyAdmin(SUBJECT_OK, "Account successfully created.");
-            log.info("Account {} successfully created", userid);
+            String successMessage = String.format("Account %s / %s successfully created", userid, orderDTO.getEmail());
+            mailService.notifyAdmin(SUBJECT_OK, successMessage);
+            log.info(successMessage);
 
         } catch (AccountCreationException | ApiException e) {
-            log.error(e.getMessage());
+            String errorMessage = String.format("Error creating account for order code %s: %s", webHookDTO.code(), e.getMessage());
+            log.error(errorMessage);
             mailService.notifyAdmin(SUBJECT_FAIL, e.getMessage());
         }
     }
 
-    private void failIfAddressAlreadyInUse(OrderDTO orderDTO, Map<String, String> userMap) {
-        boolean emailAlreadyInUse = userMap.containsValue(orderDTO.getEmail());
+    private void failIfAddressAlreadyInUse(String email, Map<String, String> userMap) {
+        boolean emailAlreadyInUse = userMap.containsValue(email);
         if (emailAlreadyInUse) {
             throw new AccountCreationException("Email address is already in use");
         }
@@ -94,5 +95,4 @@ public class AccountService implements IWebHookHandler {
         log.info("Created userid is {}", userid);
         return userid;
     }
-
 }

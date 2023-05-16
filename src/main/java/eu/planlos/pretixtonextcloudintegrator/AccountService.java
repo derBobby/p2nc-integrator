@@ -7,7 +7,7 @@ import eu.planlos.pretixtonextcloudintegrator.pretix.model.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixApiOrderService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
-import eu.planlos.pretixtonextcloudintegrator.common.mail.MailService;
+import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

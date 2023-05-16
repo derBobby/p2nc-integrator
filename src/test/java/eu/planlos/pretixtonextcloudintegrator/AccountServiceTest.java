@@ -6,7 +6,7 @@ import eu.planlos.pretixtonextcloudintegrator.pretix.model.NamePartsDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixApiOrderService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTO;
-import eu.planlos.pretixtonextcloudintegrator.common.mail.MailService;
+import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.config;
+package eu.planlos.pretixtonextcloudintegrator.common.notification.config;
 
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientRequestFilter;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientResponseFilter;
@@ -7,25 +7,30 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Slf4j
 @Configuration
-public class PretixWebClientConfiguration {
+@Slf4j
+public class SignalWebClientConfig {
 
     @Bean
-    @Qualifier("PretixWebClient")
-    public static WebClient configurePretixWebClient(PretixApiConfig apiConfig) {
+    @Qualifier("SignalWebClient")
+    public static WebClient configureSignalWebClient(SignalApiConfig apiConfig) {
 
         log.info("Creating WebClient using:");
-        log.info("- Pretix address: {}", apiConfig.address());
+        log.info("- Signal address: {}", apiConfig.address());
+        log.info("- Signal username: {}", apiConfig.user());
 
         return WebClient.builder()
                 .baseUrl(apiConfig.address())
                 .filter(WebClientRequestFilter.logRequest())
                 .filter(WebClientResponseFilter.logResponse())
                 .filter(WebClientResponseFilter.handleError())
-                .defaultHeaders(httpHeaders -> httpHeaders.set(HttpHeaders.AUTHORIZATION, String.join("", "Token ", apiConfig.apiToken())))
+                .filter(ExchangeFilterFunctions.basicAuthentication(apiConfig.user(), apiConfig.password()))
+                .defaultHeaders(httpHeaders -> {
+                    httpHeaders.set(HttpHeaders.ACCEPT, "application/json");
+                })
                 .build();
     }
 }

@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.common.mail.config;
+package eu.planlos.pretixtonextcloudintegrator.common.notification.config;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,7 @@ import java.util.Properties;
 public class MailConfig {
 
 	@Value("${eu.planlos.pretixtonextcloudintegrator.mail.active:false}")
-	private boolean mailSendingActive;
+	private boolean active;
 
 	@Getter
 	@Value("${eu.planlos.pretixtonextcloudintegrator.mail.adminadress:@null}")
@@ -45,7 +45,7 @@ public class MailConfig {
 	public MailSender mailSender() {
 
 		// Initialize mail sender, if mail sending is active
-		if(mailSendingActive) {
+		if(active) {
 			Properties props = new Properties();
 			props.put("mail.transport.protocol", mailTransportProtocol);
 			props.put("mail.smtp.auth", mailSmtpAuth);

@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.common.mail.config;
+package eu.planlos.pretixtonextcloudintegrator.common.notification.config;
 
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 

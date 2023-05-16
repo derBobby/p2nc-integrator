@@ -31,7 +31,7 @@ public abstract class NotificationService implements EnvironmentAware {
         if (profiles.contains(ApplicationProfiles.PROD_PROFILE)) {
             profilePrefix = ApplicationProfiles.PROD_PROFILE;
         }
-        return String.format("%s %s - %s", appName, profilePrefix.toLowerCase(), subject);
+        return String.format("%s %s - %s", appName, profilePrefix.toUpperCase(), subject);
     }
 
     protected void logNotificationOK() {

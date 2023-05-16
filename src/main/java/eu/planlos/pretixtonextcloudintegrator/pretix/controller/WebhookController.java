@@ -24,13 +24,8 @@ import org.springframework.web.bind.annotation.*;
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void webHook(@RequestBody WebHookDTO hook) {
         log.info("Incoming Webhook: {}", hook.toString());
-
-        if (hook.action().equals("pretix.event.order.approved")) {
-            webHookAuditService.log(orderApprovalString(hook));
-            webHookHandler.handle(hook);
-        } else if(hook.action().startsWith("pretix.event.order.")) {
-            log.info("Hook {} reports order event for order {}", hook.notification_id(), hook.code());
-        }
+        webHookAuditService.log(orderApprovalString(hook));
+        webHookHandler.handle(hook);
     }
 
     private String orderApprovalString(WebHookDTO hook) {

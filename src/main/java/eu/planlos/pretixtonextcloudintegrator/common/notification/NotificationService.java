@@ -2,7 +2,6 @@ package eu.planlos.pretixtonextcloudintegrator.common.notification;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApplicationProfiles;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
@@ -15,9 +14,9 @@ public abstract class NotificationService implements EnvironmentAware {
     final protected List<String> profiles = new ArrayList<>();
     protected Environment environment;
 
-    @Value("${spring.application.name:}")
-    protected String appName;
+    private final String PREFIX_APPNAME = "P2NC";
 
+    //TODO could be PostConstruct
     protected String addSubjectPrefix(String subject) {
 
         String profilePrefix = "UNKNOWN";
@@ -31,7 +30,7 @@ public abstract class NotificationService implements EnvironmentAware {
         if (profiles.contains(ApplicationProfiles.PROD_PROFILE)) {
             profilePrefix = ApplicationProfiles.PROD_PROFILE;
         }
-        return String.format("%s %s - %s", appName, profilePrefix.toUpperCase(), subject);
+        return String.format("[%s %s] - %s", PREFIX_APPNAME, profilePrefix.toUpperCase(), subject);
     }
 
     protected void logNotificationOK() {

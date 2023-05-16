@@ -1,8 +1,8 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
+import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.OrderDTO;
-import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -49,11 +49,20 @@ public class PretixApiOrderService extends PretixApiService {
     /*
      * Uri generators
      */
-    private String specificOrderUri(String order) {
+    private String specificOrderUri(String orderCode) {
         return String.join(
                 "",
                 "api/v1/organizers/", pretixApiConfig.organizer(),
                 "/events/", pretixApiConfig.event(),
-                "/orders/", order, "/");
+                "/orders/", orderCode, "/");
+    }
+
+    public String getEventUrl(String orderCode) {
+        return String.join(
+                "",
+                pretixApiConfig.address(),
+                "/control/event/", pretixApiConfig.organizer(),
+                "/", pretixApiConfig.event(),
+                "/orders/", orderCode, "/");
     }
 }

@@ -54,6 +54,10 @@ public class SignalService extends NotificationService {
         }
     }
 
+    public void notifyAdmin(String subject, String content) {
+        notifyAdmin(String.format("%s - %s", subject, content));
+    }
+
     private void send(String message) {
 
         if(! config.active()) {
@@ -63,13 +67,13 @@ public class SignalService extends NotificationService {
         log.info("Signal notifications are enabled. Sending");
 
         String prefixedMessage = addSubjectPrefix(message);
-
+        String jsonMessage = String.format(SIGNAL_JSON, prefixedMessage, config.phoneSender(), config.phoneReceiver());
         try {
             String apiResponse = webClient
                     .post()
                     .uri("/v2/send")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jsonMessage(prefixedMessage))
+                    .bodyValue(jsonMessage)
                     .retrieve()
                     .bodyToMono(String.class)
                     .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
@@ -84,10 +88,6 @@ public class SignalService extends NotificationService {
         } catch (WebClientResponseException e) {
             throw new ApiException(e);
         }
-    }
-
-    private Object jsonMessage(String message) {
-        return String.format(SIGNAL_JSON, message, config.phoneSender(), config.phoneReceiver());
     }
 }
 

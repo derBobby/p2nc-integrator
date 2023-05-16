@@ -1,5 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
+import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.InvoiceAddressDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.NamePartsDTO;
@@ -30,6 +31,9 @@ public class AccountServiceTest {
 
     @Mock
     MailService mailService;
+
+    @Mock
+    SignalService signalService;
 
     @InjectMocks
     AccountService accountService;
@@ -140,15 +144,13 @@ public class AccountServiceTest {
         //      methods
         when(pretixApiOrderService.fetchOrderFromPretix(orderDTO1.getCode())).thenReturn(orderDTO1);
         when(nextcloudApiUserService.getAllUsersAsUseridEmailMap()).thenReturn(Map.of(existingUserid1, existingUserMail1));
-        // TODO mock mail sending?
 
         // Act
         accountService.handle(webHookDTO);
 
         // Check
         verify(nextcloudApiUserService, times(0)).createUser(anyString(), anyString(), anyString(), anyString());
-
-        //TODO CONTINUE HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         verify(mailService).notifyAdmin(matches(AccountService.SUBJECT_FAIL), anyString());
+        verify(signalService).notifyAdmin(matches(AccountService.SUBJECT_FAIL), anyString());
     }
 }

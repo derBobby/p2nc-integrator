@@ -38,7 +38,6 @@ public abstract class NotificationService implements EnvironmentAware {
         log.info("Notification has been sent, if enabled.");
     }
 
-
     protected void logNotificationError(Exception e) {
         log.error("Notification could not been sent: {}", e.getMessage());
         if(log.isDebugEnabled()) {

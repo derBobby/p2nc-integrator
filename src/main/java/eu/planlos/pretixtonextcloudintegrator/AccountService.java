@@ -24,10 +24,7 @@ public class AccountService implements IWebHookHandler {
     public static final String SUBJECT_OK = "Account creation successful";
     public static final String SUBJECT_FAIL = "Account creation failed";
 
-    private static final String ORDER_APPROVED = "pretix.event.order.approved";
-    private static final String ORDER_NEED_APPROVAL = "pretix.event.order.placed.require_approval";
-
-    private final PretixApiOrderService pretixApiOrderService;
+     private final PretixApiOrderService pretixApiOrderService;
     private final NextcloudApiUserService nextcloudApiUserService;
     private final MailService mailService;
     private final SignalService signalService;
@@ -39,31 +36,12 @@ public class AccountService implements IWebHookHandler {
         this.signalService = signalService;
     }
 
-    @Override
-    public void handle(WebHookDTO webHookDTO) {
-
-        log.info("Incoming webhook: {}", webHookDTO);
-
-        //TODO Add tests for the cases
-        if(webHookDTO.action().equals(ORDER_NEED_APPROVAL)) {
-            handleApprovalNotification(webHookDTO);
-            return;
-        }
-
-        if(webHookDTO.action().equals(ORDER_APPROVED)) {
-            handleUserCreation(webHookDTO);
-            return;
-        }
-
-        log.info("Webhook not relevant: {}", webHookDTO);
-    }
-
-    private void handleApprovalNotification(WebHookDTO webHookDTO) {
+    public void handleApprovalNotification(String code) {
         signalService.notifyAdmin(
-                String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(webHookDTO.code())));
+                String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(code)));
     }
 
-    private void handleUserCreation(WebHookDTO webHookDTO) {
+    public void handleUserCreation(WebHookDTO webHookDTO) {
 
         // TODO better error handling
         try {

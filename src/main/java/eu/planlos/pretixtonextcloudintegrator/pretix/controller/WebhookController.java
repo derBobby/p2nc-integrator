@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
  public class WebhookController {
 
+    private static final String ORDER_APPROVED = "pretix.event.order.approved";
+    private static final String ORDER_NEED_APPROVAL = "pretix.event.order.placed.require_approval";
+
     private final AuditService webHookAuditService;
     private final IWebHookHandler webHookHandler;
 
@@ -25,7 +28,23 @@ import org.springframework.web.bind.annotation.*;
     public void webHook(@RequestBody WebHookDTO hook) {
         log.info("Incoming Webhook: {}", hook.toString());
         webHookAuditService.log(orderApprovalString(hook));
-        webHookHandler.handle(hook);
+
+        String hookAction = hook.action();
+
+        log.info("Incoming webhook: {}", hook);
+
+        //TODO Add tests for the cases
+        if(hookAction.equals(ORDER_NEED_APPROVAL)) {
+            webHookHandler.handleApprovalNotification(hook.code());
+            return;
+        }
+
+        if(hookAction.equals(ORDER_APPROVED)) {
+            webHookHandler.handleUserCreation(hook);
+            return;
+        }
+
+        log.info("Webhook not relevant: {}", hook);
     }
 
     private String orderApprovalString(WebHookDTO hook) {

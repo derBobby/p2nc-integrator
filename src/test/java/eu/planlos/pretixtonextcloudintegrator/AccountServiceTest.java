@@ -38,8 +38,37 @@ public class AccountServiceTest {
     @InjectMocks
     AccountService accountService;
 
+
+    /**
+     * Account creation tests
+     */
+
     @Test
     public void useridGeneration_noUsersYet() {
+
+        // Prepare
+        //      existing
+        //      order
+        final NamePartsDTO namePartsDTO1 = new NamePartsDTO("John", "Doe");
+        final InvoiceAddressDTO invoiceAddressDTO1 = new InvoiceAddressDTO(namePartsDTO1.given_name() + " " + namePartsDTO1.family_name(), namePartsDTO1);
+        final OrderDTO orderDTO1 = new OrderDTO("c0d3X", invoiceAddressDTO1, "newsuser@example.com", null, null);
+        final WebHookDTO webHookDTO = new WebHookDTO(1337L, "organizer", "event", orderDTO1.getCode(), "pretix.event.order.placed.require_approval");
+        //      methods
+            //none
+
+        // Act
+        accountService.handleApprovalNotification(webHookDTO.code());
+
+        // Check
+        verify(signalService).notifyAdmin(anyString());
+    }
+
+    /**
+     * Account creation tests
+     */
+
+    @Test
+    public void orderApprovalRequired_adminIsNotified() {
 
         // Prepare
         //      existing
@@ -53,7 +82,7 @@ public class AccountServiceTest {
         when(nextcloudApiUserService.getAllUsersAsUseridEmailMap()).thenReturn(new HashMap<>());
 
         // Act
-        accountService.handle(webHookDTO);
+        accountService.handleUserCreation(webHookDTO);
 
         // Check
         verify(nextcloudApiUserService).createUser(anyString(), anyString(), anyString(), anyString());
@@ -76,7 +105,7 @@ public class AccountServiceTest {
         when(nextcloudApiUserService.getAllUsersAsUseridEmailMap()).thenReturn(Map.of(existingUserid1, existingUserMail1));
 
         // Act
-        accountService.handle(webHookDTO);
+        accountService.handleUserCreation(webHookDTO);
 
         // Check
         verify(nextcloudApiUserService).createUser("kv-kraichgau-jdoe", orderDTO1.getEmail(), orderDTO1.getFirstName(), orderDTO1.getLastName());
@@ -99,7 +128,7 @@ public class AccountServiceTest {
         when(nextcloudApiUserService.getAllUsersAsUseridEmailMap()).thenReturn(Map.of(existingUserid1, existingUserMail1));
 
         // Act
-        accountService.handle(webHookDTO);
+        accountService.handleUserCreation(webHookDTO);
 
         // Check
         verify(nextcloudApiUserService, times(0)).createUser(anyString(), anyString(), anyString(), anyString());
@@ -123,7 +152,7 @@ public class AccountServiceTest {
         when(nextcloudApiUserService.getAllUsersAsUseridEmailMap()).thenReturn(Map.of(existingUserid1, existingUserMail1));
 
         // Act
-        accountService.handle(webHookDTO);
+        accountService.handleUserCreation(webHookDTO);
 
         // Check
         verify(nextcloudApiUserService).createUser(matches("kv-kraichgau-jodoe"), anyString(), anyString(), anyString());
@@ -146,7 +175,7 @@ public class AccountServiceTest {
         when(nextcloudApiUserService.getAllUsersAsUseridEmailMap()).thenReturn(Map.of(existingUserid1, existingUserMail1));
 
         // Act
-        accountService.handle(webHookDTO);
+        accountService.handleUserCreation(webHookDTO);
 
         // Check
         verify(nextcloudApiUserService, times(0)).createUser(anyString(), anyString(), anyString(), anyString());

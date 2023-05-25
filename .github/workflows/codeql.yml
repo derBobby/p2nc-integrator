@@ -78,3 +78,18 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      env:
+        CODEQL_ACTION_EXTRA_OPTIONS: '{"database":{"interpret-results":["--max-paths",0]}}'
+      with:
+        #  upload: false
+        wait-for-processing: true
+
+    - name: Upload CodeQL Analysis
+      uses: actions/upload-artifact@v3
+      with:
+        name: java.sarif
+        path: ${{runner.workspace}}/results/java.sarif
+        #path: "/home/runner/work/PretixToNextcloudIntegrator/results/java.sarif"

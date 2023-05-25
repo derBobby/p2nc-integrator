@@ -74,18 +74,19 @@ jobs:
     #     echo "Run, Build Application using script"
     #     ./location_of_script_within_repo/buildscript.sh
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
-      with:
-        category: "/language:${{matrix.language}}"
+    # - name: Perform CodeQL Analysis
+    #   uses: github/codeql-action/analyze@v2
+    #   with:
+    #     category: "/language:${{matrix.language}}"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
       env:
         CODEQL_ACTION_EXTRA_OPTIONS: '{"database":{"interpret-results":["--max-paths",0]}}'
       with:
-        #  upload: false
+        upload: true
         wait-for-processing: true
+        category: "/language:${{matrix.language}}"
 
     - name: Upload CodeQL Analysis
       uses: actions/upload-artifact@v3

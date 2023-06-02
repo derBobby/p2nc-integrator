@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.service;
+package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import lombok.extern.slf4j.Slf4j;

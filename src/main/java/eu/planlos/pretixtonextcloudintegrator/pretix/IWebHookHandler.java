@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 
 public interface IWebHookHandler {
     void handleApprovalNotification(String hook);

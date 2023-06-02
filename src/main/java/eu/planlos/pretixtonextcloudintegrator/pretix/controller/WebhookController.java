@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
 import lombok.extern.slf4j.Slf4j;

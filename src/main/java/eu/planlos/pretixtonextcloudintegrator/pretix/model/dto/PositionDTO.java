@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.model;
+package eu.planlos.pretixtonextcloudintegrator.pretix.model.dto;
 
 import java.util.List;
 

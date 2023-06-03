@@ -1,14 +1,15 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
+import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.OrderDTO;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixApiOrderService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
-import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Order;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.OrderService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +25,14 @@ public class AccountService implements IWebHookHandler {
     public static final String SUBJECT_OK = "Account creation successful";
     public static final String SUBJECT_FAIL = "Account creation failed";
 
-     private final PretixApiOrderService pretixApiOrderService;
+    private final OrderService orderService;
+    private final PretixApiOrderService pretixApiOrderService;
     private final NextcloudApiUserService nextcloudApiUserService;
     private final MailService mailService;
     private final SignalService signalService;
 
-    public AccountService(PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
+    public AccountService(OrderService orderService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
+        this.orderService = orderService;
         this.pretixApiOrderService = pretixApiOrderService;
         this.nextcloudApiUserService = nextcloudApiUserService;
         this.mailService = mailService;
@@ -46,16 +49,17 @@ public class AccountService implements IWebHookHandler {
         // TODO better error handling
         try {
 
-            OrderDTO orderDTO = pretixApiOrderService.fetchOrderFromPretix(webHookDTO.code());
-            log.info("Order found: {}", orderDTO);
-            Map<String, String> userMap = nextcloudApiUserService.getAllUsersAsUseridEmailMap();
+            Order order = orderService.getOrderForCode(webHookDTO.code());
+            log.info("Order found: {}", order);
 
-            failIfAddressAlreadyInUse(orderDTO.getEmail(), userMap);
+            //TODO CONTINUE HERE - CHECK IF BOOKING IS FOR ZELTLAGER OR AUFBAULAGER
+            Map<String, String> allUsersMap = nextcloudApiUserService.getAllUsersAsUseridEmailMap();
+            failIfAddressAlreadyInUse(order.email(), allUsersMap);
 
             // Create user
-            String userid = generateUserId(userMap, orderDTO.getFirstName(), orderDTO.getLastName());
-            nextcloudApiUserService.createUser(userid, orderDTO.getEmail(), orderDTO.getFirstName(), orderDTO.getLastName());
-            String successMessage = String.format("Account %s / %s successfully created", userid, orderDTO.getEmail());
+            String userid = generateUserId(allUsersMap, order.firstname(), order.lastname());
+            nextcloudApiUserService.createUser(userid, order.email(), order.firstname(), order.lastname());
+            String successMessage = String.format("Account %s / %s successfully created", userid, order.email());
             notifyAdmin(SUBJECT_OK, successMessage);
             log.info(successMessage);
 
@@ -80,11 +84,13 @@ public class AccountService implements IWebHookHandler {
         log.info("Email address is still free, proceeding");
     }
 
-    private String generateUserId(Map<String, String> userMap, String firstName, String lastName) {
-        return generateUserId(userMap, firstName, lastName, 1);
+    //TODO Should be part of NC package, because username is NC Logic
+    private String generateUserId(Map<String, String> allUsersMap, String firstName, String lastName) {
+        return generateUserId(allUsersMap, firstName, lastName, 1);
     }
 
-    private String generateUserId(Map<String, String> userMap, String firstName, String lastName, int charCount) {
+    //TODO Should be part of NC package, because username is NC Logic
+    private String generateUserId(Map<String, String> allUsersMap, String firstName, String lastName, int charCount) {
 
         // Assert because <= 0 can only happen for coding errors
         assert charCount > 0;
@@ -98,9 +104,9 @@ public class AccountService implements IWebHookHandler {
                 firstName.substring(0, charCount).toLowerCase(),
                 lastName.toLowerCase());
 
-        if (userMap.containsKey(userid)) {
+        if (allUsersMap.containsKey(userid)) {
             log.info("Minimal userid is already in use: {}", userid);
-            return generateUserId(userMap, firstName, lastName, charCount + 1);
+            return generateUserId(allUsersMap, firstName, lastName, charCount + 1);
         }
 
         log.info("Created userid is {}", userid);

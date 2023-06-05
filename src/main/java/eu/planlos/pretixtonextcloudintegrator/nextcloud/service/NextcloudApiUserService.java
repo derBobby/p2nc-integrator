@@ -97,7 +97,14 @@ public class NextcloudApiUserService extends NextcloudApiService {
         ));
     }
 
-    public void createUser(String userid, String email, String firstName, String lastName){
+    public String createUser(String email, String firstName, String lastName){
+
+        Map<String, String> allUsersMap = getAllUsersAsUseridEmailMap();
+        failIfMailAddressAlreadyInUse(email, allUsersMap);
+
+        // Create user
+        String userid = generateUserId(allUsersMap, firstName, lastName);
+
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("userid", userid);
@@ -125,9 +132,49 @@ public class NextcloudApiUserService extends NextcloudApiService {
                 throw new ApiException(String.format("Status is 'failure': %s", apiResponse));
             }
             log.debug(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
+
+            return userid;
         } catch (WebClientResponseException e) {
             throw new ApiException(e);
         }
+    }
+
+    /*
+     * Username generatrors
+     */
+    private String generateUserId(Map<String, String> allUsersMap, String firstName, String lastName) {
+        return generateUserId(allUsersMap, firstName, lastName, 1);
+    }
+
+    private String generateUserId(Map<String, String> allUsersMap, String firstName, String lastName, int charCount) {
+
+        // Assert because <= 0 can only happen for coding errors
+        assert charCount > 0;
+
+        if (charCount > firstName.length()) {
+            throw new AccountCreationException("No free userid can be generated");
+        }
+
+        String userid = String.format(
+                "kv-kraichgau-%s%s",
+                firstName.substring(0, charCount).toLowerCase(),
+                lastName.toLowerCase());
+
+        if (allUsersMap.containsKey(userid)) {
+            log.info("Minimal userid is already in use: {}", userid);
+            return generateUserId(allUsersMap, firstName, lastName, charCount + 1);
+        }
+
+        log.info("Created userid is {}", userid);
+        return userid;
+    }
+
+    private void failIfMailAddressAlreadyInUse(String email, Map<String, String> userMap) {
+        boolean emailAlreadyInUse = userMap.containsValue(email);
+        if (emailAlreadyInUse) {
+            throw new AccountCreationException("Email address is already in use");
+        }
+        log.info("Email address is still free, proceeding");
     }
 
     /*

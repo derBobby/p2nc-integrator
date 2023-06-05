@@ -13,8 +13,6 @@ import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderS
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 /**
  * Core class of the application. Has callback interface for Pretix package and runs request against Nextcloud API
  */
@@ -53,12 +51,8 @@ public class AccountService implements IWebHookHandler {
             log.info("Order found: {}", order);
 
             //TODO CONTINUE HERE - CHECK IF BOOKING IS FOR ZELTLAGER OR AUFBAULAGER
-            Map<String, String> allUsersMap = nextcloudApiUserService.getAllUsersAsUseridEmailMap();
-            failIfAddressAlreadyInUse(order.email(), allUsersMap);
 
-            // Create user
-            String userid = generateUserId(allUsersMap, order.firstname(), order.lastname());
-            nextcloudApiUserService.createUser(userid, order.email(), order.firstname(), order.lastname());
+            String userid = nextcloudApiUserService.createUser(order.email(), order.firstname(), order.lastname());
             String successMessage = String.format("Account %s / %s successfully created", userid, order.email());
             notifyAdmin(SUBJECT_OK, successMessage);
             log.info(successMessage);
@@ -74,42 +68,5 @@ public class AccountService implements IWebHookHandler {
     private void notifyAdmin(String subject, String successMessage) {
         mailService.notifyAdmin(subject, successMessage);
         signalService.notifyAdmin(subject, successMessage);
-    }
-
-    private void failIfAddressAlreadyInUse(String email, Map<String, String> userMap) {
-        boolean emailAlreadyInUse = userMap.containsValue(email);
-        if (emailAlreadyInUse) {
-            throw new AccountCreationException("Email address is already in use");
-        }
-        log.info("Email address is still free, proceeding");
-    }
-
-    //TODO Should be part of NC package, because username is NC Logic
-    private String generateUserId(Map<String, String> allUsersMap, String firstName, String lastName) {
-        return generateUserId(allUsersMap, firstName, lastName, 1);
-    }
-
-    //TODO Should be part of NC package, because username is NC Logic
-    private String generateUserId(Map<String, String> allUsersMap, String firstName, String lastName, int charCount) {
-
-        // Assert because <= 0 can only happen for coding errors
-        assert charCount > 0;
-
-        if (charCount > firstName.length()) {
-            throw new AccountCreationException("No free userid can be generated");
-        }
-
-        String userid = String.format(
-                "kv-kraichgau-%s%s",
-                firstName.substring(0, charCount).toLowerCase(),
-                lastName.toLowerCase());
-
-        if (allUsersMap.containsKey(userid)) {
-            log.info("Minimal userid is already in use: {}", userid);
-            return generateUserId(allUsersMap, firstName, lastName, charCount + 1);
-        }
-
-        log.info("Created userid is {}", userid);
-        return userid;
     }
 }

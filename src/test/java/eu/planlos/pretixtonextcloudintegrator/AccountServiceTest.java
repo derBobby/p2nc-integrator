@@ -2,9 +2,9 @@ package eu.planlos.pretixtonextcloudintegrator;
 
 import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.InvoiceAddressDTO;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.NamePartsDTO;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.OrderDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.InvoiceAddressDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.NamePartsDTO;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;

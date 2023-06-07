@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.model.dto;
+package eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single;
 
 public record InvoiceAddressDTO(
         String name,

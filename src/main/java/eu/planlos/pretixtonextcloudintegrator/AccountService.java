@@ -6,9 +6,9 @@ import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Order;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.OrderService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.BookingService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,14 +23,14 @@ public class AccountService implements IWebHookHandler {
     public static final String SUBJECT_OK = "Account creation successful";
     public static final String SUBJECT_FAIL = "Account creation failed";
 
-    private final OrderService orderService;
+    private final BookingService bookingService;
     private final PretixApiOrderService pretixApiOrderService;
     private final NextcloudApiUserService nextcloudApiUserService;
     private final MailService mailService;
     private final SignalService signalService;
 
-    public AccountService(OrderService orderService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
-        this.orderService = orderService;
+    public AccountService(BookingService bookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
+        this.bookingService = bookingService;
         this.pretixApiOrderService = pretixApiOrderService;
         this.nextcloudApiUserService = nextcloudApiUserService;
         this.mailService = mailService;
@@ -47,13 +47,13 @@ public class AccountService implements IWebHookHandler {
         // TODO better error handling
         try {
 
-            Order order = orderService.getOrderForCode(webHookDTO.code());
-            log.info("Order found: {}", order);
+            Booking booking = bookingService.loadOrFetch(webHookDTO.code());
+            log.info("Order found: {}", booking);
 
             //TODO CONTINUE HERE - CHECK IF BOOKING IS FOR ZELTLAGER OR AUFBAULAGER
 
-            String userid = nextcloudApiUserService.createUser(order.email(), order.firstname(), order.lastname());
-            String successMessage = String.format("Account %s / %s successfully created", userid, order.email());
+            String userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
+            String successMessage = String.format("Account %s / %s successfully created", userid, booking.getEmail());
             notifyAdmin(SUBJECT_OK, successMessage);
             log.info(successMessage);
 

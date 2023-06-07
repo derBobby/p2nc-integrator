@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Slf4j
 @Configuration
-public class PretixWebClientConfiguration {
+public class PretixWebClientConfig {
 
     @Bean
     @Qualifier("PretixWebClient")
@@ -19,13 +19,15 @@ public class PretixWebClientConfiguration {
 
         log.info("Creating WebClient using:");
         log.info("- Pretix address: {}", apiConfig.address());
+        log.info("- Pretix organizer: {}", apiConfig.organizer());
+        log.info("- Pretix event: {}", apiConfig.event());
 
         return WebClient.builder()
                 .baseUrl(apiConfig.address())
                 .filter(WebClientRequestFilter.logRequest())
                 .filter(WebClientResponseFilter.logResponse())
                 .filter(WebClientResponseFilter.handleError())
-                .defaultHeaders(httpHeaders -> httpHeaders.set(HttpHeaders.AUTHORIZATION, String.join("", "Token ", apiConfig.apiToken())))
+                .defaultHeaders(httpHeaders -> httpHeaders.set(HttpHeaders.AUTHORIZATION, String.join("", "Token ", apiConfig.token())))
                 .build();
     }
 }

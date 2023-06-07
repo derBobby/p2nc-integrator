@@ -4,26 +4,20 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.Map;
+
 @Entity
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class Addon extends Product {
-    @Id
+public final class Ticket extends Product {
+@Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull
-    private Long pretixID;
-
-    @NotNull
-    private String name;
-
-    public Addon(@NotNull Long pretixID, @NotNull String name) {
-        this.pretixID = pretixID;
-        this.name = name;
-    }
+    @ManyToMany
+    private Map<Question, Answer> QnA;
 }
-

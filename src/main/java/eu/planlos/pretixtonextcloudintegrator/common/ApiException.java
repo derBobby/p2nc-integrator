@@ -11,6 +11,8 @@ public class ApiException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = 0L;
 
+    public static final String IS_NULL = "ApiResponse object is NULL";
+
     // TODO How should this be done?
     public ApiException(WebClientResponseException e) {
         super(e.getMessage());

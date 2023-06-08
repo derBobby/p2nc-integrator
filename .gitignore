@@ -35,3 +35,4 @@ HELP.md
 /src/main/resources/pretix.properties
 /src/main/resources/mail.properties
 /src/main/resources/signal.properties
+/src/main/resources/h2.properties

@@ -44,7 +44,7 @@ public class PretixApiQuestionService extends PretixApiService {
             if (dto != null) {
                 List<QuestionDTO> questionDTOList = new ArrayList<>(dto.results());
                 questionDTOList.forEach(questionDTO -> log.info(FETCH_MESSAGE, questionDTO));
-                return dto.results();
+                return questionDTOList;
             }
 
             throw new ApiException(ApiException.IS_NULL);

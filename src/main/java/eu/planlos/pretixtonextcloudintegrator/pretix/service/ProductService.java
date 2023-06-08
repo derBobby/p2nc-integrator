@@ -1,8 +1,9 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Addon;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Product;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Ticket;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.ItemCategoryDTO;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.ItemDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.repository.AddonRepository;
 import eu.planlos.pretixtonextcloudintegrator.pretix.repository.TicketRepository;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiItemCategoryService;
@@ -12,8 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -48,7 +47,7 @@ public class ProductService {
 
     public void fetchAll() {
         List<ItemCategoryDTO> itemCategoryDTOList = pretixApiItemCategoryService.queryAllItemCategories();
-        List<Product> productList = itemCategoryDTOList.stream().map(this::convert).collect(Collectors.toList());
+        List<Product> productList = itemCategoryDTOList.stream().map(this::convert).toList();
         productList.forEach(this::saveProduct);
     }
 
@@ -81,11 +80,8 @@ public class ProductService {
                     itemCategoryDTO.name().get("de-informal"));
         }
 
-        if(! itemCategoryDTO.is_addon()) {
-            return new Ticket();
-        }
-
-        throw new IllegalArgumentException("");
+        // itemCategoryDTO.addon is @NotNull, therefore:
+        return new Ticket();
     }
 
 //    private Item convert(ItemDTO itemDTO, ItemCategory itemCategory) {

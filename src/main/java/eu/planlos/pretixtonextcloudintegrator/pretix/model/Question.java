@@ -10,22 +10,20 @@ import lombok.*;
 @Entity
 @Getter
 @ToString
-@EqualsAndHashCode
 @NoArgsConstructor
 public final class Question {
     @Id
-    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull
-    private Long pretidId;
+    private Long pretixId;
 
     @NotNull
     private String question;
 
-    public Question(@NotNull Long pretidId, @NotNull String question) {
-        this.pretidId = pretidId;
+    public Question(@NotNull Long pretixId, @NotNull String question) {
+        this.pretixId = pretixId;
         this.question = question;
     }
 }

@@ -7,11 +7,9 @@ import lombok.*;
 @Entity
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
-public class Addon extends Product {
+public final class Addon extends Product {
     @Id
-    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

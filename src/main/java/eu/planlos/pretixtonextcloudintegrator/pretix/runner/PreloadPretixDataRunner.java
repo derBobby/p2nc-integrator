@@ -36,8 +36,8 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
 
         if(pretixFeatureConfig.preloadAllExceptOrdersEnabled()) {
             logSeparator("STARTING PRELOAD (NON-ORDERS)");
-            productService.fetchAll();
             questionService.fetchAll();
+            productService.fetchAll();
             logSeparator("PRELOAD COMPLETE (NON-ORDERS)");
         }
 

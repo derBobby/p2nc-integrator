@@ -8,12 +8,9 @@ import java.util.Map;
 
 @Entity
 @Getter
-@ToString
-@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public final class Ticket extends Product {
-@Id
-    @NotNull
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

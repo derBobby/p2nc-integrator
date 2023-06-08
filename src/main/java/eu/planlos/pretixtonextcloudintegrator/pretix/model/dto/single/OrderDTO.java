@@ -1,10 +1,10 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +25,7 @@ public final class OrderDTO {
 
     private List<PositionDTO> positions;
 
-    public OrderDTO(String code, InvoiceAddressDTO invoice_address, String email, LocalDateTime expires, List<PositionDTO> positions) {
+    public OrderDTO(@NotNull String code, @NotNull InvoiceAddressDTO invoice_address, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<PositionDTO> positions) {
         this.code = code;
         this.invoice_address = invoice_address;
         this.email = email;
@@ -44,17 +44,5 @@ public final class OrderDTO {
     @Override
     public String toString() {
         return String.format("code=%s, firstname=%s, lastname=%s, email=%s", code, getFirstName(), getLastName(), email);
-    }
-
-    public Booking toOrder() {
-
-        return new Booking(
-                this.getCode(),
-                this.getFirstName(),
-                this.getLastName(),
-                this.getEmail(),
-                this.getExpires(),
-                null,
-                null);
     }
 }

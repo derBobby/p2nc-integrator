@@ -1,4 +1,4 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
-public class Product {
+public abstract class Product {
 }

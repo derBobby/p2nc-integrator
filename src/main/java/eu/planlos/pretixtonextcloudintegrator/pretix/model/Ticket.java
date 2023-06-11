@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@ToString
 public final class Ticket extends Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,4 +17,9 @@ public final class Ticket extends Product {
     @NotNull
     @ManyToMany
     private Map<Question, Answer> QnA;
+
+    public Ticket(@NotNull Long pretixId, Map<Question, Answer> qnA, ProductType productType) {
+        super(pretixId, productType);
+        QnA = qnA;
+    }
 }

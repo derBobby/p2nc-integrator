@@ -7,20 +7,17 @@ import lombok.*;
 @Entity
 @Getter
 @ToString
-@NoArgsConstructor
 public final class Addon extends Product {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotNull
-    private Long pretixID;
-
-    @NotNull
     private String name;
 
-    public Addon(@NotNull Long pretixID, @NotNull String name) {
-        this.pretixID = pretixID;
+    public Addon(@NotNull Long pretixId, @NotNull String name, @NotNull ProductType productType) {
+        super(pretixId, productType);
         this.name = name;
     }
 }

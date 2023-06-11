@@ -1,12 +1,12 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.repository;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Ticket;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.ProductType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface TicketRepository extends JpaRepository<Ticket, Long> {
-    Optional<Ticket> findByPretixId(Long pretixId);
+public interface ProductTypeRepository extends JpaRepository<ProductType, Long> {
+    Optional<ProductType> findByPretixId(Long pretixId);
 }

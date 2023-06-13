@@ -1,6 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Product;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.repository.BookingRepository;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
@@ -16,10 +17,12 @@ import java.util.stream.Collectors;
 public class BookingService {
 
     private final PretixApiOrderService pretixApiOrderService;
+    private final ProductService productService;
     private final BookingRepository bookingRepository;
 
-    public BookingService(PretixApiOrderService pretixApiOrderService, BookingRepository bookingRepository) {
+    public BookingService(PretixApiOrderService pretixApiOrderService, ProductService productService, BookingRepository bookingRepository) {
         this.pretixApiOrderService = pretixApiOrderService;
+        this.productService = productService;
         this.bookingRepository = bookingRepository;
     }
 
@@ -29,7 +32,7 @@ public class BookingService {
         Optional<Booking> optionalBooking = bookingRepository.findByCode(code);
         if(optionalBooking.isPresent()) {
             Booking booking = optionalBooking.get();
-            log.info("Loaded item from db: {}", booking);
+            log.info("Loaded booking from db: {}", booking);
             return booking;
         }
 
@@ -52,7 +55,8 @@ public class BookingService {
     // generateQuestionAnswerMap(orderDTO.getPositions());
 
     private Booking convert(OrderDTO orderDTO) {
-        return null;
+        List<Product> productList = orderDTO.getPositions().stream().map(positionDTO -> productService.loadOrFetchProduct(positionDTO.item(), positionDTO.variation())).toList();
+        return new Booking(orderDTO.getCode(), orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), productList);
     }
 
 //    private Map<Long, Answer> generateQuestionAnswerMap(PositionDTO orderPositionDTO) {

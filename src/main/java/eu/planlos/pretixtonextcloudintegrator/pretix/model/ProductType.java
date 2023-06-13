@@ -22,7 +22,7 @@ public final class ProductType {
     private Long pretixId;
 
     @NotNull
-    private Boolean addon;
+    private boolean addon;
 
     @NotNull
     private String name;

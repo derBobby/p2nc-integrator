@@ -34,20 +34,16 @@ public final class Booking {
     private LocalDateTime expires;
 
     @NotNull
-    @OneToMany
-    private List<Ticket> ticketList;
+    @ManyToMany
+    private List<Product> productList;
 
-    @NotNull
-    @OneToMany
-    private List<Addon> addonList;
 
-    public Booking(@NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Ticket> ticketList, @NotNull List<Addon> addonList) {
+    public Booking(@NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Product> productList) {
         this.code = code;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.expires = expires;
-        this.ticketList = ticketList;
-        this.addonList = addonList;
+        this.productList = productList;
     }
 }

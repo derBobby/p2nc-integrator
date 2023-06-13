@@ -12,4 +12,8 @@ public record ItemDTO(
         @NotNull @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY) Map<String, String> name,
         @NotNull List<ItemVariationDTO> variations,
         @NotNull Long category
-) {}
+) {
+    public String getName() {
+        return name.get("de-informal");
+    }
+}

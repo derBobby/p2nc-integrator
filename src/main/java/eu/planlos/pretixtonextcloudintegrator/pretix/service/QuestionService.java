@@ -65,7 +65,7 @@ public class QuestionService {
 
         return new Question(
                 questionDTO.id(),
-                questionDTO.question().get("de-informal")
+                questionDTO.getName()
         );
     }
 }

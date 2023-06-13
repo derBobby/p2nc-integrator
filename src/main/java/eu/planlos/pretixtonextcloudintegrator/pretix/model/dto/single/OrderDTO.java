@@ -15,14 +15,17 @@ public final class OrderDTO {
 
     @Id @NotNull
     private String code;
+
     @NotNull
     private InvoiceAddressDTO invoice_address;
+
     @NotNull @Email
     private String email;
+
     @NotNull
     private LocalDateTime expires;
-    @NotNull
 
+    @NotNull
     private List<PositionDTO> positions;
 
     public OrderDTO(@NotNull String code, @NotNull InvoiceAddressDTO invoice_address, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<PositionDTO> positions) {

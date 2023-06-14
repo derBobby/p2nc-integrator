@@ -28,7 +28,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USER }}
         password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
     - name: Build and Push Docker Image to DockerHub
-      uses: docker/build-push-action@v4.0.0
+      uses: docker/build-push-action@v4.1.1
       with:
         push: true
         context: ${{ github.workspace }}

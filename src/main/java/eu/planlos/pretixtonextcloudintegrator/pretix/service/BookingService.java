@@ -1,14 +1,19 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Product;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.Position;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.repository.BookingRepository;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -18,11 +23,14 @@ public class BookingService {
 
     private final PretixApiOrderService pretixApiOrderService;
     private final ProductService productService;
+    private final QuestionService questionService;
+
     private final BookingRepository bookingRepository;
 
-    public BookingService(PretixApiOrderService pretixApiOrderService, ProductService productService, BookingRepository bookingRepository) {
+    public BookingService(PretixApiOrderService pretixApiOrderService, ProductService productService, QuestionService questionService, BookingRepository bookingRepository) {
         this.pretixApiOrderService = pretixApiOrderService;
         this.productService = productService;
+        this.questionService = questionService;
         this.bookingRepository = bookingRepository;
     }
 
@@ -47,25 +55,23 @@ public class BookingService {
     }
 
     public void fetchAll() {
+        //TODO continue here. Is everything persisted correctly?
         List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders();
         List<Booking> bookingList = orderDTOList.stream().map(this::convert).collect(Collectors.toList());
         bookingRepository.saveAll(bookingList);
     }
 
-    // generateQuestionAnswerMap(orderDTO.getPositions());
-
     private Booking convert(OrderDTO orderDTO) {
-        List<Product> productList = orderDTO.getPositions().stream().map(positionDTO -> productService.loadOrFetchProduct(positionDTO.item(), positionDTO.variation())).toList();
-        return new Booking(orderDTO.getCode(), orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), productList);
-    }
 
-//    private Map<Long, Answer> generateQuestionAnswerMap(PositionDTO orderPositionDTO) {
-//        Map<Long, Answer> answerHashMap = new HashMap<>();
-//        for (AnswerDTO answerDto : orderPositionDTO.answers()) {
-//            Question question = questionService.loadOrFetch(answerDto.question());
-//            Answer answer = new Answer(answerDto.answer());
-//            answerHashMap.put(question.getId(), answer);
-//        }
-//        return answerHashMap;
-//    }
+        List<Position> positionList = new ArrayList<>();
+
+        orderDTO.getPositions().forEach(positionDTO -> {
+            Product product = productService.loadOrFetchProduct(positionDTO.item(), positionDTO.variation());
+            Map <Question, Answer> QnAmap = questionService.generateQuestionAnswerMap(positionDTO.answers().stream().map(questionService::convert).toList());
+
+            positionList.add(new Position(product, QnAmap));
+        });
+
+        return new Booking(orderDTO.getCode(), orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), positionList);
+    }
 }

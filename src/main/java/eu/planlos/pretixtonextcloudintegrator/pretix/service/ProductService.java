@@ -96,16 +96,18 @@ public class ProductService {
 
     public Product loadOrFetchProduct(Long pretixId, Long pretixVariationId) {
 
+        Optional<Product> product;
+
         // Get from DB
-        Optional<Product> product = productRepository.findByPretixIdAndPretixVariationId(pretixId, pretixVariationId);
+        product = productRepository.findByPretixIdAndPretixVariationId(pretixId, pretixVariationId);
         if (product.isPresent()) {
             log.info("Loaded product from db: {} ", pretixId);
             return product.get();
         }
 
-        Optional<Product> optionalProduct = fetchProduct(pretixId).stream().filter(streamedProduct -> streamedProduct.getPretixVariationId().equals(pretixVariationId)).findFirst();
-        if(optionalProduct.isPresent()) {
-            return optionalProduct.get();
+        product = fetchProduct(pretixId).stream().filter(streamedProduct -> streamedProduct.getPretixVariationId().equals(pretixVariationId)).findFirst();
+        if (product.isPresent()) {
+            return product.get();
         }
 
         throw new RuntimeException("Product not found for pretixId: " + pretixId);
@@ -136,7 +138,8 @@ public class ProductService {
         String baseName = itemDTO.getName();
 
         // No variations
-        if (itemDTO.variations().size()==0) {
+        if (itemDTO.variations().size() == 0) {
+            //TODO check if variation is null here
             return List.of(new Product(itemDTO.id(), baseName, productType));
         }
 

@@ -1,5 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.Position;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -34,16 +35,15 @@ public final class Booking {
     private LocalDateTime expires;
 
     @NotNull
-    @ManyToMany
-    private List<Product> productList;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Position> positionList;
 
-
-    public Booking(@NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Product> productList) {
+    public Booking(@NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Position> positionList) {
         this.code = code;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.expires = expires;
-        this.productList = productList;
+        this.positionList = positionList;
     }
 }

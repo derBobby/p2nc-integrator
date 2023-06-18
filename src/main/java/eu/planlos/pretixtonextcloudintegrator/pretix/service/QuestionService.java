@@ -16,11 +16,13 @@ import java.util.stream.Collectors;
 public class QuestionService {
 
     private final PretixApiQuestionService pretixApiQuestionService;
+    private final PretixApiQuestionService2 pretixApiQuestionService2;
     private final QuestionRepository questionRepository;
 
-    public QuestionService(QuestionRepository questionRepository, PretixApiQuestionService pretixApiQuestionService) {
+    public QuestionService(QuestionRepository questionRepository, PretixApiQuestionService pretixApiQuestionService, PretixApiQuestionService2 pretixApiQuestionService2) {
         this.questionRepository = questionRepository;
         this.pretixApiQuestionService = pretixApiQuestionService;
+        this.pretixApiQuestionService2 = pretixApiQuestionService2;
     }
 
     public void saveAll(List<QuestionDTO> questionDTOList) {
@@ -47,6 +49,7 @@ public class QuestionService {
 
     public void fetchAll() {
         List<QuestionDTO> questionsDTOList = pretixApiQuestionService.queryAllQuestions();
+        List<QuestionDTO> questionsDTOList2 = pretixApiQuestionService2.queryAllQuestions();
         List<Question> questionList = questionsDTOList.stream().map(this::convert).collect(Collectors.toList());
         questionRepository.saveAll(questionList);
     }

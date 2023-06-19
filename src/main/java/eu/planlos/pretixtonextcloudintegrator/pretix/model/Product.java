@@ -14,9 +14,14 @@ public final class Product {
     private Long id;
 
     @NotNull
-    private Long pretixId;
+    @Embedded
+    private PretixId pretixId;
 
-    private Long pretixVariationId;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "pretix_variation_id_value"))
+    })
+    private PretixId pretixVariationId;
 
     @NotNull
     private String name;
@@ -25,13 +30,13 @@ public final class Product {
     @ManyToOne
     private ProductType productType;
 
-    public Product(Long pretixId, String name, ProductType productType) {
+    public Product(PretixId pretixId, String name, ProductType productType) {
         this.pretixId = pretixId;
         this.name = name;
         this.productType = productType;
     }
 
-    public Product(Long pretixId, Long pretixVariationId, String name, ProductType productType) {
+    public Product(PretixId pretixId, PretixId pretixVariationId, String name, ProductType productType) {
         this.pretixId = pretixId;
         this.pretixVariationId = pretixVariationId;
         this.name = name;

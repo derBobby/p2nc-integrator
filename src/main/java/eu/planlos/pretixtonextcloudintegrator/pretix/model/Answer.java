@@ -14,14 +14,15 @@ public final class Answer {
     private Long id;
 
     @NotNull
-    private Long questionPretixId;
+    @Embedded
+    private PretixId pretixId;
 
     @NotNull
     @Lob
     private String text;
 
-    public Answer(@NotNull Long questionPretixId, @NotNull String text) {
-        this.questionPretixId = questionPretixId;
+    public Answer(@NotNull PretixId pretixId, @NotNull String text) {
+        this.pretixId = pretixId;
         this.text = text;
     }
 }

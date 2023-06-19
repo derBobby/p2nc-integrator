@@ -2,6 +2,7 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.list.QuestionsDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.QuestionDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -53,12 +54,12 @@ public class PretixApiQuestionService extends PretixApiService {
         }
     }
 
-    public QuestionDTO queryQuestion(Long questionId) {
+    public QuestionDTO queryQuestion(PretixId questionId) {
 
         try {
             QuestionDTO questionDto = webClient
                     .get()
-                    .uri(specificQuestionUri(questionId))
+                    .uri(specificQuestionUri(questionId.getValue()))
                     .retrieve()
                     .bodyToMono(QuestionDTO.class)
                     .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))

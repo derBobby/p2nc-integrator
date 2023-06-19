@@ -1,5 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Product;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.ProductType;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.ItemCategoryDTO;
@@ -46,7 +47,7 @@ public class ProductService {
         productTypeRepository.saveAll(productTypeList);
     }
 
-    private ProductType fetchProductType(Long pretixId) {
+    private ProductType fetchProductType(PretixId pretixId) {
         ItemCategoryDTO itemCategoryDTO = pretixApiItemCategoryService.queryItemCategory(pretixId);
         ProductType productType = convert(itemCategoryDTO);
         return productTypeRepository.save(productType);
@@ -58,7 +59,7 @@ public class ProductService {
         saveProducts(productList);
     }
 
-    private List<Product> fetchProduct(Long pretixId) {
+    private List<Product> fetchProduct(PretixId pretixId) {
         ItemDTO itemDTO = pretixApiItemService.queryItem(pretixId);
         List<Product> productList = convert(itemDTO);
         return saveProducts(productList);
@@ -68,7 +69,7 @@ public class ProductService {
      * Retrieving
      */
 
-    public ProductType loadOrFetchProductType(Long pretixId) {
+    public ProductType loadOrFetchProductType(PretixId pretixId) {
 
         // Get from DB
         Optional<ProductType> productType = productTypeRepository.findByPretixId(pretixId);
@@ -81,7 +82,7 @@ public class ProductService {
         return fetchProductType(pretixId);
     }
 
-    public List<Product> loadOrFetchProduct(Long pretixId) {
+    public List<Product> loadOrFetchProduct(PretixId pretixId) {
 
         // Get from DB
         Optional<Product> product = productRepository.findByPretixId(pretixId);
@@ -94,7 +95,7 @@ public class ProductService {
         return fetchProduct(pretixId);
     }
 
-    public Product loadOrFetchProduct(Long pretixId, Long pretixVariationId) {
+    public Product loadOrFetchProduct(PretixId pretixId, PretixId pretixVariationId) {
 
         Optional<Product> product;
 
@@ -129,25 +130,25 @@ public class ProductService {
      * Converter
      */
     private ProductType convert(ItemCategoryDTO itemCategoryDTO) {
-        return new ProductType(itemCategoryDTO.id(), itemCategoryDTO.is_addon(), itemCategoryDTO.getName());
+        return new ProductType(new PretixId(itemCategoryDTO.id()), itemCategoryDTO.is_addon(), itemCategoryDTO.getName());
     }
 
     private List<Product> convert(ItemDTO itemDTO) {
-        ProductType productType = loadOrFetchProductType(itemDTO.category());
+        ProductType productType = loadOrFetchProductType(new PretixId(itemDTO.category()));
 
         String baseName = itemDTO.getName();
 
         // No variations
         if (itemDTO.variations().size() == 0) {
             //TODO check if variation is null here
-            return List.of(new Product(itemDTO.id(), baseName, productType));
+            return List.of(new Product(new PretixId(itemDTO.id()), baseName, productType));
         }
 
         // Variations
         return itemDTO.variations().stream().map(itemVariationDTO -> {
             log.debug("IDs for item are {} - {}", itemDTO.id(), itemVariationDTO.id());
             String fullName = String.join(" - ", baseName, itemVariationDTO.getName());
-            return new Product(itemDTO.id(), itemVariationDTO.id(), fullName, productType);
+            return new Product(new PretixId(itemDTO.id()), new PretixId(itemVariationDTO.id()), fullName, productType);
         }).toList();
     }
 }

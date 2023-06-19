@@ -1,9 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Product;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.Position;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.repository.BookingRepository;
@@ -66,7 +63,7 @@ public class BookingService {
         List<Position> positionList = new ArrayList<>();
 
         orderDTO.getPositions().forEach(positionDTO -> {
-            Product product = productService.loadOrFetchProduct(positionDTO.item(), positionDTO.variation());
+            Product product = productService.loadOrFetchProduct(new PretixId(positionDTO.item()), new PretixId(positionDTO.variation()));
             Map <Question, Answer> QnAmap = questionService.generateQuestionAnswerMap(positionDTO.answers().stream().map(questionService::convert).toList());
 
             positionList.add(new Position(product, QnAmap));

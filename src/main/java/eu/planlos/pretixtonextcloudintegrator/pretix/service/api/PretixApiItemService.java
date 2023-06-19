@@ -2,11 +2,11 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.list.ItemsDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.ItemDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.annotation.Reference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -53,11 +53,11 @@ public class PretixApiItemService extends PretixApiService {
         }
     }
 
-    public ItemDTO queryItem(Long itemId) {
+    public ItemDTO queryItem(PretixId itemId) {
         try {
             ItemDTO itemDTO = webClient
                     .get()
-                    .uri(specificItemUri(itemId))
+                    .uri(specificItemUri(itemId.getValue()))
                     .retrieve()
                     .bodyToMono(ItemDTO.class)
                     .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))

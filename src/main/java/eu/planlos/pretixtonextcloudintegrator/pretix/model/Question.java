@@ -1,9 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -17,12 +14,13 @@ public final class Question {
     private Long id;
 
     @NotNull
-    private Long pretixId;
+    @Embedded
+    private PretixId pretixId;
 
     @NotNull
     private String question;
 
-    public Question(@NotNull Long pretixId, @NotNull String question) {
+    public Question(@NotNull PretixId pretixId, @NotNull String question) {
         this.pretixId = pretixId;
         this.question = question;
     }

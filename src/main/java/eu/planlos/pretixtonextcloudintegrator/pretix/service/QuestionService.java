@@ -1,6 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.AnswerDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.QuestionDTO;
@@ -36,7 +37,7 @@ public class QuestionService {
         return questionRepository.findAll();
     }
 
-    public Question loadOrFetch(Long questionId) {
+    public Question loadOrFetch(PretixId questionId) {
 
         // Get from DB
         Optional<Question> questionOptional = questionRepository.findByPretixId(questionId);
@@ -55,7 +56,7 @@ public class QuestionService {
         questionRepository.saveAll(questionList);
     }
 
-    private Question fetchFromPretix(Long questionId) {
+    private Question fetchFromPretix(PretixId questionId) {
         QuestionDTO questionDTO = pretixApiQuestionService.queryQuestion(questionId);
         Question question = convert(questionDTO);
         return questionRepository.save(question);
@@ -68,18 +69,18 @@ public class QuestionService {
         }
 
         return new Question(
-                questionDTO.id(),
+                new PretixId(questionDTO.id()),
                 questionDTO.getName()
         );
     }
 
     public Answer convert(AnswerDTO answerDTO) {
-        return new Answer(answerDTO.question(), answerDTO.answer());
+        return new Answer(new PretixId(answerDTO.question()), answerDTO.answer());
     }
 
     public Map<Question, Answer> generateQuestionAnswerMap(List<Answer> answerList) {
         Map<Question, Answer> QnAmap = new HashMap<>();
-        answerList.forEach(answer -> QnAmap.put(loadOrFetch(answer.getQuestionPretixId()), answer));
+        answerList.forEach(answer -> QnAmap.put(loadOrFetch(answer.getPretixId()), answer));
         return QnAmap;
     }
 }

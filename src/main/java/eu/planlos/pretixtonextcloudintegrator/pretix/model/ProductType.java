@@ -1,9 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +16,8 @@ public final class ProductType {
     private Long id;
 
     @NotNull
-    private Long pretixId;
+    @Embedded
+    private PretixId pretixId;
 
     @NotNull
     private boolean addon;
@@ -27,7 +25,7 @@ public final class ProductType {
     @NotNull
     private String name;
 
-    public ProductType(@NotNull Long pretixId, @NotNull Boolean addon, @NotNull String name) {
+    public ProductType(@NotNull PretixId pretixId, @NotNull Boolean addon, @NotNull String name) {
         this.pretixId = pretixId;
         this.addon = addon;
         this.name = name;

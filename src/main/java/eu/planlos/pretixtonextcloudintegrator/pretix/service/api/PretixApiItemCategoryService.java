@@ -2,6 +2,7 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.list.ItemCategoriesDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.ItemCategoryDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -52,11 +53,11 @@ public class PretixApiItemCategoryService extends PretixApiService {
         }
     }
 
-    public ItemCategoryDTO queryItemCategory(Long itemCategoryId) {
+    public ItemCategoryDTO queryItemCategory(PretixId itemCategoryId) {
         try {
             ItemCategoryDTO itemCategoryDTO = webClient
                     .get()
-                    .uri(specificItemCategoryUri(itemCategoryId))
+                    .uri(specificItemCategoryUri(itemCategoryId.getValue()))
                     .retrieve()
                     .bodyToMono(ItemCategoryDTO.class)
                     .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))

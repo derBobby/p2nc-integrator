@@ -2,6 +2,7 @@ package eu.planlos.pretixtonextcloudintegrator.nextcloud.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
+import eu.planlos.pretixtonextcloudintegrator.common.util.GermanStringsUtility;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.config.NextcloudApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudApiResponse;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudResponse;
@@ -142,7 +143,9 @@ public class NextcloudApiUserService extends NextcloudApiService {
     /*
      * Username generatrors
      */
-    private String generateUserId(Map<String, String> allUsersMap, String firstName, String lastName) {
+    private String generateUserId(Map<String, String> allUsersMap, String firstNameParam, String lastNameParam) {
+        String firstName = GermanStringsUtility.handleGermanChars(firstNameParam);
+        String lastName = GermanStringsUtility.handleGermanChars(lastNameParam);
         return generateUserId(allUsersMap, firstName, lastName, 1);
     }
 

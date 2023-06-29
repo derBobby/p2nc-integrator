@@ -9,10 +9,12 @@ import eu.planlos.pretixtonextcloudintegrator.pretix.repository.ProductRepositor
 import eu.planlos.pretixtonextcloudintegrator.pretix.repository.ProductTypeRepository;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiItemCategoryService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiItemService;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -59,10 +61,15 @@ public class ProductService {
         saveProducts(productList);
     }
 
-    private List<Product> fetchProduct(PretixId pretixId) {
+    private Optional<Product> fetchProduct(@NotNull PretixId pretixId, @NotNull PretixId pretixVariationId) {
         ItemDTO itemDTO = pretixApiItemService.queryItem(pretixId);
         List<Product> productList = convert(itemDTO);
-        return saveProducts(productList);
+        return saveProducts(productList).stream().filter(streamedProduct -> {
+            if (streamedProduct.getPretixVariationId() == null || streamedProduct.getPretixVariationId().getValue() == null && pretixVariationId == null) {
+                return true;
+            }
+            return Objects.equals(streamedProduct.getPretixVariationId(), pretixVariationId);
+        }).findFirst();
     }
 
     /*
@@ -82,19 +89,6 @@ public class ProductService {
         return fetchProductType(pretixId);
     }
 
-    public List<Product> loadOrFetchProduct(PretixId pretixId) {
-
-        // Get from DB
-        Optional<Product> product = productRepository.findByPretixId(pretixId);
-        if (product.isPresent()) {
-            log.info("Loaded product from db: {} ", pretixId);
-            return List.of(product.get());
-        }
-
-        // or fetch from Pretix
-        return fetchProduct(pretixId);
-    }
-
     public Product loadOrFetchProduct(PretixId pretixId, PretixId pretixVariationId) {
 
         Optional<Product> product;
@@ -106,12 +100,12 @@ public class ProductService {
             return product.get();
         }
 
-        product = fetchProduct(pretixId).stream().filter(streamedProduct -> streamedProduct.getPretixVariationId().equals(pretixVariationId)).findFirst();
+        product = fetchProduct(pretixId, pretixVariationId);
         if (product.isPresent()) {
             return product.get();
         }
 
-        throw new RuntimeException("Product not found for pretixId: " + pretixId);
+        throw new RuntimeException("Product not found for pretixId: " + pretixId + " and variation: " + pretixVariationId);
     }
 
     /*

@@ -1,7 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.Position;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Position;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.OrderDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.repository.BookingRepository;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;

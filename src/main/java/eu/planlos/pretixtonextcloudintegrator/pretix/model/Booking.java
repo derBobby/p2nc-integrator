@@ -1,6 +1,5 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.Position;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;

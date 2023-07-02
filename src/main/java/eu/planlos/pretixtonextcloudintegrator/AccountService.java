@@ -7,11 +7,15 @@ import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationE
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Position;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.BookingService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Core class of the application. Has callback interface for Pretix package and runs request against Nextcloud API
@@ -23,13 +27,16 @@ public class AccountService implements IWebHookHandler {
     public static final String SUBJECT_OK = "Account creation successful";
     public static final String SUBJECT_FAIL = "Account creation failed";
 
+    private final QnAFilterConfiguration qnaFilterConfiguration;
+
     private final BookingService bookingService;
     private final PretixApiOrderService pretixApiOrderService;
     private final NextcloudApiUserService nextcloudApiUserService;
     private final MailService mailService;
     private final SignalService signalService;
 
-    public AccountService(BookingService bookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
+    public AccountService(QnAFilterConfiguration qnaFilterConfiguration, BookingService bookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
+        this.qnaFilterConfiguration = qnaFilterConfiguration;
         this.bookingService = bookingService;
         this.pretixApiOrderService = pretixApiOrderService;
         this.nextcloudApiUserService = nextcloudApiUserService;
@@ -50,7 +57,16 @@ public class AccountService implements IWebHookHandler {
             Booking booking = bookingService.loadOrFetch(webHookDTO.code());
             log.info("Order found: {}", booking);
 
+            // #####################
             //TODO CONTINUE HERE - CHECK IF BOOKING IS FOR ZELTLAGER OR AUFBAULAGER
+
+            List<Map<String, List<String>>> qna = qnaFilterConfiguration.getQna();
+            List<Position> positionList = booking.getPositionList();
+            List<Position> ticketPositionList = positionList.stream()
+                    .filter(p -> !p.getProduct().getProductType().isAddon())
+                    .toList();
+
+            // #####################
 
             String userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
             String successMessage = String.format("Account %s / %s successfully created", userid, booking.getEmail());

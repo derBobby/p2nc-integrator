@@ -1,8 +1,5 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.model.dto;
+package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Product;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

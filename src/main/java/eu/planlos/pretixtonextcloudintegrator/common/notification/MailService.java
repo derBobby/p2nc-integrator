@@ -9,8 +9,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-
 @Slf4j
 @Service
 public class MailService extends NotificationService {
@@ -29,10 +27,8 @@ public class MailService extends NotificationService {
     @Async
     void notifyStart() {
 
-        profiles.addAll(Arrays.asList(environment.getActiveProfiles()));
-
         try {
-            send(addSubjectPrefix("Application started"), "empty");
+            send("Application started");
             logNotificationOK();
         } catch (MailException e) {
             logNotificationError(e);
@@ -42,11 +38,15 @@ public class MailService extends NotificationService {
     @Async
     public void notifyAdmin(String subject, String content) {
         try {
-            send(addSubjectPrefix(subject), content);
+            send(subject, content);
             logNotificationOK();
         } catch (MailException e) {
             logNotificationError(e);
         }
+    }
+
+    private void send(String subject) {
+        send(subject, "No message body provided. Read the subject.");
     }
 
     private void send(String subject, String content) {
@@ -59,7 +59,7 @@ public class MailService extends NotificationService {
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailConfig.getAdminAddress());
-        message.setSubject(subject);
+        message.setSubject(prefixSubject(subject));
         message.setText(content);
         message.setFrom(mailConfig.getAdminAddress());
         mailSender.send(message);

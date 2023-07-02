@@ -14,7 +14,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 @Slf4j
 @Service
@@ -33,8 +32,6 @@ public class SignalService extends NotificationService {
     @PostConstruct
     @Async
     void notifyStart() {
-
-        profiles.addAll(Arrays.asList(environment.getActiveProfiles()));
 
         try {
             send("Application started");
@@ -66,7 +63,7 @@ public class SignalService extends NotificationService {
         }
         log.info("Signal notifications are enabled. Sending");
 
-        String prefixedMessage = addSubjectPrefix(message);
+        String prefixedMessage = prefixSubject(message);
         String jsonMessage = String.format(SIGNAL_JSON, prefixedMessage, config.phoneSender(), config.phoneReceiver());
         try {
             String apiResponse = webClient

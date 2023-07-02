@@ -1,6 +1,8 @@
 package eu.planlos.pretixtonextcloudintegrator.common.notification;
 
-import eu.planlos.pretixtonextcloudintegrator.common.ApplicationProfiles;
+import eu.planlos.pretixtonextcloudintegrator.common.ApplicationConstants;
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
@@ -14,24 +16,7 @@ public abstract class NotificationService implements EnvironmentAware {
     final protected List<String> profiles = new ArrayList<>();
     protected Environment environment;
 
-    private final String PREFIX_APPNAME = "P2NC";
-
-    //TODO could be PostConstruct
-    protected String addSubjectPrefix(String subject) {
-
-        String profilePrefix = "UNKNOWN";
-
-        if (profiles.contains(ApplicationProfiles.DEV_PROFILE)) {
-            profilePrefix = ApplicationProfiles.DEV_PROFILE;
-        }
-        if (profiles.contains(ApplicationProfiles.STAGING_PROFILE)) {
-            profilePrefix = ApplicationProfiles.STAGING_PROFILE;
-        }
-        if (profiles.contains(ApplicationProfiles.PROD_PROFILE)) {
-            profilePrefix = ApplicationProfiles.PROD_PROFILE;
-        }
-        return String.format("[%s %s] - %s", PREFIX_APPNAME, profilePrefix.toUpperCase(), subject);
-    }
+    private String prefixTag;
 
     protected void logNotificationOK() {
         log.info("Notification has been sent, if enabled.");
@@ -44,8 +29,30 @@ public abstract class NotificationService implements EnvironmentAware {
         }
     }
 
+    protected String prefixSubject(String subject) {
+        return String.format("%s - %s", prefixTag, subject);
+    }
+
     @Override
-    public void setEnvironment(Environment environment) {
+    public void setEnvironment(@NotNull Environment environment) {
         this.environment = environment;
+    }
+
+    @PostConstruct
+    public void preparePrefixTag() {
+
+        String profileString = "UNKNOWN ENVIRONMENT";
+
+        if (profiles.contains(ApplicationConstants.PROFILE_DEV)) {
+            profileString = ApplicationConstants.PROFILE_DEV;
+        }
+        if (profiles.contains(ApplicationConstants.PROFILE_STAGING)) {
+            profileString = ApplicationConstants.PROFILE_STAGING;
+        }
+        if (profiles.contains(ApplicationConstants.PROFILE_PROD)) {
+            profileString = ApplicationConstants.PROFILE_PROD;
+        }
+
+        prefixTag = String.format("[%s %s]", ApplicationConstants.APP_SHORTNAME, profileString);
     }
 }

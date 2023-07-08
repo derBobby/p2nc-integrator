@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Core class of the application. Has callback interface for Pretix package and runs request against Nextcloud API
@@ -26,8 +25,9 @@ public class AccountService implements IWebHookHandler {
 
     public static final String SUBJECT_OK = "Account creation successful";
     public static final String SUBJECT_FAIL = "Account creation failed";
+    public static final String SUBJECT_IRRELEVANT = "Account creation not required";
 
-    private final QnAFilterConfiguration qnaFilterConfiguration;
+    private final QnAFilterService qnaFilterService;
 
     private final BookingService bookingService;
     private final PretixApiOrderService pretixApiOrderService;
@@ -35,8 +35,8 @@ public class AccountService implements IWebHookHandler {
     private final MailService mailService;
     private final SignalService signalService;
 
-    public AccountService(QnAFilterConfiguration qnaFilterConfiguration, BookingService bookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
-        this.qnaFilterConfiguration = qnaFilterConfiguration;
+    public AccountService(QnAFilterService qnAFilterService, BookingService bookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
+        this.qnaFilterService = qnAFilterService;
         this.bookingService = bookingService;
         this.pretixApiOrderService = pretixApiOrderService;
         this.nextcloudApiUserService = nextcloudApiUserService;
@@ -57,16 +57,12 @@ public class AccountService implements IWebHookHandler {
             Booking booking = bookingService.loadOrFetch(webHookDTO.code());
             log.info("Order found: {}", booking);
 
-            // #####################
-            //TODO CONTINUE HERE - CHECK IF BOOKING IS FOR ZELTLAGER OR AUFBAULAGER
-
-            List<Map<String, List<String>>> qna = qnaFilterConfiguration.getQna();
-            List<Position> positionList = booking.getPositionList();
-            List<Position> ticketPositionList = positionList.stream()
-                    .filter(p -> !p.getProduct().getProductType().isAddon())
-                    .toList();
-
-            // #####################
+            if(irrelevantForBooking(booking)) {
+                String infoMessage = String.format("Order with code %s was excluded by filter for account creation", webHookDTO.code());
+                log.info(infoMessage);
+                notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);
+                return;
+            }
 
             String userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
             String successMessage = String.format("Account %s / %s successfully created", userid, booking.getEmail());
@@ -78,6 +74,15 @@ public class AccountService implements IWebHookHandler {
             log.error(errorMessage);
             notifyAdmin(SUBJECT_FAIL, e.getMessage());
         }
+    }
+
+    private boolean irrelevantForBooking(Booking booking) {
+        List<Position> ticketPositionList = booking.getPositionList().stream()
+                .filter(p -> ! p.getProduct().getProductType().isAddon())
+                .filter(p -> ! p.getQnA().isEmpty())
+                .filter(p -> qnaFilterService.filter(p.getQnA()))
+                .toList();
+        return ticketPositionList.isEmpty();
     }
 
     // TODO Move the two calls into seprate Service that knows all notification services?

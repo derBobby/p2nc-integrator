@@ -18,10 +18,10 @@ public final class Question {
     private PretixId pretixId;
 
     @NotNull
-    private String question;
+    private String text;
 
-    public Question(@NotNull PretixId pretixId, @NotNull String question) {
+    public Question(@NotNull PretixId pretixId, @NotNull String text) {
         this.pretixId = pretixId;
-        this.question = question;
+        this.text = text;
     }
 }

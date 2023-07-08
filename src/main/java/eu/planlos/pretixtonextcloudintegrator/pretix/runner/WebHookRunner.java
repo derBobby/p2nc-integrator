@@ -29,7 +29,7 @@ public class WebHookRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments arg0) {
         if (pretixFeatureConfig.sendDebugWebHookEnabled()) {
-            WebHookDTO webHookDTO = new WebHookDTO(64158L, "kvkraichgau", "zeltlager23ma", "UVQWS", "pretix.event.order.approved");
+            WebHookDTO webHookDTO = new WebHookDTO(64158L, "kvkraichgau", "zeltlager23ma", "3PCGD", "pretix.event.order.approved");
             webHookHandler.handleUserCreation(webHookDTO);
         }
     }

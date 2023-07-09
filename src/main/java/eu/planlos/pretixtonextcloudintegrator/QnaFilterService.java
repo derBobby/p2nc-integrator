@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @ConfigurationProperties(prefix = "qnafilter")
-public class QnAFilterService {
+public class QnaFilterService {
 
     // Based on configured properties
     @Setter

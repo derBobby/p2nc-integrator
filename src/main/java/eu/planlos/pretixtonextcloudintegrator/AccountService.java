@@ -27,16 +27,16 @@ public class AccountService implements IWebHookHandler {
     public static final String SUBJECT_FAIL = "Account creation failed";
     public static final String SUBJECT_IRRELEVANT = "Account creation not required";
 
-    private final QnAFilterService qnaFilterService;
 
     private final BookingService bookingService;
+    private final QnaFilterService qnaFilterService;
     private final PretixApiOrderService pretixApiOrderService;
     private final NextcloudApiUserService nextcloudApiUserService;
     private final MailService mailService;
     private final SignalService signalService;
 
-    public AccountService(QnAFilterService qnAFilterService, BookingService bookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
-        this.qnaFilterService = qnAFilterService;
+    public AccountService(QnaFilterService qnaFilterService, BookingService bookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
+        this.qnaFilterService = qnaFilterService;
         this.bookingService = bookingService;
         this.pretixApiOrderService = pretixApiOrderService;
         this.nextcloudApiUserService = nextcloudApiUserService;
@@ -45,7 +45,7 @@ public class AccountService implements IWebHookHandler {
     }
 
     public void handleApprovalNotification(String code) {
-        signalService.notifyAdmin(
+        notifyAdmin("New order",
                 String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(code)));
     }
 

@@ -58,7 +58,7 @@ public class AccountService implements IWebHookHandler {
             log.info("Order found: {}", booking);
 
             if(irrelevantForBooking(booking)) {
-                String infoMessage = String.format("Order with code %s was excluded by filter for account creation", webHookDTO.code());
+                String infoMessage = String.format("Order with code %s was excluded for account creation by filter ", webHookDTO.code());
                 log.info(infoMessage);
                 notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);
                 return;
@@ -85,7 +85,6 @@ public class AccountService implements IWebHookHandler {
         return ticketPositionList.isEmpty();
     }
 
-    // TODO Move the two calls into seprate Service that knows all notification services?
     private void notifyAdmin(String subject, String successMessage) {
         mailService.notifyAdmin(subject, successMessage);
         signalService.notifyAdmin(subject, successMessage);

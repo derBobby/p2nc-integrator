@@ -63,7 +63,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         return nextcloudUseridList.getUsers();
     }
 
-    public NextcloudUser getUser(String username) {
+    private NextcloudUser getUser(String username) {
 
         if(log.isDebugEnabled()) {
             JsonNode jsonNode = webClient

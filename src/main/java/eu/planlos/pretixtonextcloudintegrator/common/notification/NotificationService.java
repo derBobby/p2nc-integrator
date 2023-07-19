@@ -1,20 +1,19 @@
 package eu.planlos.pretixtonextcloudintegrator.common.notification;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApplicationConstants;
-import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 public abstract class NotificationService implements EnvironmentAware {
 
-    final protected List<String> profiles = new ArrayList<>();
-    protected Environment environment;
+    protected List<String> profiles = new ArrayList<>();
 
     private String prefixTag;
 
@@ -35,12 +34,8 @@ public abstract class NotificationService implements EnvironmentAware {
 
     @Override
     public void setEnvironment(@NotNull Environment environment) {
-        this.environment = environment;
-    }
 
-    @PostConstruct
-    public void preparePrefixTag() {
-
+        profiles = Arrays.stream(environment.getActiveProfiles()).toList();
         String profileString = "UNKNOWN ENVIRONMENT";
 
         if (profiles.contains(ApplicationConstants.PROFILE_DEV)) {
@@ -54,5 +49,6 @@ public abstract class NotificationService implements EnvironmentAware {
         }
 
         prefixTag = String.format("[%s %s]", ApplicationConstants.APP_SHORTNAME, profileString);
+        log.debug("Notification tag set to: {}", prefixTag);
     }
 }

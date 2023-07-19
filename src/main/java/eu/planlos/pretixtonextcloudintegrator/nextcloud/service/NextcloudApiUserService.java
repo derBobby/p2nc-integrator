@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException.*;
+
 @Slf4j
 @Service
 public class NextcloudApiUserService extends NextcloudApiService {
@@ -31,8 +33,10 @@ public class NextcloudApiUserService extends NextcloudApiService {
     private static final String SUCCESS_MESSAGE_CREATE_USER = "Created user: {}";
     private static final String FAIL_MESSAGE_CREATE_USER = "Could not create  user: {}, Error: {}";
     private static final String FAIL_MESSAGE_GET_USERS = "Could not load users from nextcloud";
-    private static final String NC_API_USERS = "/ocs/v1.php/cloud/users";
-    private static final String NC_API_SUFFIX_JSON = "?format=json";
+    private static final String NC_API_JSON_SUFFIX = "?format=json";
+    private static final String NC_API_USERS_URL = "/ocs/v1.php/cloud/users";
+    public static final String NC_API_USERLIST_JSON_URL = NC_API_USERS_URL + NC_API_JSON_SUFFIX;
+    public static final String NC_API_USER_JSON_URL = NC_API_USERS_URL + "/%s" + NC_API_JSON_SUFFIX;
 
     public NextcloudApiUserService(NextcloudApiConfig nextcloudApiConfig, @Qualifier("NextcloudWebClient") WebClient webClient ) {
         super(nextcloudApiConfig, webClient);
@@ -43,7 +47,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         if(log.isDebugEnabled()) {
             JsonNode jsonNode = webClient
                     .get()
-                    .uri(buildUriGetUserList())
+                    .uri(NC_API_USERLIST_JSON_URL)
                     .retrieve()
                     .bodyToMono(JsonNode.class)
                     .block();
@@ -52,7 +56,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
 
         NextcloudApiResponse<NextcloudUserList> apiResponse = webClient
                 .get()
-                .uri(buildUriGetUserList())
+                .uri(NC_API_USERLIST_JSON_URL)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUserList>>(){})
                 .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
@@ -94,7 +98,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         List<String> useridList = getAllUseridsFromNextcloud();
         return useridList.stream().collect(Collectors.toMap(
                 userid -> userid,
-                userid -> getUser(userid).getEmail()
+                userid -> getUser(userid).email()
         ));
     }
 
@@ -116,7 +120,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         try {
             NextcloudApiResponse<NextcloudResponse> apiResponse = webClient
                     .post()
-                    .uri(buildUriCreateUser())
+                    .uri(NC_API_USERLIST_JSON_URL)
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .bodyValue(formData)
                     .retrieve()
@@ -141,7 +145,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
     }
 
     /*
-     * Username generatrors
+     * Username generators
      */
     private String generateUserId(Map<String, String> allUsersMap, String firstNameParam, String lastNameParam) {
         String firstName = GermanStringsUtility.handleGermanChars(firstNameParam);
@@ -155,7 +159,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         assert charCount > 0;
 
         if (charCount > firstName.length()) {
-            throw new AccountCreationException("No free userid can be generated");
+            throw new AccountCreationException(SHORT_USERID);
         }
 
         String userid = String.format(
@@ -175,7 +179,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
     private void failIfMailAddressAlreadyInUse(String email, Map<String, String> userMap) {
         boolean emailAlreadyInUse = userMap.containsValue(email);
         if (emailAlreadyInUse) {
-            throw new AccountCreationException("Email address is already in use");
+            throw new AccountCreationException(EMAIL_TAKEN);
         }
         log.info("Email address is still free, proceeding");
     }
@@ -183,16 +187,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
     /*
      * Uri generators
      */
-    private String buildUriCreateUser() {
-        return String.format("%s%s", NC_API_USERS, NC_API_SUFFIX_JSON);
-    }
-
-    private String buildUriGetUserList() {
-        return String.format("%s%s", NC_API_USERS, NC_API_SUFFIX_JSON);
-    }
-
     private String buildUriGetUser(String username) {
-        return String.format("%s/%s%s", NC_API_USERS, username, NC_API_SUFFIX_JSON);
+        return String.format(NC_API_USER_JSON_URL, username);
     }
-
 }

@@ -1,13 +1,16 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
 import eu.planlos.pretixtonextcloudintegrator.common.util.ZonedDateTimeUtility;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudMeta;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudUser;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class TestGenerator {
+public abstract class TestDataGenerator {
 
     protected Booking booking() {
         return new Booking(
@@ -31,8 +34,8 @@ public abstract class TestGenerator {
         return new ProductType(pretixId(), false, "some product type");
     }
 
-    protected Map<Question, Answer> qnaMap() {
-        return Map.of(new Question(pretixId(), "Question?"), new Answer(pretixId(), "Answer!"));
+    protected Map<Question, eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer> qnaMap() {
+        return Map.of(new Question(pretixId(), "Question?"), new eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer(pretixId(), "Answer!"));
     }
 
     protected PretixId pretixId() {
@@ -45,5 +48,22 @@ public abstract class TestGenerator {
 
     protected WebHookDTO orderApprovedHook() {
         return new WebHookDTO(0L, "organizer", "event", newCode(), "pretix.event.order.approved");
+    }
+
+    protected NextcloudUser takenUser() {
+        return new NextcloudUser(
+                "kv-kraichgau-dname",
+                "Display Name",
+                "dname@example.com",
+                new ArrayList<>(),
+                true);
+    }
+
+    protected NextcloudMeta okMeta() {
+        return new NextcloudMeta("200",
+                200,
+                "All fine",
+                null,
+                null);
     }
 }

@@ -2,18 +2,17 @@ package eu.planlos.pretixtonextcloudintegrator;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class QnaFilterServiceTest extends TestGenerator {
+@ExtendWith(MockitoExtension.class)
+public class QnaFilterServiceTest extends TestDataGenerator {
 
     @Test
     public void filterMap_containsMatch() {
@@ -48,7 +47,7 @@ public class QnaFilterServiceTest extends TestGenerator {
         assertFalse(containsMatch);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void duplicateFilter_throwsException() {
         // Prepare
         //      objects
@@ -56,9 +55,9 @@ public class QnaFilterServiceTest extends TestGenerator {
         //      methods
 
         // Act
-        new QnaFilterService(config);
-
         // Check
+        assertThrows(IllegalArgumentException.class, () -> new QnaFilterService(config));
+
     }
 
     private List<Map<String, List<String>>> noMatchConfigList() {

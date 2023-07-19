@@ -36,7 +36,7 @@ jobs:
     - name: Deploy on Server
       uses: garygrossgarten/github-action-ssh@0.7.0
       with:
-        command: -a pretixtonextcloudintegrator -e development -t latest
+        command: -a pretixtonextcloudintegrator -e staging -t latest
         host: ${{ secrets.DEPLOYMENT_HOST }}
         username: ${{ secrets.DEPLOYMENT_USER }}
         port: ${{ secrets.DEPLOYMENT_PORT }}

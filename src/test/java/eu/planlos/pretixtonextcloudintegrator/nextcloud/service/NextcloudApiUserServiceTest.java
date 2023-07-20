@@ -171,7 +171,7 @@ public class NextcloudApiUserServiceTest extends TestDataGenerator {
 
             // Act
             // Check
-            assertThrows(AccountCreationException.class, () -> nextcloudApiUserService.createUser("newuser@example.com", "D", "Name"), AccountCreationException.SHORT_USERID);
+            assertThrows(AccountCreationException.class, () -> nextcloudApiUserService.createUser("newuser@example.com", "D", "Name"));
 
         }
 }

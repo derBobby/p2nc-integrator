@@ -26,12 +26,10 @@ import org.springframework.web.bind.annotation.*;
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void webHook(@RequestBody WebHookDTO hook) {
-        log.info("Incoming Webhook: {}", hook.toString());
+        log.info("Incoming webhook={}", hook);
+
         webHookAuditService.log(orderApprovalString(hook));
-
         String hookAction = hook.action();
-
-        log.info("Incoming webhook: {}", hook);
 
         //TODO Add tests for the cases
         if(hookAction.equals(ORDER_NEED_APPROVAL)) {
@@ -44,10 +42,10 @@ import org.springframework.web.bind.annotation.*;
             return;
         }
 
-        log.info("Webhook not relevant: {}", hook);
+        log.info("Webhook={} not relevant", hook);
     }
 
     private String orderApprovalString(WebHookDTO hook) {
-        return String.format("Hook %s reports order approval event for order %s", hook.notification_id(), hook.code());
+        return String.format("Hook=%s reports order approval event for order=%s", hook.notification_id(), hook.code());
     }
 }

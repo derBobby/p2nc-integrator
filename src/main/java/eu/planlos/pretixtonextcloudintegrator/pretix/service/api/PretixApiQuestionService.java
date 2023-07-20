@@ -66,7 +66,6 @@ public class PretixApiQuestionService extends PretixApiService {
         throw new ApiException(ApiException.IS_NULL);
     }
 
-
     /*
      * Uri generators
      */

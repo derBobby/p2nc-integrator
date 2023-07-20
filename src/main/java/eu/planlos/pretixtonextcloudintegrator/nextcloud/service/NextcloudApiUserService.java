@@ -24,9 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException.EMAIL_TAKEN;
-import static eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException.SHORT_USERID;
-
 @Slf4j
 @Service
 public class NextcloudApiUserService extends NextcloudApiService {
@@ -175,7 +172,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         assert charCount > 0;
 
         if (charCount > firstName.length()) {
-            throw new AccountCreationException(SHORT_USERID);
+            throw new AccountCreationException("No free userid can be generated");
         }
 
         String userid = String.format(
@@ -195,9 +192,9 @@ public class NextcloudApiUserService extends NextcloudApiService {
     private void failIfMailAddressAlreadyInUse(String email, Map<String, String> userMap) {
         boolean emailAlreadyInUse = userMap.containsValue(email);
         if (emailAlreadyInUse) {
-            throw new AccountCreationException(EMAIL_TAKEN);
+            throw new AccountCreationException(String.format("Email=%s is already in use", email));
         }
-        log.info("Email address is still free, proceeding");
+        log.info("Email={} is still free, proceeding", email);
     }
 
     /*

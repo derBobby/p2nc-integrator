@@ -18,7 +18,7 @@ public abstract class NotificationService implements EnvironmentAware {
     private String prefixTag;
 
     protected void logNotificationOK() {
-        log.info("Notification has been sent, if enabled.");
+        log.debug("Notification has been sent, if enabled.");
     }
 
     protected void logNotificationError(Exception e) {

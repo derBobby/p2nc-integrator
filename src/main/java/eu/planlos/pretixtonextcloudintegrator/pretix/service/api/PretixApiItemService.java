@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
@@ -31,47 +30,39 @@ public class PretixApiItemService extends PretixApiService {
      */
     public List<ItemDTO> queryAllItems() {
 
-        try {
-            ItemsDTO dto = webClient
-                    .get()
-                    .uri(itemListUri())
-                    .retrieve()
-                    .bodyToMono(ItemsDTO.class)
-                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
-                    .doOnError(error -> log.error("Message fetching all items from Pretix API: {}", error.getMessage()))
-                    .block();
+        ItemsDTO dto = webClient
+                .get()
+                .uri(itemListUri())
+                .retrieve()
+                .bodyToMono(ItemsDTO.class)
+                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .doOnError(error -> log.error("Message fetching all items from Pretix API: {}", error.getMessage()))
+                .block();
 
-            if (dto != null) {
-                List<ItemDTO> itemsDTOList = new ArrayList<>(dto.results());
-                itemsDTOList.forEach(item -> log.info(FETCH_MESSAGE, item));
-                return itemsDTOList;
-            }
-
-            throw new ApiException(ApiException.IS_NULL);
-        } catch (WebClientResponseException e) {
-            throw new ApiException(e);
+        if (dto != null) {
+            List<ItemDTO> itemsDTOList = new ArrayList<>(dto.results());
+            itemsDTOList.forEach(item -> log.info(FETCH_MESSAGE, item));
+            return itemsDTOList;
         }
+
+        throw new ApiException(ApiException.IS_NULL);
     }
 
     public ItemDTO queryItem(PretixId itemId) {
-        try {
-            ItemDTO itemDTO = webClient
-                    .get()
-                    .uri(specificItemUri(itemId.getValue()))
-                    .retrieve()
-                    .bodyToMono(ItemDTO.class)
-                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
-                    .doOnError(error -> log.error("Message fetching item={} from Pretix API: {}", error.getMessage()))
-                    .block();
-            if (itemDTO != null) {
-                log.info(FETCH_MESSAGE, itemDTO);
-                return itemDTO;
-            }
-
-            throw new ApiException(ApiException.IS_NULL);
-        } catch (WebClientResponseException e) {
-            throw new ApiException(e);
+        ItemDTO itemDTO = webClient
+                .get()
+                .uri(specificItemUri(itemId.getValue()))
+                .retrieve()
+                .bodyToMono(ItemDTO.class)
+                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .doOnError(error -> log.error("Message fetching item={} from Pretix API: {}", itemId, error.getMessage()))
+                .block();
+        if (itemDTO != null) {
+            log.info(FETCH_MESSAGE, itemDTO);
+            return itemDTO;
         }
+
+        throw new ApiException(ApiException.IS_NULL);
     }
 
     /*

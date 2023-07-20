@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
@@ -31,49 +30,40 @@ public class PretixApiQuestionService extends PretixApiService {
      */
     public List<QuestionDTO> queryAllQuestions() {
 
-        QuestionsDTO dto;
-        try {
-            dto = webClient
-                    .get()
-                    .uri(questionListUri())
-                    .retrieve()
-                    .bodyToMono(QuestionsDTO.class)
-                    .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
-                    .doOnError(error -> log.error("Message fetching all questions from Pretix API: {}", error.getMessage()))
-                    .block();
+        QuestionsDTO dto = webClient
+                .get()
+                .uri(questionListUri())
+                .retrieve()
+                .bodyToMono(QuestionsDTO.class)
+                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .doOnError(error -> log.error("Message fetching all questions from Pretix API: {}", error.getMessage()))
+                .block();
 
-            if (dto != null) {
-                List<QuestionDTO> questionDTOList = new ArrayList<>(dto.results());
-                questionDTOList.forEach(questionDTO -> log.info(FETCH_MESSAGE, questionDTO));
-                return questionDTOList;
-            }
-
-            throw new ApiException(ApiException.IS_NULL);
-        } catch (WebClientResponseException e) {
-            throw new ApiException(e);
+        if (dto != null) {
+            List<QuestionDTO> questionDTOList = new ArrayList<>(dto.results());
+            questionDTOList.forEach(questionDTO -> log.info(FETCH_MESSAGE, questionDTO));
+            return questionDTOList;
         }
+
+        throw new ApiException(ApiException.IS_NULL);
     }
 
     public QuestionDTO queryQuestion(PretixId questionId) {
 
-        try {
-            QuestionDTO questionDto = webClient
-                    .get()
-                    .uri(specificQuestionUri(questionId.getValue()))
-                    .retrieve()
-                    .bodyToMono(QuestionDTO.class)
-                    .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
-                    .doOnError(error -> log.error("Message fetching question={} from Pretix API: {}", error.getMessage()))
-                    .block();
-            if(questionDto!=null) {
-                log.info(FETCH_MESSAGE, questionDto);
-                return questionDto;
-            }
-
-            throw new ApiException(ApiException.IS_NULL);
-        } catch (WebClientResponseException e) {
-            throw new ApiException(e);
+        QuestionDTO questionDto = webClient
+                .get()
+                .uri(specificQuestionUri(questionId.getValue()))
+                .retrieve()
+                .bodyToMono(QuestionDTO.class)
+                .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
+                .doOnError(error -> log.error("Message fetching question={} from Pretix API: {}", questionId, error.getMessage()))
+                .block();
+        if (questionDto != null) {
+            log.info(FETCH_MESSAGE, questionDto);
+            return questionDto;
         }
+
+        throw new ApiException(ApiException.IS_NULL);
     }
 
 

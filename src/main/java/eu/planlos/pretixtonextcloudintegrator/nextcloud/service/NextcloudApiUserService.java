@@ -16,15 +16,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException.*;
+import static eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException.EMAIL_TAKEN;
+import static eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException.SHORT_USERID;
 
 @Slf4j
 @Service
@@ -38,13 +39,17 @@ public class NextcloudApiUserService extends NextcloudApiService {
     public static final String NC_API_USERLIST_JSON_URL = NC_API_USERS_URL + NC_API_JSON_SUFFIX;
     public static final String NC_API_USER_JSON_URL = NC_API_USERS_URL + "/%s" + NC_API_JSON_SUFFIX;
 
-    public NextcloudApiUserService(NextcloudApiConfig nextcloudApiConfig, @Qualifier("NextcloudWebClient") WebClient webClient ) {
+    public NextcloudApiUserService(NextcloudApiConfig nextcloudApiConfig, @Qualifier("NextcloudWebClient") WebClient webClient) {
         super(nextcloudApiConfig, webClient);
     }
 
-    public List<String> getAllUseridsFromNextcloud() {
+    public List<String> getAllUserIdsFromNextcloud() {
 
-        if(log.isDebugEnabled()) {
+        if (nextcloudApiConfig.inactive()) {
+            return Collections.emptyList();
+        }
+
+        if (log.isDebugEnabled()) {
             JsonNode jsonNode = webClient
                     .get()
                     .uri(NC_API_USERLIST_JSON_URL)
@@ -58,10 +63,14 @@ public class NextcloudApiUserService extends NextcloudApiService {
                 .get()
                 .uri(NC_API_USERLIST_JSON_URL)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUserList>>(){})
+                .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUserList>>() {})
                 .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
                 .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                 .block();
+
+        if (apiResponse == null) {
+            throw new ApiException(ApiException.IS_NULL);
+        }
 
         NextcloudUserList nextcloudUseridList = apiResponse.getData();
         return nextcloudUseridList.getUsers();
@@ -69,7 +78,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
 
     private NextcloudUser getUser(String username) {
 
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             JsonNode jsonNode = webClient
                     .get()
                     .uri(buildUriGetUser(username))
@@ -85,24 +94,36 @@ public class NextcloudApiUserService extends NextcloudApiService {
                 .get()
                 .uri(buildUriGetUser(username))
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUser>>(){})
+                .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudUser>>() {})
                 .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
                 .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                 .block();
+
+        if (apiResponse == null) {
+            throw new ApiException(ApiException.IS_NULL);
+        }
 
         return apiResponse.getData();
     }
 
     public Map<String, String> getAllUsersAsUseridEmailMap() {
 
-        List<String> useridList = getAllUseridsFromNextcloud();
+        if (nextcloudApiConfig.inactive()) {
+            return Collections.emptyMap();
+        }
+
+        List<String> useridList = getAllUserIdsFromNextcloud();
         return useridList.stream().collect(Collectors.toMap(
                 userid -> userid,
                 userid -> getUser(userid).email()
         ));
     }
 
-    public String createUser(String email, String firstName, String lastName){
+    public String createUser(String email, String firstName, String lastName) {
+
+        if (nextcloudApiConfig.inactive()) {
+            return null;
+        }
 
         Map<String, String> allUsersMap = getAllUsersAsUseridEmailMap();
         failIfMailAddressAlreadyInUse(email, allUsersMap);
@@ -110,38 +131,33 @@ public class NextcloudApiUserService extends NextcloudApiService {
         // Create user
         String userid = generateUserId(allUsersMap, firstName, lastName);
 
-
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("userid", userid);
         formData.add("email", email);
         formData.add("displayName", String.format("%s %s", firstName, lastName));
         formData.add("groups[]", nextcloudApiConfig.defaultGroup());
 
-        try {
-            NextcloudApiResponse<NextcloudResponse> apiResponse = webClient
-                    .post()
-                    .uri(NC_API_USERLIST_JSON_URL)
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .bodyValue(formData)
-                    .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudResponse>>(){})
-                    .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
-                    .doOnError(error -> log.error(FAIL_MESSAGE_CREATE_USER, email, error.getMessage()))
-                    .block();
+        NextcloudApiResponse<NextcloudResponse> apiResponse = webClient
+                .post()
+                .uri(NC_API_USERLIST_JSON_URL)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .bodyValue(formData)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<NextcloudApiResponse<NextcloudResponse>>() {
+                })
+                .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
+                .doOnError(error -> log.error(FAIL_MESSAGE_CREATE_USER, email, error.getMessage()))
+                .block();
 
-            //TODO error handling
-            if (apiResponse == null) {
-                throw new ApiException("ApiResponse object is NULL");
-            }
-            if(apiResponse.getMeta().getStatus().equals("failure")) {
-                throw new ApiException(String.format("Status is 'failure': %s", apiResponse));
-            }
-            log.debug(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
-
-            return userid;
-        } catch (WebClientResponseException e) {
-            throw new ApiException(e);
+        if (apiResponse == null) {
+            throw new ApiException(ApiException.IS_NULL);
         }
+        if (apiResponse.getMeta().getStatus().equals("failure")) {
+            throw new ApiException(String.format("Status is 'failure': %s", apiResponse));
+        }
+        log.debug(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
+
+        return userid;
     }
 
     /*

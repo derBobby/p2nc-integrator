@@ -32,9 +32,9 @@ jobs:
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
     permissions:
       actions: read
-      contents: read
+      contents: write
       security-events: write
-
+      
     strategy:
       fail-fast: false
       matrix:

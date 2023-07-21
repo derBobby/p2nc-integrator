@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
         webHookAuditService.log(orderApprovalString(hook));
         String hookAction = hook.action();
 
-        //TODO Add tests for the cases
         if(hookAction.equals(ORDER_NEED_APPROVAL)) {
             webHookHandler.handleApprovalNotification(hook.code());
             return;

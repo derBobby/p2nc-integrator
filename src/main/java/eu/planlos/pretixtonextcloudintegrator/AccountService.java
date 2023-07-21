@@ -1,9 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
-import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.AccountCreationException;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
@@ -51,7 +49,6 @@ public class AccountService implements IWebHookHandler {
 
     public void handleUserCreation(WebHookDTO webHookDTO) {
 
-        // TODO better error handling
         try {
 
             Booking booking = bookingService.loadOrFetch(webHookDTO.code());
@@ -69,10 +66,10 @@ public class AccountService implements IWebHookHandler {
             notifyAdmin(SUBJECT_OK, successMessage);
             log.info(successMessage);
 
-        } catch (AccountCreationException | ApiException e) {
+        } catch (Exception e) {
             String errorMessage = String.format("Error creating account for order code %s: %s", webHookDTO.code(), e.getMessage());
             log.error(errorMessage);
-            notifyAdmin(SUBJECT_FAIL, e.getMessage());
+            notifyAdmin(SUBJECT_FAIL, errorMessage);
         }
     }
 

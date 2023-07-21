@@ -134,7 +134,6 @@ public class ProductService {
 
         // No variations
         if (itemDTO.variations().size() == 0) {
-            //TODO check if variation is null here
             return List.of(new Product(new PretixId(itemDTO.id()), baseName, productType));
         }
 

@@ -61,7 +61,7 @@ public class PretixApiOrderService extends PretixApiService {
             return orderDto;
         }
 
-        throw new ApiException("ApiResponse object is NULL");
+        throw new ApiException(ApiException.IS_NULL);
     }
 
     /*

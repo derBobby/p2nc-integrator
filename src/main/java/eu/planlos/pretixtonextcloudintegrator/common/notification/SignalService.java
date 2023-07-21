@@ -10,7 +10,6 @@ import org.springframework.mail.MailException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
@@ -57,7 +56,7 @@ public class SignalService extends NotificationService {
 
     private void send(String message) {
 
-        if(! config.active()) {
+        if (!config.active()) {
             log.info("Signal notifications are disabled. Skip sending");
             return;
         }
@@ -65,26 +64,23 @@ public class SignalService extends NotificationService {
 
         String prefixedMessage = prefixSubject(message);
         String jsonMessage = String.format(SIGNAL_JSON, prefixedMessage, config.phoneSender(), config.phoneReceiver());
-        try {
-            String apiResponse = webClient
-                    .post()
-                    .uri("/v2/send")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(jsonMessage)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
-                    .doOnError(error -> log.error("Notification failed."))
-                    .block();
-            if (apiResponse != null) {
-                log.info("Response is: {}", apiResponse);
-                return;
-            }
 
-            throw new ApiException("ApiResponse object is NULL");
-        } catch (WebClientResponseException e) {
-            throw new ApiException(e);
+        String apiResponse = webClient
+                .post()
+                .uri("/v2/send")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(jsonMessage)
+                .retrieve()
+                .bodyToMono(String.class)
+                .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
+                .doOnError(error -> log.error("Notification failed."))
+                .block();
+        if (apiResponse != null) {
+            log.info("Response is: {}", apiResponse);
+            return;
         }
+
+        throw new ApiException(ApiException.IS_NULL);
     }
 }
 

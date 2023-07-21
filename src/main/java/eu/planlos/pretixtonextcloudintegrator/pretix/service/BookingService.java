@@ -52,7 +52,6 @@ public class BookingService {
     }
 
     public void fetchAll() {
-        //TODO continue here. Is everything persisted correctly?
         List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders();
         List<Booking> bookingList = orderDTOList.stream().map(this::convert).collect(Collectors.toList());
         bookingRepository.saveAll(bookingList);

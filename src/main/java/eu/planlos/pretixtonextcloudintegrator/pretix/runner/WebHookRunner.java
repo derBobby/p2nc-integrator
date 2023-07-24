@@ -28,9 +28,12 @@ public class WebHookRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments arg0) {
+
+        //TODO RUNNER CURRENTLY BROKEN DUE TO MISSING RequestContext HERE
+
         if (pretixFeatureConfig.sendDebugWebHookEnabled()) {
             WebHookDTO webHookDTO = new WebHookDTO(64158L, "kvkraichgau", "zeltlager23ma", "3PCGD", "pretix.event.order.approved");
-            webHookHandler.handleUserCreation(webHookDTO);
+            webHookHandler.handleUserCreation(webHookDTO.code());
         }
     }
 }

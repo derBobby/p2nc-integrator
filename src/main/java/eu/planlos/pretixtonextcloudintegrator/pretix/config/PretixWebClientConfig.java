@@ -20,7 +20,6 @@ public class PretixWebClientConfig {
         log.info("Creating WebClient using:");
         log.info("- Pretix address: {}", apiConfig.address());
         log.info("- Pretix organizer: {}", apiConfig.organizer());
-        log.info("- Pretix event: {}", apiConfig.event());
 
         return WebClient.builder()
                 .baseUrl(apiConfig.address())

@@ -6,7 +6,6 @@ import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUser
 import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Position;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.BookingService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,6 @@ public class AccountService implements IWebHookHandler {
     public static final String SUBJECT_OK = "Account creation successful";
     public static final String SUBJECT_FAIL = "Account creation failed";
     public static final String SUBJECT_IRRELEVANT = "Account creation not required";
-
 
     private final BookingService bookingService;
     private final QnaFilterService qnaFilterService;
@@ -47,15 +45,14 @@ public class AccountService implements IWebHookHandler {
                 String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(code)));
     }
 
-    public void handleUserCreation(WebHookDTO webHookDTO) {
+    public void handleUserCreation(String code) {
 
         try {
-
-            Booking booking = bookingService.loadOrFetch(webHookDTO.code());
+            Booking booking = bookingService.loadOrFetch(code);
             log.info("Order found: {}", booking);
 
             if(irrelevantForBooking(booking)) {
-                String infoMessage = String.format("Order with code %s was excluded for account creation by filter ", webHookDTO.code());
+                String infoMessage = String.format("Order with code %s was excluded for account creation by filter ", code);
                 log.info(infoMessage);
                 notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);
                 return;
@@ -67,7 +64,7 @@ public class AccountService implements IWebHookHandler {
             log.info(successMessage);
 
         } catch (Exception e) {
-            String errorMessage = String.format("Error creating account for order code %s: %s", webHookDTO.code(), e.getMessage());
+            String errorMessage = String.format("Error creating account for order code %s: %s", code, e.getMessage());
             log.error(errorMessage);
             notifyAdmin(SUBJECT_FAIL, errorMessage);
         }

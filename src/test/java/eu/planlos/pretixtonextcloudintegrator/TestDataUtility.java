@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class TestDataGenerator {
+public abstract class TestDataUtility {
 
     protected Booking booking() {
         return new Booking(

@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceTest extends TestDataGenerator {
+public class AccountServiceTest extends TestDataUtility {
 
     @Mock
     BookingService bookingService;
@@ -49,16 +49,17 @@ public class AccountServiceTest extends TestDataGenerator {
     public void orderApprovalRequired_adminIsNotified() {
         // Prepare
         //      objects
-        String orderCode = newCode();
+        WebHookDTO hook = orderApprovedHook();
+        String code = hook.code();
         //      methods
-        when(pretixApiOrderService.getEventUrl(orderCode)).thenReturn(String.format("https://example.com/%s", orderCode));
+        when(pretixApiOrderService.getEventUrl(code)).thenReturn(String.format("https://example.com/%s", code));
 
         // Act
-        accountService.handleApprovalNotification(orderCode);
+        accountService.handleApprovalNotification(code);
 
         // Check
-        verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", orderCode)));
-        verify(signalService).notifyAdmin(anyString(), matches(String.format(".*%s.*", orderCode)));
+        verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", code)));
+        verify(signalService).notifyAdmin(anyString(), matches(String.format(".*%s.*", code)));
     }
 
     /**
@@ -75,7 +76,7 @@ public class AccountServiceTest extends TestDataGenerator {
         positionFilterIrrelevant();
 
         // Act
-        accountService.handleUserCreation(webHook);
+        accountService.handleUserCreation(webHook.code());
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
@@ -94,7 +95,7 @@ public class AccountServiceTest extends TestDataGenerator {
         positionFilterRelevant();
 
         // Act
-        accountService.handleUserCreation(webHook);
+        accountService.handleUserCreation(webHook.code());
 
         // Check
         verify(nextcloudApiUserService).createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());

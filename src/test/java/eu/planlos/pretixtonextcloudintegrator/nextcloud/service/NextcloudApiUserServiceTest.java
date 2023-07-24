@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.nextcloud.service;
 
-import eu.planlos.pretixtonextcloudintegrator.TestDataGenerator;
+import eu.planlos.pretixtonextcloudintegrator.TestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.config.NextcloudApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.reactive.function.client.WebClient.*;
 
 @ExtendWith(MockitoExtension.class)
-public class NextcloudApiUserServiceTest extends TestDataGenerator {
+public class NextcloudApiUserServiceTest extends TestDataUtility {
 
     private static final NextcloudApiConfig apiConfig = new NextcloudApiConfig(true, "https://localhost/{userId}", "username", "password", "group");
 

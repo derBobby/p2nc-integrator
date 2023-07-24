@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class QnaFilterServiceTest extends TestDataGenerator {
+public class QnaFilterServiceTest extends TestDataUtility {
 
     @Test
     public void filterMap_containsMatch() {

@@ -34,6 +34,8 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments arg0) {
 
+        //TODO RUNNER CURRENTLY BROKEN DUE TO MISSING RequestContext HERE
+
         if(pretixFeatureConfig.preloadAllExceptOrdersEnabled()) {
             logSeparator("STARTING PRELOAD (NON-ORDERS)");
             questionService.fetchAll();

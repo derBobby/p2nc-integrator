@@ -1,6 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
+import eu.planlos.pretixtonextcloudintegrator.common.web.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.list.ItemsDTO;
@@ -21,8 +22,8 @@ public class PretixApiItemService extends PretixApiService {
 
     private static final String FETCH_MESSAGE = "Fetched item from Pretix: {}";
 
-    public PretixApiItemService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient) {
-        super(pretixApiConfig, webClient);
+    public PretixApiItemService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient, PretixContext pretixContext) {
+        super(pretixApiConfig, webClient, pretixContext);
     }
 
     /*
@@ -76,7 +77,7 @@ public class PretixApiItemService extends PretixApiService {
         return String.join(
                 "",
                 "api/v1/organizers/", pretixApiConfig.organizer(),
-                "/events/", pretixApiConfig.event(),
+                "/events/", pretixEvent(),
                 "/items/");
     }
 }

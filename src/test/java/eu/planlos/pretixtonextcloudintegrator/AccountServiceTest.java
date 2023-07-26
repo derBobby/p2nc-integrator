@@ -51,11 +51,12 @@ public class AccountServiceTest extends TestDataUtility {
         //      objects
         WebHookDTO hook = orderApprovedHook();
         String code = hook.code();
+        String event = hook.event();
         //      methods
         when(pretixApiOrderService.getEventUrl(code)).thenReturn(String.format("https://example.com/%s", code));
 
         // Act
-        accountService.handleApprovalNotification(code);
+        accountService.handleApprovalNotification(event, code);
 
         // Check
         verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", code)));
@@ -69,14 +70,14 @@ public class AccountServiceTest extends TestDataUtility {
     public void irrelevantForBooking_noAccountCreated() {
         // Prepare
         //      objects
-        WebHookDTO webHook = orderApprovedHook();
+        WebHookDTO hook = orderApprovedHook();
         Booking booking = booking();
         //      methods
-        when(bookingService.loadOrFetch(webHook.code())).thenReturn(booking);
+        when(bookingService.loadOrFetch(hook.code())).thenReturn(booking);
         positionFilterIrrelevant();
 
         // Act
-        accountService.handleUserCreation(webHook.code());
+        accountService.handleUserCreation(hook.event(), hook.code());
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
@@ -88,14 +89,14 @@ public class AccountServiceTest extends TestDataUtility {
     public void relevantForBooking_accountCreated() {
         // Prepare
         //      objects
-        WebHookDTO webHook = orderApprovedHook();
+        WebHookDTO hook = orderApprovedHook();
         Booking booking = booking();
         //      methods
-        when(bookingService.loadOrFetch(webHook.code())).thenReturn(booking);
+        when(bookingService.loadOrFetch(hook.code())).thenReturn(booking);
         positionFilterRelevant();
 
         // Act
-        accountService.handleUserCreation(webHook.code());
+        accountService.handleUserCreation(hook.event(), hook.code());
 
         // Check
         verify(nextcloudApiUserService).createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
@@ -108,10 +109,10 @@ public class AccountServiceTest extends TestDataUtility {
     }
 
     private void positionFilterIrrelevant() {
-        when(qnaFilterService.filter(anyMap())).thenReturn(false);
+        when(qnaFilterService.filter(anyString(), anyMap())).thenReturn(false);
     }
 
     private void positionFilterRelevant() {
-        when(qnaFilterService.filter(anyMap())).thenReturn(true);
+        when(qnaFilterService.filter(anyString(), anyMap())).thenReturn(true);
     }
 }

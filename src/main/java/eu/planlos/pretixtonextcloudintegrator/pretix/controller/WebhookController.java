@@ -43,12 +43,12 @@ import org.springframework.web.bind.annotation.*;
         String hookCode = hook.code();
 
         if(hookAction.equals(ORDER_NEED_APPROVAL)) {
-            webHookHandler.handleApprovalNotification(hookCode);
+            webHookHandler.handleApprovalNotification(hook.event(), hookCode);
             return;
         }
 
         if(hookAction.equals(ORDER_APPROVED)) {
-            webHookHandler.handleUserCreation(hookCode);
+            webHookHandler.handleUserCreation(hook.event(), hookCode);
             return;
         }
 

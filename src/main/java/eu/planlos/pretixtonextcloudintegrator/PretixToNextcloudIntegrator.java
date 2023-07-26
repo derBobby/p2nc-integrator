@@ -11,5 +11,4 @@ public class PretixToNextcloudIntegrator {
     public static void main(String[] args) {
         SpringApplication.run(PretixToNextcloudIntegrator.class, args);
     }
-
 }

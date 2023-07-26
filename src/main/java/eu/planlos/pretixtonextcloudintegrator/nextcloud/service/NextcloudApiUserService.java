@@ -119,7 +119,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
     public String createUser(String email, String firstName, String lastName) {
 
         if (nextcloudApiConfig.inactive()) {
-            return null;
+            return "api-inactive";
         }
 
         Map<String, String> allUsersMap = getAllUsersAsUseridEmailMap();

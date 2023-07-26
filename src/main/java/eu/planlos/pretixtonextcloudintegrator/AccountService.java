@@ -40,19 +40,20 @@ public class AccountService implements IWebHookHandler {
         this.signalService = signalService;
     }
 
-    public void handleApprovalNotification(String code) {
+    //TODO event from context or via parameter`?
+    public void handleApprovalNotification(String event, String code) {
         notifyAdmin("New order",
                 String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(code)));
     }
 
-    public void handleUserCreation(String code) {
+    public void handleUserCreation(String event, String code) {
 
         try {
             Booking booking = bookingService.loadOrFetch(code);
             log.info("Order found: {}", booking);
 
-            if(irrelevantForBooking(booking)) {
-                String infoMessage = String.format("Order with code %s was excluded for account creation by filter ", code);
+            if(irrelevantForBooking(event, booking)) {
+                String infoMessage = String.format("Order with code %s was excluded for account creation by filter", code);
                 log.info(infoMessage);
                 notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);
                 return;
@@ -70,11 +71,11 @@ public class AccountService implements IWebHookHandler {
         }
     }
 
-    private boolean irrelevantForBooking(Booking booking) {
+    private boolean irrelevantForBooking(String event, Booking booking) {
         List<Position> ticketPositionList = booking.getPositionList().stream()
                 .filter(p -> ! p.getProduct().getProductType().isAddon())
                 .filter(p -> ! p.getQnA().isEmpty())
-                .filter(p -> qnaFilterService.filter(p.getQnA()))
+                .filter(p -> qnaFilterService.filter(event, p.getQnA()))
                 .toList();
         return ticketPositionList.isEmpty();
     }

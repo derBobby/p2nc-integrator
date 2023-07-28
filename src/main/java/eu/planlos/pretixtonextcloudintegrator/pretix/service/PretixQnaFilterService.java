@@ -1,10 +1,9 @@
-package eu.planlos.pretixtonextcloudintegrator;
+package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.common.util.GermanStringsUtility;
-import eu.planlos.pretixtonextcloudintegrator.config.EventFilterConfig;
-import eu.planlos.pretixtonextcloudintegrator.model.QnaFilter;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
+import eu.planlos.pretixtonextcloudintegrator.common.web.PretixContext;
+import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,24 +13,28 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class QnaFilterService {
+public class PretixQnaFilterService {
 
-    private final EventFilterConfig eventFilterConfig;
+    private final PretixEventFilterConfig pretixEventFilterConfig;
+    protected final PretixContext pretixContext;
 
-    public QnaFilterService(EventFilterConfig eventFilterConfig) {
-        this.eventFilterConfig = eventFilterConfig;
+    public PretixQnaFilterService(PretixEventFilterConfig pretixEventFilterConfig, PretixContext pretixContext) {
+        this.pretixEventFilterConfig = pretixEventFilterConfig;
+        this.pretixContext = pretixContext;
         log.debug("Event filter config set in service");
     }
 
-    public Boolean filter(String event, Map<Question, Answer> qnaMap) {
+    protected Boolean filter(Map<Question, Answer> qnaMap) {
+
+        String event = pretixContext.getEvent();
 
         // If no filter must be applied, then filter is successful
-        List<QnaFilter> qnaFilterList = eventFilterConfig.getQnaFilterForEvent(event);
-        if (qnaFilterList.isEmpty()) {
+        List<PretixQnaFilter> pretixQnaFilterList = pretixEventFilterConfig.getQnaFilterForEvent(event);
+        if (pretixQnaFilterList.isEmpty()) {
             return true;
         }
 
-        for(QnaFilter filter : qnaFilterList) {
+        for(PretixQnaFilter filter : pretixQnaFilterList) {
 
             Map<String, List<String>> qnaFilterMap = filter.filterMap();
             Map<String, String> extractedQnaMap = extractQnaMap(qnaMap);
@@ -54,6 +57,16 @@ public class QnaFilterService {
         }
         log.debug("   No filter matches");
         return false;
+    }
+
+    public boolean irrelevantForBooking(Booking booking) {
+
+        List<Position> ticketPositionList = booking.getPositionList().stream()
+                .filter(p -> ! p.getProduct().getProductType().isAddon())
+                .filter(p -> ! p.getQnA().isEmpty())
+                .filter(p -> filter(p.getQnA()))
+                .toList();
+        return ticketPositionList.isEmpty();
     }
 
     private Map<String, String> extractQnaMap(Map<Question, Answer> qnaMap) {

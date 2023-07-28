@@ -2,7 +2,7 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.common.web.PretixContext;
-import eu.planlos.pretixtonextcloudintegrator.pretix.IWebHookHandler;
+import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -12,16 +12,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/webhook")
 @Slf4j
- public class WebhookController {
+ public class PretixWebhookController {
 
     private static final String ORDER_APPROVED = "pretix.event.order.approved";
     private static final String ORDER_NEED_APPROVAL = "pretix.event.order.placed.require_approval";
 
     private final AuditService webHookAuditService;
-    private final IWebHookHandler webHookHandler;
+    private final IPretixWebHookHandler webHookHandler;
     private final PretixContext pretixContext;
 
-    public WebhookController(AuditService webHookAuditService, IWebHookHandler webHookHandler, PretixContext pretixContext) {
+    public PretixWebhookController(AuditService webHookAuditService, IPretixWebHookHandler webHookHandler, PretixContext pretixContext) {
         this.webHookAuditService = webHookAuditService;
         this.webHookHandler = webHookHandler;
         this.pretixContext = pretixContext;
@@ -43,12 +43,12 @@ import org.springframework.web.bind.annotation.*;
         String hookCode = hook.code();
 
         if(hookAction.equals(ORDER_NEED_APPROVAL)) {
-            webHookHandler.handleApprovalNotification(hook.event(), hookCode);
+            webHookHandler.handleApprovalNotification(hookCode);
             return;
         }
 
         if(hookAction.equals(ORDER_APPROVED)) {
-            webHookHandler.handleUserCreation(hook.event(), hookCode);
+            webHookHandler.handleUserCreation(hookCode);
             return;
         }
 

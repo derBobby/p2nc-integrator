@@ -2,7 +2,7 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.runner;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixFeatureConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.ProductService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.BookingService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixBookingService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -18,13 +18,13 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
 
     private final ProductService productService;
     private final QuestionService questionService;
-    private final BookingService bookingService;
+    private final PretixBookingService pretixBookingService;
 
-    public PreloadPretixDataRunner(PretixFeatureConfig pretixFeatureConfig, ProductService productService, QuestionService questionService, BookingService bookingService) {
+    public PreloadPretixDataRunner(PretixFeatureConfig pretixFeatureConfig, ProductService productService, QuestionService questionService, PretixBookingService pretixBookingService) {
         this.pretixFeatureConfig = pretixFeatureConfig;
         this.productService = productService;
         this.questionService = questionService;
-        this.bookingService = bookingService;
+        this.pretixBookingService = pretixBookingService;
     }
 
     public static void main(String[] args) {
@@ -45,7 +45,7 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
 
         if(pretixFeatureConfig.preloadOrdersEnabled()) {
             logSeparator("STARTING PRELOAD (ORDERS)");
-            bookingService.fetchAll();
+            pretixBookingService.fetchAll();
             logSeparator("PRELOAD COMPLETE (ORDERS)");
         }
     }

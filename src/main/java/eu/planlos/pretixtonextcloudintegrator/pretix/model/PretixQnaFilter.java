@@ -1,11 +1,11 @@
-package eu.planlos.pretixtonextcloudintegrator.model;
+package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public record QnaFilter(Map<String, List<String>> filterMap) {
+public record PretixQnaFilter(Map<String, List<String>> filterMap) {
 
     @Override
     public String toString() {
@@ -28,7 +28,7 @@ public record QnaFilter(Map<String, List<String>> filterMap) {
         return sb.toString();
     }
 
-    public static QnaFilter fromString(String text) {
+    public static PretixQnaFilter fromString(String text) {
         if (text == null || text.trim().isEmpty()) {
             return null;
         }
@@ -43,6 +43,6 @@ public record QnaFilter(Map<String, List<String>> filterMap) {
                 filterMap.put(key, values);
             }
         }
-        return new QnaFilter(filterMap);
+        return new PretixQnaFilter(filterMap);
     }
 }

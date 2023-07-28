@@ -1,6 +1,6 @@
-package eu.planlos.pretixtonextcloudintegrator.config;
+package eu.planlos.pretixtonextcloudintegrator.pretix.config;
 
-import eu.planlos.pretixtonextcloudintegrator.model.QnaFilter;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import jakarta.annotation.PostConstruct;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "event-filter")
-public class EventFilterConfig {
+public class PretixEventFilterConfig {
 
     private final Map<String, List<Map<String, List<String>>>> map = new HashMap<>();
-    private final Map<String, List<QnaFilter>> eventFilterMap = new HashMap<>();
+    private final Map<String, List<PretixQnaFilter>> eventFilterMap = new HashMap<>();
 
     @ConstructorBinding
-    public EventFilterConfig(Map<String, List<Map<String, List<String>>>> map) {
+    public PretixEventFilterConfig(Map<String, List<Map<String, List<String>>>> map) {
         this.map.putAll(map);
     }
 
@@ -26,28 +26,28 @@ public class EventFilterConfig {
     private void setup() {
         eventFilterMap.putAll(map.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
-                entry -> entry.getValue().stream().map(QnaFilter::new).toList()
+                entry -> entry.getValue().stream().map(PretixQnaFilter::new).toList()
         )));
         validate();
     }
 
     private void validate() {
         eventFilterMap.values().forEach(qnaList -> {
-            Set<QnaFilter> set = new HashSet<>();
-            for (QnaFilter qnaFilter : qnaList) {
-                if (!set.add(qnaFilter)) {
+            Set<PretixQnaFilter> set = new HashSet<>();
+            for (PretixQnaFilter pretixQnaFilter : qnaList) {
+                if (!set.add(pretixQnaFilter)) {
                     throw new IllegalArgumentException("Filter is not unique");
                 }
             }
         });
     }
 
-    public List<QnaFilter> getQnaFilterForEvent(String event) {
+    public List<PretixQnaFilter> getQnaFilterForEvent(String event) {
         return eventFilterMap.getOrDefault(event, Collections.emptyList());
     }
 
-    public static EventFilterConfig with(Map<String, List<QnaFilter>> eventFilterMap) {
-        EventFilterConfig config = new EventFilterConfig();
+    public static PretixEventFilterConfig with(Map<String, List<PretixQnaFilter>> eventFilterMap) {
+        PretixEventFilterConfig config = new PretixEventFilterConfig();
         config.eventFilterMap.putAll(eventFilterMap);
         config.validate();
         return config;

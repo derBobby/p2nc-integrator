@@ -5,7 +5,8 @@ import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.BookingService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixBookingService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixQnaFilterService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 public class AccountServiceTest extends TestDataUtility {
 
     @Mock
-    BookingService bookingService;
+    PretixBookingService pretixBookingService;
 
     @Mock
     PretixApiOrderService pretixApiOrderService;
@@ -31,7 +32,7 @@ public class AccountServiceTest extends TestDataUtility {
     NextcloudApiUserService nextcloudApiUserService;
 
     @Mock
-    QnaFilterService qnaFilterService;
+    PretixQnaFilterService pretixQnaFilterService;
 
     @Mock
     MailService mailService;
@@ -51,12 +52,11 @@ public class AccountServiceTest extends TestDataUtility {
         //      objects
         WebHookDTO hook = orderApprovedHook();
         String code = hook.code();
-        String event = hook.event();
         //      methods
         when(pretixApiOrderService.getEventUrl(code)).thenReturn(String.format("https://example.com/%s", code));
 
         // Act
-        accountService.handleApprovalNotification(event, code);
+        accountService.handleApprovalNotification(code);
 
         // Check
         verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", code)));
@@ -73,11 +73,11 @@ public class AccountServiceTest extends TestDataUtility {
         WebHookDTO hook = orderApprovedHook();
         Booking booking = booking();
         //      methods
-        when(bookingService.loadOrFetch(hook.code())).thenReturn(booking);
+        when(pretixBookingService.loadOrFetch(hook.code())).thenReturn(booking);
         positionFilterIrrelevant();
 
         // Act
-        accountService.handleUserCreation(hook.event(), hook.code());
+        accountService.handleUserCreation(hook.code());
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
@@ -92,11 +92,11 @@ public class AccountServiceTest extends TestDataUtility {
         WebHookDTO hook = orderApprovedHook();
         Booking booking = booking();
         //      methods
-        when(bookingService.loadOrFetch(hook.code())).thenReturn(booking);
+        when(pretixBookingService.loadOrFetch(hook.code())).thenReturn(booking);
         positionFilterRelevant();
 
         // Act
-        accountService.handleUserCreation(hook.event(), hook.code());
+        accountService.handleUserCreation(hook.code());
 
         // Check
         verify(nextcloudApiUserService).createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
@@ -109,10 +109,10 @@ public class AccountServiceTest extends TestDataUtility {
     }
 
     private void positionFilterIrrelevant() {
-        when(qnaFilterService.filter(anyString(), anyMap())).thenReturn(false);
+        when(pretixQnaFilterService.irrelevantForBooking(any())).thenReturn(true);
     }
 
     private void positionFilterRelevant() {
-        when(qnaFilterService.filter(anyString(), anyMap())).thenReturn(true);
+        when(pretixQnaFilterService.irrelevantForBooking(any())).thenReturn(false);
     }
 }

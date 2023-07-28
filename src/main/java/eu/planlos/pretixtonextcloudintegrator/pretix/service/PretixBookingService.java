@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class BookingService {
+public class PretixBookingService {
 
     private final PretixApiOrderService pretixApiOrderService;
     private final ProductService productService;
@@ -24,7 +24,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
 
-    public BookingService(PretixApiOrderService pretixApiOrderService, ProductService productService, QuestionService questionService, BookingRepository bookingRepository) {
+    public PretixBookingService(PretixApiOrderService pretixApiOrderService, ProductService productService, QuestionService questionService, BookingRepository bookingRepository) {
         this.pretixApiOrderService = pretixApiOrderService;
         this.productService = productService;
         this.questionService = questionService;

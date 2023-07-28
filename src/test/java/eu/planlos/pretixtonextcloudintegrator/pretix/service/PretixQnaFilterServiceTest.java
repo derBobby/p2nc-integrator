@@ -1,7 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
-import eu.planlos.pretixtonextcloudintegrator.common.web.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;

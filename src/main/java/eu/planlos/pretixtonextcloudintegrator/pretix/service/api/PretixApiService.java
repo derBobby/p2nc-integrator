@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
-import eu.planlos.pretixtonextcloudintegrator.common.web.PretixContext;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.WebClient;

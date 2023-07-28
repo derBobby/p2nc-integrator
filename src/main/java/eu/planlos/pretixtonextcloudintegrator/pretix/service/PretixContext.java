@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.common.web;
+package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import lombok.Getter;
 import lombok.Setter;

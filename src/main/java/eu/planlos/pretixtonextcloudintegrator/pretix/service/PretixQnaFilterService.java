@@ -1,7 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.common.util.GermanStringsUtility;
-import eu.planlos.pretixtonextcloudintegrator.common.web.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
 import lombok.extern.slf4j.Slf4j;

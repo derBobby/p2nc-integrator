@@ -1,7 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
-import eu.planlos.pretixtonextcloudintegrator.common.web.PretixContext;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.list.ItemCategoriesDTO;

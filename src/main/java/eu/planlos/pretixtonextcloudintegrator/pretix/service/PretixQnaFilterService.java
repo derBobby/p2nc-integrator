@@ -23,6 +23,16 @@ public class PretixQnaFilterService {
         log.debug("Event filter config set in service");
     }
 
+    public boolean irrelevantForBooking(Booking booking) {
+
+        List<Position> ticketPositionList = booking.getPositionList().stream()
+                .filter(p -> ! p.getProduct().getProductType().isAddon())
+                .filter(p -> ! p.getQnA().isEmpty())
+                .filter(p -> filter(p.getQnA()))
+                .toList();
+        return ticketPositionList.isEmpty();
+    }
+
     protected Boolean filter(Map<Question, Answer> qnaMap) {
 
         String event = pretixContext.getEvent();
@@ -56,16 +66,6 @@ public class PretixQnaFilterService {
         }
         log.debug("   No filter matches");
         return false;
-    }
-
-    public boolean irrelevantForBooking(Booking booking) {
-
-        List<Position> ticketPositionList = booking.getPositionList().stream()
-                .filter(p -> ! p.getProduct().getProductType().isAddon())
-                .filter(p -> ! p.getQnA().isEmpty())
-                .filter(p -> filter(p.getQnA()))
-                .toList();
-        return ticketPositionList.isEmpty();
     }
 
     private Map<String, String> extractQnaMap(Map<Question, Answer> qnaMap) {

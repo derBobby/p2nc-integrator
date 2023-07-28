@@ -3,6 +3,7 @@ package eu.planlos.pretixtonextcloudintegrator;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixBookingService;
@@ -20,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AccountServiceTest extends TestDataUtility {
+public class AccountServiceTest extends PretixTestDataUtility {
 
     @Mock
     PretixBookingService pretixBookingService;

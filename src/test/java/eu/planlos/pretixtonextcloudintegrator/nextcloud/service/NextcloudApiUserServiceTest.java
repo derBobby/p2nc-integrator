@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.nextcloud.service;
 
-import eu.planlos.pretixtonextcloudintegrator.TestDataUtility;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.NextcloudTestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.config.NextcloudApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,7 +16,8 @@ import java.util.List;
 
 import static eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService.NC_API_USERLIST_JSON_URL;
 import static eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService.NC_API_USER_JSON_URL;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.reactive.function.client.WebClient.*;
 
 @ExtendWith(MockitoExtension.class)
-public class NextcloudApiUserServiceTest extends TestDataUtility {
+public class NextcloudApiUserServiceTest extends NextcloudTestDataUtility {
 
     private static final NextcloudApiConfig apiConfig = new NextcloudApiConfig(true, "https://localhost/{userId}", "username", "password", "group");
 

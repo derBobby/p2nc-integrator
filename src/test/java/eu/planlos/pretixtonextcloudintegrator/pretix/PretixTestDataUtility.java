@@ -1,19 +1,16 @@
-package eu.planlos.pretixtonextcloudintegrator;
+package eu.planlos.pretixtonextcloudintegrator.pretix;
 
 import eu.planlos.pretixtonextcloudintegrator.common.util.ZonedDateTimeUtility;
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudMeta;
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudUser;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 //TODO split up, containing different packages
-public abstract class TestDataUtility {
+public abstract class PretixTestDataUtility {
 
     public final String CORRECT_QUESTION_1 = "Question 1?";
     public final String CORRECT_ANSWER_1 = "Answer 1!";
@@ -76,22 +73,5 @@ public abstract class TestDataUtility {
 
     protected String newEvent() {
         return "event";
-    }
-
-    protected NextcloudUser takenUser() {
-        return new NextcloudUser(
-                "kv-kraichgau-dname",
-                "Display Name",
-                "dname@example.com",
-                new ArrayList<>(),
-                true);
-    }
-
-    protected NextcloudMeta okMeta() {
-        return new NextcloudMeta("200",
-                200,
-                "All fine",
-                null,
-                null);
     }
 }

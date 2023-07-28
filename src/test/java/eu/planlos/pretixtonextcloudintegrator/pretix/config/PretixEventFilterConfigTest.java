@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.config;
 
-import eu.planlos.pretixtonextcloudintegrator.TestDataUtility;
+import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-class PretixEventFilterConfigTest extends TestDataUtility {
+class PretixEventFilterConfigTest extends PretixTestDataUtility {
 
     @Test
     public void duplicateQnaFilter_throwsException() {

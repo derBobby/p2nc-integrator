@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
-import eu.planlos.pretixtonextcloudintegrator.TestDataUtility;
+import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.common.web.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class PretixQnaFilterServiceTest extends TestDataUtility {
+public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
 
     @Mock
     PretixContext pretixContext;

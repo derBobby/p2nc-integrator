@@ -5,7 +5,6 @@ import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudUser;
 
 import java.util.ArrayList;
 
-//TODO split up, containing different packages
 public abstract class NextcloudTestDataUtility {
 
     protected NextcloudUser takenUser() {

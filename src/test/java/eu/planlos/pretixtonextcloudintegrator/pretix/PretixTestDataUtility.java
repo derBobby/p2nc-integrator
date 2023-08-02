@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-//TODO split up, containing different packages
 public abstract class PretixTestDataUtility {
 
     public final String CORRECT_QUESTION_1 = "Question 1?";

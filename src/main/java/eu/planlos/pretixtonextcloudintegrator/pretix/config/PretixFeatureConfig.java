@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
 import java.util.Optional;
 
-@ConfigurationProperties(prefix = "api.pretix.feature")
+@ConfigurationProperties(prefix = "pretix.feature")
 public record PretixFeatureConfig(Boolean preloadAllExceptOrdersEnabled, Boolean preloadOrdersEnabled, Boolean sendDebugWebHookEnabled) {
 
     @ConstructorBinding

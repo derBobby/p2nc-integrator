@@ -92,9 +92,15 @@ public class ProductService {
     public Product loadOrFetchProduct(String event, PretixId pretixId, PretixId pretixVariationId) {
 
         Optional<Product> product;
+        log.debug("Searching for: pretixId={}, pretixVariationId={}", pretixId, pretixVariationId);
 
         // Get from DB
-        product = productRepository.findByPretixIdAndPretixVariationId(pretixId, pretixVariationId);
+        if(pretixVariationId == null || pretixVariationId.getValue() == null) {
+            product = productRepository.findByPretixIdAndPretixVariationIdIsNull(pretixId);
+        } else {
+            product = productRepository.findByPretixIdAndPretixVariationId(pretixId, pretixVariationId);
+        }
+
         if (product.isPresent()) {
             log.info("Loaded product from db: {} ", pretixId);
             return product.get();
@@ -113,7 +119,10 @@ public class ProductService {
      */
 
     private List<Product> saveProducts(List<Product> productList) {
-        return productList.stream().map(this::saveProduct).toList();
+        return productList.stream()
+                .map(this::saveProduct)
+                .peek(product -> log.debug("Saving product: {}", product))
+                .toList();
     }
 
     private Product saveProduct(Product product) {

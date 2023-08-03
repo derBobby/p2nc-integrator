@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Optional<Product> findByPretixId(PretixId pretixId);
-
     Optional<Product> findByPretixIdAndPretixVariationId(PretixId pretixId, PretixId pretixVariationId);
+
+    Optional<Product> findByPretixIdAndPretixVariationIdIsNull(PretixId pretixId);
 }

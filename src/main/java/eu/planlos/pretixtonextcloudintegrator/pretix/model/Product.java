@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
+@ToString
 @NoArgsConstructor
 public final class Product {
     @Id
@@ -15,11 +17,14 @@ public final class Product {
 
     @NotNull
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "pretix_id"))
+    })
     private PretixId pretixId;
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "value", column = @Column(name = "pretix_variation_id_value"))
+            @AttributeOverride(name = "value", column = @Column(name = "pretix_variation_id"))
     })
     private PretixId pretixVariationId;
 

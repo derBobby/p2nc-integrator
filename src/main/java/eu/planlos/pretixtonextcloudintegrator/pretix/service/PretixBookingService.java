@@ -31,7 +31,7 @@ public class PretixBookingService {
         this.bookingRepository = bookingRepository;
     }
 
-    public Booking loadOrFetch(String code) {
+    public Booking loadOrFetch(String event, String code) {
 
         // Get from DB
         Optional<Booking> optionalBooking = bookingRepository.findByCode(code);
@@ -42,32 +42,32 @@ public class PretixBookingService {
         }
 
         // or fetch from Pretix
-        return fetchFromPretix(code);
+        return fetchFromPretix(event, code);
     }
 
-    private Booking fetchFromPretix(String code) {
-        OrderDTO orderDTO = pretixApiOrderService.fetchOrderFromPretix(code);
-        Booking booking = convert(orderDTO);
+    private Booking fetchFromPretix(String event, String code) {
+        OrderDTO orderDTO = pretixApiOrderService.fetchOrderFromPretix(event, code);
+        Booking booking = convert(event, orderDTO);
         return bookingRepository.save(booking);
     }
 
-    public void fetchAll() {
-        List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders();
-        List<Booking> bookingList = orderDTOList.stream().map(this::convert).collect(Collectors.toList());
+    public void fetchAll(String event) {
+        List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders(event);
+        List<Booking> bookingList = orderDTOList.stream().map(orderDTO -> convert(event, orderDTO)).collect(Collectors.toList());
         bookingRepository.saveAll(bookingList);
     }
 
-    private Booking convert(OrderDTO orderDTO) {
+    private Booking convert(String event, OrderDTO orderDTO) {
 
         List<Position> positionList = new ArrayList<>();
 
         orderDTO.getPositions().forEach(positionDTO -> {
-            Product product = productService.loadOrFetchProduct(new PretixId(positionDTO.item()), new PretixId(positionDTO.variation()));
-            Map <Question, Answer> QnAmap = questionService.generateQuestionAnswerMap(positionDTO.answers().stream().map(questionService::convert).toList());
+            Product product = productService.loadOrFetchProduct(event, new PretixId(positionDTO.item()), new PretixId(positionDTO.variation()));
+            Map <Question, Answer> QnAmap = questionService.generateQuestionAnswerMap(event, positionDTO.answers().stream().map(questionService::convert).toList());
 
             positionList.add(new Position(product, QnAmap));
         });
 
-        return new Booking(orderDTO.getCode(), orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), positionList);
+        return new Booking(event, orderDTO.getCode(), orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), positionList);
     }
 }

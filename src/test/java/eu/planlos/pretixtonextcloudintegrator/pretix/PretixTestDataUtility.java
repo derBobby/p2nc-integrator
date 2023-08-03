@@ -15,10 +15,11 @@ public abstract class PretixTestDataUtility {
     public final String CORRECT_ANSWER_1 = "Answer 1!";
     public final String CORRECT_QUESTION_2 = "Question 2?";
     public final String CORRECT_ANSWER_2 = "Answer 2!";
-
+    public final String EVENT = "zeltlager23ma";
 
     protected Booking booking() {
         return new Booking(
+                EVENT,
                 newCode(),
                 "First",
                 "Last",

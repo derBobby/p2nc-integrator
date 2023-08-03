@@ -1,6 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.runner;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
+import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixFeatureConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +15,13 @@ import org.springframework.stereotype.Component;
 public class WebHookRunner implements ApplicationRunner {
 
     private final PretixFeatureConfig pretixFeatureConfig;
+    private final PretixApiConfig pretixApiConfig;
 
     private final IPretixWebHookHandler webHookHandler;
 
-    public WebHookRunner(PretixFeatureConfig pretixFeatureConfig, IPretixWebHookHandler webHookHandler) {
+    public WebHookRunner(PretixFeatureConfig pretixFeatureConfig, PretixApiConfig pretixApiConfig, IPretixWebHookHandler webHookHandler) {
         this.pretixFeatureConfig = pretixFeatureConfig;
+        this.pretixApiConfig = pretixApiConfig;
         this.webHookHandler = webHookHandler;
     }
 
@@ -28,12 +31,13 @@ public class WebHookRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments arg0) {
+        pretixApiConfig.eventList().forEach(this::sendHook);
+    }
 
-        //TODO RUNNER CURRENTLY BROKEN DUE TO MISSING RequestContext HERE
-
+    private void sendHook(String event) {
         if (pretixFeatureConfig.sendDebugWebHookEnabled()) {
-            WebHookDTO webHookDTO = new WebHookDTO(64158L, "kvkraichgau", "zeltlager23ma", "3PCGD", "pretix.event.order.approved");
-            webHookHandler.handleUserCreation(webHookDTO.code());
+            WebHookDTO webHookDTO = new WebHookDTO(64158L, "kvkraichgau", event, "3PCGD", "pretix.event.order.approved");
+            webHookHandler.handleUserCreation(webHookDTO.event(), webHookDTO.code());
         }
     }
 }

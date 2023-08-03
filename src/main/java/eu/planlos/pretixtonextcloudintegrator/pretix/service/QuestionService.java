@@ -28,16 +28,7 @@ public class QuestionService {
         this.pretixApiQuestionService = pretixApiQuestionService;
     }
 
-    public void saveAll(List<QuestionDTO> questionDTOList) {
-        List<Question> questionList = questionDTOList.stream().map(this::convert).collect(Collectors.toList());
-        questionRepository.saveAll(questionList);
-    }
-
-    public List<Question> loadAll() {
-        return questionRepository.findAll();
-    }
-
-    public Question loadOrFetch(PretixId questionId) {
+    public Question loadOrFetch(String event, PretixId questionId) {
 
         // Get from DB
         Optional<Question> questionOptional = questionRepository.findByPretixId(questionId);
@@ -47,17 +38,17 @@ public class QuestionService {
         }
 
         // or fetch from Pretix
-        return fetchFromPretix(questionId);
+        return fetchFromPretix(event, questionId);
     }
 
-    public void fetchAll() {
-        List<QuestionDTO> questionsDTOList = pretixApiQuestionService.queryAllQuestions();
+    public void fetchAll(String event) {
+        List<QuestionDTO> questionsDTOList = pretixApiQuestionService.queryAllQuestions(event);
         List<Question> questionList = questionsDTOList.stream().map(this::convert).collect(Collectors.toList());
         questionRepository.saveAll(questionList);
     }
 
-    private Question fetchFromPretix(PretixId questionId) {
-        QuestionDTO questionDTO = pretixApiQuestionService.queryQuestion(questionId);
+    private Question fetchFromPretix(String event, PretixId questionId) {
+        QuestionDTO questionDTO = pretixApiQuestionService.queryQuestion(event, questionId);
         Question question = convert(questionDTO);
         return questionRepository.save(question);
     }
@@ -78,9 +69,9 @@ public class QuestionService {
         return new Answer(new PretixId(answerDTO.question()), answerDTO.answer());
     }
 
-    public Map<Question, Answer> generateQuestionAnswerMap(List<Answer> answerList) {
+    public Map<Question, Answer> generateQuestionAnswerMap(String event, List<Answer> answerList) {
         Map<Question, Answer> QnAmap = new HashMap<>();
-        answerList.forEach(answer -> QnAmap.put(loadOrFetch(answer.getPretixId()), answer));
+        answerList.forEach(answer -> QnAmap.put(loadOrFetch(event, answer.getPretixId()), answer));
         return QnAmap;
     }
 }

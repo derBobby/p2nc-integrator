@@ -52,16 +52,17 @@ public class AccountServiceTest extends PretixTestDataUtility {
         // Prepare
         //      objects
         WebHookDTO hook = orderApprovedHook();
-        String code = hook.code();
+        String hookCode = hook.code();
+        String hookEvent = hook.event();
         //      methods
-        when(pretixApiOrderService.getEventUrl(code)).thenReturn(String.format("https://example.com/%s", code));
+        when(pretixApiOrderService.getEventUrl(hookEvent, hookCode)).thenReturn(String.format("https://example.com/%s", hookCode));
 
         // Act
-        accountService.handleApprovalNotification(code);
+        accountService.handleApprovalNotification(hookEvent, hookCode);
 
         // Check
-        verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", code)));
-        verify(signalService).notifyAdmin(anyString(), matches(String.format(".*%s.*", code)));
+        verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", hookCode)));
+        verify(signalService).notifyAdmin(anyString(), matches(String.format(".*%s.*", hookCode)));
     }
 
     /**
@@ -74,11 +75,11 @@ public class AccountServiceTest extends PretixTestDataUtility {
         WebHookDTO hook = orderApprovedHook();
         Booking booking = booking();
         //      methods
-        when(pretixBookingService.loadOrFetch(hook.code())).thenReturn(booking);
+        when(pretixBookingService.loadOrFetch(hook.event(), hook.code())).thenReturn(booking);
         positionFilterIrrelevant();
 
         // Act
-        accountService.handleUserCreation(hook.code());
+        accountService.handleUserCreation(hook.event(), hook.code());
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
@@ -93,20 +94,16 @@ public class AccountServiceTest extends PretixTestDataUtility {
         WebHookDTO hook = orderApprovedHook();
         Booking booking = booking();
         //      methods
-        when(pretixBookingService.loadOrFetch(hook.code())).thenReturn(booking);
+        when(pretixBookingService.loadOrFetch(hook.event(), hook.code())).thenReturn(booking);
         positionFilterRelevant();
 
         // Act
-        accountService.handleUserCreation(hook.code());
+        accountService.handleUserCreation(hook.event(), hook.code());
 
         // Check
         verify(nextcloudApiUserService).createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
         verify(mailService).notifyAdmin(eq(SUBJECT_OK), anyString());
         verify(signalService).notifyAdmin(eq(SUBJECT_OK), anyString());
-    }
-
-    private void positionFilterDisabled() {
-        positionFilterRelevant();
     }
 
     private void positionFilterIrrelevant() {

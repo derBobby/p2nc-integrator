@@ -29,11 +29,11 @@ public class PretixApiItemCategoryService extends PretixApiService {
     /*
      * Query
      */
-    public List<ItemCategoryDTO> queryAllItemCategories() {
+    public List<ItemCategoryDTO> queryAllItemCategories(String event) {
 
         ItemCategoriesDTO dto = webClient
                 .get()
-                .uri(itemCategoryListUri())
+                .uri(itemCategoryListUri(event))
                 .retrieve()
                 .bodyToMono(ItemCategoriesDTO.class)
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
@@ -49,10 +49,10 @@ public class PretixApiItemCategoryService extends PretixApiService {
         throw new ApiException(ApiException.IS_NULL);
     }
 
-    public ItemCategoryDTO queryItemCategory(PretixId itemCategoryId) {
+    public ItemCategoryDTO queryItemCategory(String event, PretixId itemCategoryId) {
         ItemCategoryDTO itemCategoryDTO = webClient
                 .get()
-                .uri(specificItemCategoryUri(itemCategoryId.getValue()))
+                .uri(specificItemCategoryUri(event, itemCategoryId.getValue()))
                 .retrieve()
                 .bodyToMono(ItemCategoryDTO.class)
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
@@ -69,15 +69,15 @@ public class PretixApiItemCategoryService extends PretixApiService {
     /*
      * Uri generators
      */
-    private String specificItemCategoryUri(Long itemCategoryId) {
-        return String.join("", itemCategoryListUri(), Long.toString(itemCategoryId), "/");
+    private String specificItemCategoryUri(String event, Long itemCategoryId) {
+        return String.join("", itemCategoryListUri(event), Long.toString(itemCategoryId), "/");
     }
 
-    private String itemCategoryListUri() {
+    private String itemCategoryListUri(String event) {
         return String.join(
                 "",
                 "api/v1/organizers/", pretixApiConfig.organizer(),
-                "/events/", pretixEvent(),
+                "/events/", event,
                 "/categories/");
     }
 }

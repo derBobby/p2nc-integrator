@@ -29,11 +29,11 @@ public class PretixApiItemService extends PretixApiService {
     /*
      * Query
      */
-    public List<ItemDTO> queryAllItems() {
+    public List<ItemDTO> queryAllItems(String event) {
 
         ItemsDTO dto = webClient
                 .get()
-                .uri(itemListUri())
+                .uri(itemListUri(event))
                 .retrieve()
                 .bodyToMono(ItemsDTO.class)
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
@@ -49,10 +49,10 @@ public class PretixApiItemService extends PretixApiService {
         throw new ApiException(ApiException.IS_NULL);
     }
 
-    public ItemDTO queryItem(PretixId itemId) {
+    public ItemDTO queryItem(String event, PretixId itemId) {
         ItemDTO itemDTO = webClient
                 .get()
-                .uri(specificItemUri(itemId.getValue()))
+                .uri(specificItemUri(event, itemId.getValue()))
                 .retrieve()
                 .bodyToMono(ItemDTO.class)
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
@@ -69,15 +69,15 @@ public class PretixApiItemService extends PretixApiService {
     /*
      * Uri generators
      */
-    private String specificItemUri(Long itemId) {
-        return String.join("", itemListUri(), Long.toString(itemId), "/");
+    private String specificItemUri(String event, Long itemId) {
+        return String.join("", itemListUri(event), Long.toString(itemId), "/");
     }
 
-    private String itemListUri() {
+    private String itemListUri(String event) {
         return String.join(
                 "",
                 "api/v1/organizers/", pretixApiConfig.organizer(),
-                "/events/", pretixEvent(),
+                "/events/", event,
                 "/items/");
     }
 }

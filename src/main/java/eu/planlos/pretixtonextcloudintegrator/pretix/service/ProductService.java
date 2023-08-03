@@ -38,32 +38,32 @@ public class ProductService {
      *   Fetching
      */
 
-    public void fetchAll() {
-        fetchAllProductTypes();
-        fetchAllProducts();
+    public void fetchAll(String event) {
+        fetchAllProductTypes(event);
+        fetchAllProducts(event);
     }
 
-    private void fetchAllProductTypes() {
-        List<ItemCategoryDTO> itemCategoryDTOList = pretixApiItemCategoryService.queryAllItemCategories();
+    private void fetchAllProductTypes(String event) {
+        List<ItemCategoryDTO> itemCategoryDTOList = pretixApiItemCategoryService.queryAllItemCategories(event);
         List<ProductType> productTypeList = itemCategoryDTOList.stream().map(this::convert).toList();
         productTypeRepository.saveAll(productTypeList);
     }
 
-    private ProductType fetchProductType(PretixId pretixId) {
-        ItemCategoryDTO itemCategoryDTO = pretixApiItemCategoryService.queryItemCategory(pretixId);
+    private ProductType fetchProductType(String event, PretixId pretixId) {
+        ItemCategoryDTO itemCategoryDTO = pretixApiItemCategoryService.queryItemCategory(event, pretixId);
         ProductType productType = convert(itemCategoryDTO);
         return productTypeRepository.save(productType);
     }
 
-    private void fetchAllProducts() {
-        List<ItemDTO> itemDTOList = pretixApiItemService.queryAllItems();
-        List<Product> productList = itemDTOList.stream().map(this::convert).flatMap(List::stream).toList();
+    private void fetchAllProducts(String event) {
+        List<ItemDTO> itemDTOList = pretixApiItemService.queryAllItems(event);
+        List<Product> productList = itemDTOList.stream().map(itemDTO -> convert(event, itemDTO)).flatMap(List::stream).toList();
         saveProducts(productList);
     }
 
-    private Optional<Product> fetchProduct(@NotNull PretixId pretixId, @NotNull PretixId pretixVariationId) {
-        ItemDTO itemDTO = pretixApiItemService.queryItem(pretixId);
-        List<Product> productList = convert(itemDTO);
+    private Optional<Product> fetchProduct(@NotNull String event, @NotNull PretixId pretixId, @NotNull PretixId pretixVariationId) {
+        ItemDTO itemDTO = pretixApiItemService.queryItem(event, pretixId);
+        List<Product> productList = convert(event, itemDTO);
         return saveProducts(productList).stream().filter(streamedProduct -> {
             if (streamedProduct.getPretixVariationId() == null || streamedProduct.getPretixVariationId().getValue() == null && pretixVariationId == null) {
                 return true;
@@ -76,7 +76,7 @@ public class ProductService {
      * Retrieving
      */
 
-    public ProductType loadOrFetchProductType(PretixId pretixId) {
+    public ProductType loadOrFetchProductType(String event, PretixId pretixId) {
 
         // Get from DB
         Optional<ProductType> productType = productTypeRepository.findByPretixId(pretixId);
@@ -86,10 +86,10 @@ public class ProductService {
         }
 
         // or fetch from Pretix
-        return fetchProductType(pretixId);
+        return fetchProductType(event, pretixId);
     }
 
-    public Product loadOrFetchProduct(PretixId pretixId, PretixId pretixVariationId) {
+    public Product loadOrFetchProduct(String event, PretixId pretixId, PretixId pretixVariationId) {
 
         Optional<Product> product;
 
@@ -100,7 +100,7 @@ public class ProductService {
             return product.get();
         }
 
-        product = fetchProduct(pretixId, pretixVariationId);
+        product = fetchProduct(event, pretixId, pretixVariationId);
         if (product.isPresent()) {
             return product.get();
         }
@@ -127,13 +127,13 @@ public class ProductService {
         return new ProductType(new PretixId(itemCategoryDTO.id()), itemCategoryDTO.is_addon(), itemCategoryDTO.getName());
     }
 
-    private List<Product> convert(ItemDTO itemDTO) {
-        ProductType productType = loadOrFetchProductType(new PretixId(itemDTO.category()));
+    private List<Product> convert(String event, ItemDTO itemDTO) {
+        ProductType productType = loadOrFetchProductType(event, new PretixId(itemDTO.category()));
 
         String baseName = itemDTO.getName();
 
         // No variations
-        if (itemDTO.variations().size() == 0) {
+        if (itemDTO.variations().isEmpty()) {
             return List.of(new Product(new PretixId(itemDTO.id()), baseName, productType));
         }
 

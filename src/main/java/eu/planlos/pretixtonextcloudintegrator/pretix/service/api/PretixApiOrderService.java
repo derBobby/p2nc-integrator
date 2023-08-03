@@ -28,11 +28,11 @@ public class PretixApiOrderService extends PretixApiService {
     /*
      * Query
      */
-    public List<OrderDTO> fetchAllOrders() {
+    public List<OrderDTO> fetchAllOrders(String event) {
 
         OrdersDTO dto = webClient
                 .get()
-                .uri(orderListUri())
+                .uri(orderListUri(event))
                 .retrieve()
                 .bodyToMono(OrdersDTO.class)
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
@@ -48,10 +48,10 @@ public class PretixApiOrderService extends PretixApiService {
         throw new ApiException(ApiException.IS_NULL);
     }
 
-    public OrderDTO fetchOrderFromPretix(String code) {
+    public OrderDTO fetchOrderFromPretix(String event, String code) {
         OrderDTO orderDto = webClient
                 .get()
-                .uri(specificOrderUri(code))
+                .uri(specificOrderUri(event, code))
                 .retrieve()
                 .bodyToMono(OrderDTO.class)
                 .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
@@ -68,28 +68,28 @@ public class PretixApiOrderService extends PretixApiService {
     /*
      * Uri generators
      */
-    private String specificOrderUri(String orderCode) {
+    private String specificOrderUri(String event, String orderCode) {
         return String.join(
                 "",
                 "api/v1/organizers/", pretixApiConfig.organizer(),
-                "/events/", pretixEvent(),
+                "/events/", event,
                 "/orders/", orderCode, "/");
     }
 
-    private String orderListUri() {
+    private String orderListUri(String event) {
         return String.join(
                 "",
                 "api/v1/organizers/", pretixApiConfig.organizer(),
-                "/events/", pretixEvent(),
+                "/events/", event,
                 "/orders/");
     }
 
-    public String getEventUrl(String orderCode) {
+    public String getEventUrl(String event, String orderCode) {
         return String.join(
                 "",
                 pretixApiConfig.address(),
                 "/control/event/", pretixApiConfig.organizer(),
-                "/", pretixEvent(),
+                "/", event,
                 "/orders/", orderCode, "/");
     }
 }

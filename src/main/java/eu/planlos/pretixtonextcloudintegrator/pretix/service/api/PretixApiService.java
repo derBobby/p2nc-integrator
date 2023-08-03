@@ -17,8 +17,4 @@ public abstract class PretixApiService {
         this.webClient = webClient;
         this.pretixContext = pretixContext;
     }
-
-    protected String pretixEvent() {
-        return pretixContext.getEvent();
-    }
 }

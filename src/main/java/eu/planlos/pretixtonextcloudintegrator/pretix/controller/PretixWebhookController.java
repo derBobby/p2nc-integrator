@@ -1,7 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +18,10 @@ import org.springframework.web.bind.annotation.*;
 
     private final AuditService webHookAuditService;
     private final IPretixWebHookHandler webHookHandler;
-    private final PretixContext pretixContext;
 
-    public PretixWebhookController(AuditService webHookAuditService, IPretixWebHookHandler webHookHandler, PretixContext pretixContext) {
+    public PretixWebhookController(AuditService webHookAuditService, IPretixWebHookHandler webHookHandler) {
         this.webHookAuditService = webHookAuditService;
         this.webHookHandler = webHookHandler;
-        this.pretixContext = pretixContext;
     }
 
     @PostMapping
@@ -37,18 +34,17 @@ import org.springframework.web.bind.annotation.*;
 
         // Event ID is set for later requests to the Pretix API.
         //      This avoids the need to loop the var through all methods and outside of the package
-        pretixContext.setEvent(hook.event());
-
+        String hookEvent = hook.event();
         String hookAction = hook.action();
         String hookCode = hook.code();
 
         if(hookAction.equals(ORDER_NEED_APPROVAL)) {
-            webHookHandler.handleApprovalNotification(hookCode);
+            webHookHandler.handleApprovalNotification(hookEvent, hookCode);
             return;
         }
 
         if(hookAction.equals(ORDER_APPROVED)) {
-            webHookHandler.handleUserCreation(hookCode);
+            webHookHandler.handleUserCreation(hookEvent, hookCode);
             return;
         }
 

@@ -20,6 +20,9 @@ public final class Booking {
     private Long id;
 
     @NotNull
+    private String event;
+
+    @NotNull
     private String code;
 
     @NotNull
@@ -39,8 +42,9 @@ public final class Booking {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Position> positionList;
 
-    public Booking(@NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Position> positionList) {
+    public Booking(@NotNull String event, @NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Position> positionList) {
         this.code = code;
+        this.event = event;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;

@@ -2,12 +2,11 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -15,13 +14,9 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
-
-    @Mock
-    PretixContext pretixContext;
 
     @Test
     public void matchesAllQnA_isTrue() {
@@ -30,12 +25,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(event, filterMatchesQuestionAndAnswer()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config, pretixContext);
+        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
         //      methods
-        when(pretixContext.getEvent()).thenReturn(event);
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(qnaMap);
+        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
 
         // Check
         assertTrue(containsMatch);
@@ -48,12 +42,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         Map<Question, Answer> qnaMap = newQnaMapAdditionalQuestions();
         String event = newEvent();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(event, filterMatchesQuestionAndAnswer()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config, pretixContext);
+        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
         //      methods
-        when(pretixContext.getEvent()).thenReturn(event);
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(qnaMap);
+        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
 
         // Check
         assertTrue(containsMatch);
@@ -66,12 +59,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesOnlyQuestion()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config, pretixContext);
+        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
         //      methods
-        when(pretixContext.getEvent()).thenReturn(event);
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(qnaMap);
+        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
 
         // Check
         assertFalse(containsMatch);
@@ -84,12 +76,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesNotAllQuestions()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config, pretixContext);
+        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
         //      methods
-        when(pretixContext.getEvent()).thenReturn(event);
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(qnaMap);
+        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
 
         // Check
         assertFalse(containsMatch);
@@ -102,12 +93,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         String event = newEvent();
         Map<Question, Answer> qnaMap = newQnaMap();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesNoQuestion()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config, pretixContext);
+        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
         //      methods
-        when(pretixContext.getEvent()).thenReturn(event);
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(qnaMap);
+        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
 
         // Check
         assertFalse(containsMatch);

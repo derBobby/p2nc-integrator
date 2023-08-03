@@ -1,7 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.list.QuestionsDTO;
@@ -22,8 +21,8 @@ public class PretixApiQuestionService extends PretixApiService {
 
     private static final String FETCH_MESSAGE = "Fetched question from Pretix: {}";
 
-    public PretixApiQuestionService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient, PretixContext pretixContext) {
-        super(pretixApiConfig, webClient, pretixContext);
+    public PretixApiQuestionService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient) {
+        super(pretixApiConfig, webClient);
     }
 
     /*

@@ -3,7 +3,6 @@ package eu.planlos.pretixtonextcloudintegrator.nextcloud.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudApiResponse;
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiResponseDeserializer;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientRequestFilter;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientResponseFilter;
 import lombok.extern.slf4j.Slf4j;

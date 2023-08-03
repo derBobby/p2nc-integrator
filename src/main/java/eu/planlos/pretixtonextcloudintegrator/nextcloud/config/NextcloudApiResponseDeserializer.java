@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.nextcloud.service;
+package eu.planlos.pretixtonextcloudintegrator.nextcloud.config;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,7 +33,7 @@ public class NextcloudApiResponseDeserializer<T> extends StdDeserializer<Nextclo
 
         if (dataNode.has("users")) {
             data = (T) mapper.readValue(dataNode.traverse(), new TypeReference<NextcloudUserList>() {});
-        } else if(dataNode.isArray() && dataNode.size() == 0) {
+        } else if(dataNode.isArray() && dataNode.isEmpty()) {
             data = null;
         }
         else {

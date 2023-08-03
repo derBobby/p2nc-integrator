@@ -1,7 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.list.OrdersDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.single.OrderDTO;
@@ -21,8 +20,8 @@ public class PretixApiOrderService extends PretixApiService {
 
     private static final String FETCH_MESSAGE = "Fetched order from Pretix: {}";
 
-    public PretixApiOrderService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient, PretixContext pretixContext) {
-        super(pretixApiConfig, webClient, pretixContext);
+    public PretixApiOrderService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient) {
+        super(pretixApiConfig, webClient);
     }
 
     /*

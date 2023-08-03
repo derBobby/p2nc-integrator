@@ -1,7 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service.api;
 
 import eu.planlos.pretixtonextcloudintegrator.common.ApiException;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixContext;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixApiConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixId;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.list.ItemCategoriesDTO;
@@ -22,8 +21,8 @@ public class PretixApiItemCategoryService extends PretixApiService {
 
     private static final String FETCH_MESSAGE = "Fetched item category from Pretix: {}";
 
-    public PretixApiItemCategoryService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient, PretixContext pretixContext) {
-        super(pretixApiConfig, webClient, pretixContext);
+    public PretixApiItemCategoryService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient) {
+        super(pretixApiConfig, webClient);
     }
 
     /*

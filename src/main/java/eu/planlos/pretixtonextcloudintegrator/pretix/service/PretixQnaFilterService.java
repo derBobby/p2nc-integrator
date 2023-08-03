@@ -15,11 +15,9 @@ import java.util.stream.Collectors;
 public class PretixQnaFilterService {
 
     private final PretixEventFilterConfig pretixEventFilterConfig;
-    protected final PretixContext pretixContext;
 
-    public PretixQnaFilterService(PretixEventFilterConfig pretixEventFilterConfig, PretixContext pretixContext) {
+    public PretixQnaFilterService(PretixEventFilterConfig pretixEventFilterConfig) {
         this.pretixEventFilterConfig = pretixEventFilterConfig;
-        this.pretixContext = pretixContext;
         log.debug("Event filter config set in service");
     }
 
@@ -28,14 +26,12 @@ public class PretixQnaFilterService {
         List<Position> ticketPositionList = booking.getPositionList().stream()
                 .filter(p -> ! p.getProduct().getProductType().isAddon())
                 .filter(p -> ! p.getQnA().isEmpty())
-                .filter(p -> filter(p.getQnA()))
+                .filter(p -> filter(booking.getEvent(), p.getQnA()))
                 .toList();
         return ticketPositionList.isEmpty();
     }
 
-    protected Boolean filter(Map<Question, Answer> qnaMap) {
-
-        String event = pretixContext.getEvent();
+    protected Boolean filter(String event, Map<Question, Answer> qnaMap) {
 
         // If no filter must be applied, then filter is successful
         List<PretixQnaFilter> pretixQnaFilterList = pretixEventFilterConfig.getQnaFilterForEvent(event);

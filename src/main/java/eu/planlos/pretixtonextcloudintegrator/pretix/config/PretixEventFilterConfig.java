@@ -22,7 +22,6 @@ public class PretixEventFilterConfig {
     }
 
     @PostConstruct
-    // TODO directly create this QnaFilter object
     private void setup() {
         eventFilterMap.putAll(map.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,

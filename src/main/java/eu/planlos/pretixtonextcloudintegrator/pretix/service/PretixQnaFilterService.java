@@ -33,8 +33,23 @@ public class PretixQnaFilterService {
 
     protected Boolean filter(String event, Map<Question, Answer> qnaMap) {
 
+        if(pretixEventFilterConfig.isUserSourceConfigured()) {
+            return filterByUserSource(event, qnaMap);
+        }
+
+        // Is default config if nothing is provided
+        return filterByPropertiesSource(event, qnaMap);
+    }
+
+    //TODO continue here
+    private Boolean filterByUserSource(String event, Map<Question, Answer> qnaMap) {
+        throw new IllegalArgumentException("Feature not yet available");
+    }
+
+    private Boolean filterByPropertiesSource(String event, Map<Question, Answer> qnaMap) {
+
         // If no filter must be applied, then filter is successful
-        List<PretixQnaFilter> pretixQnaFilterList = pretixEventFilterConfig.getQnaFilterForEvent(event);
+        List<PretixQnaFilter> pretixQnaFilterList = pretixEventFilterConfig.getQnaFilterFromPropertiesSource(event);
         if (pretixQnaFilterList.isEmpty()) {
             return true;
         }

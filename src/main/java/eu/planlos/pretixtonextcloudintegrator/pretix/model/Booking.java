@@ -40,7 +40,12 @@ public final class Booking {
 
     @NotNull
     @OneToMany(cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Position> positionList;
+
+    public void setPositionList(@NotNull List<Position> positionList) {
+        this.positionList = positionList;
+    }
 
     public Booking(@NotNull String event, @NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Position> positionList) {
         this.code = code;

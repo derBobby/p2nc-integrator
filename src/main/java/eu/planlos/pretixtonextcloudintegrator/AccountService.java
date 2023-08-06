@@ -6,7 +6,7 @@ import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUser
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixBookingService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixQnaFilterService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixEventFilterService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,14 +23,14 @@ public class AccountService implements IPretixWebHookHandler {
     public static final String SUBJECT_IRRELEVANT = "Account creation not required";
 
     private final PretixBookingService pretixBookingService;
-    private final PretixQnaFilterService pretixQnaFilterService;
+    private final PretixEventFilterService pretixEventFilterService;
     private final PretixApiOrderService pretixApiOrderService;
     private final NextcloudApiUserService nextcloudApiUserService;
     private final MailService mailService;
     private final SignalService signalService;
 
-    public AccountService(PretixQnaFilterService pretixQnaFilterService, PretixBookingService pretixBookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
-        this.pretixQnaFilterService = pretixQnaFilterService;
+    public AccountService(PretixEventFilterService pretixEventFilterService, PretixBookingService pretixBookingService, PretixApiOrderService pretixApiOrderService, NextcloudApiUserService nextcloudApiUserService, MailService mailService, SignalService signalService) {
+        this.pretixEventFilterService = pretixEventFilterService;
         this.pretixBookingService = pretixBookingService;
         this.pretixApiOrderService = pretixApiOrderService;
         this.nextcloudApiUserService = nextcloudApiUserService;
@@ -49,7 +49,7 @@ public class AccountService implements IPretixWebHookHandler {
             Booking booking = pretixBookingService.loadOrFetch(event, code);
             log.info("Order found: {}", booking);
 
-            if(pretixQnaFilterService.irrelevantForBooking(booking)) {
+            if(pretixEventFilterService.irrelevantForBooking(booking)) {
                 String infoMessage = String.format("Order with code %s was excluded for account creation by filter", code);
                 log.info(infoMessage);
                 notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);

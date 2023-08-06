@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class PretixQnaFilterService {
+public class PretixEventFilterService {
 
     private final PretixEventFilterConfig pretixEventFilterConfig;
 
-    public PretixQnaFilterService(PretixEventFilterConfig pretixEventFilterConfig) {
+    public PretixEventFilterService(PretixEventFilterConfig pretixEventFilterConfig) {
         this.pretixEventFilterConfig = pretixEventFilterConfig;
         log.debug("Event filter config set in service");
     }

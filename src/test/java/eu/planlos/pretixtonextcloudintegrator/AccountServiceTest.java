@@ -7,7 +7,7 @@ import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixBookingService;
-import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixQnaFilterService;
+import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixEventFilterService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +33,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
     NextcloudApiUserService nextcloudApiUserService;
 
     @Mock
-    PretixQnaFilterService pretixQnaFilterService;
+    PretixEventFilterService pretixEventFilterService;
 
     @Mock
     MailService mailService;
@@ -107,10 +107,10 @@ public class AccountServiceTest extends PretixTestDataUtility {
     }
 
     private void positionFilterIrrelevant() {
-        when(pretixQnaFilterService.irrelevantForBooking(any())).thenReturn(true);
+        when(pretixEventFilterService.irrelevantForBooking(any())).thenReturn(true);
     }
 
     private void positionFilterRelevant() {
-        when(pretixQnaFilterService.irrelevantForBooking(any())).thenReturn(false);
+        when(pretixEventFilterService.irrelevantForBooking(any())).thenReturn(false);
     }
 }

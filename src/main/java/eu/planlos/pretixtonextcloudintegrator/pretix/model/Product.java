@@ -35,13 +35,13 @@ public final class Product {
     @ManyToOne
     private ProductType productType;
 
-    public Product(PretixId pretixId, String name, ProductType productType) {
+    public Product(@NotNull PretixId pretixId, @NotNull String name, @NotNull ProductType productType) {
         this.pretixId = pretixId;
         this.name = name;
         this.productType = productType;
     }
 
-    public Product(PretixId pretixId, PretixId pretixVariationId, String name, ProductType productType) {
+    public Product(@NotNull PretixId pretixId, PretixId pretixVariationId, @NotNull String name, @NotNull ProductType productType) {
         this.pretixId = pretixId;
         this.pretixVariationId = pretixVariationId;
         this.name = name;

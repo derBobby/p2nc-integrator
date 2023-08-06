@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
+public class PretixEventFilterServiceTest extends PretixTestDataUtility {
 
     @Test
     public void matchesAllQnA_isTrue() {
@@ -25,11 +25,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(event, filterMatchesQuestionAndAnswer()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
 
         // Check
         assertTrue(containsMatch);
@@ -42,11 +42,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         Map<Question, Answer> qnaMap = newQnaMapAdditionalQuestions();
         String event = newEvent();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(event, filterMatchesQuestionAndAnswer()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
 
         // Check
         assertTrue(containsMatch);
@@ -59,11 +59,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesOnlyQuestion()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
 
         // Check
         assertFalse(containsMatch);
@@ -76,11 +76,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesNotAllQuestions()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
 
         // Check
         assertFalse(containsMatch);
@@ -93,11 +93,11 @@ public class PretixQnaFilterServiceTest extends PretixTestDataUtility {
         String event = newEvent();
         Map<Question, Answer> qnaMap = newQnaMap();
         PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesNoQuestion()));
-        PretixQnaFilterService pretixQnaFilterService = new PretixQnaFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
         // Act
-        boolean containsMatch = pretixQnaFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
 
         // Check
         assertFalse(containsMatch);

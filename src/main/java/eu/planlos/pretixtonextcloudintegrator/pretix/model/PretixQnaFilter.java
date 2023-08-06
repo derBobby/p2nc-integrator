@@ -1,11 +1,19 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-public record PretixQnaFilter(Map<String, List<String>> filterMap) {
+import java.util.*;
+
+@EqualsAndHashCode
+@NoArgsConstructor
+public final class PretixQnaFilter {
+
+    private final Map<String, List<String>> filterMap = new HashMap<>();
+
+    public PretixQnaFilter(Map<String, List<String>> filterMap) {
+        this.filterMap.putAll(filterMap);
+    }
 
     @Override
     public String toString() {
@@ -44,5 +52,9 @@ public record PretixQnaFilter(Map<String, List<String>> filterMap) {
             }
         }
         return new PretixQnaFilter(filterMap);
+    }
+
+    public Map<String, List<String>> filterMap() {
+        return filterMap;
     }
 }

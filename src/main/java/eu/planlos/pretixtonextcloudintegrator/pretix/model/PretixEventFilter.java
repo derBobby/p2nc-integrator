@@ -22,8 +22,7 @@ public class PretixEventFilter {
     @Getter
     private String event;
 
-    @Lob
-    @Column
+    @OneToMany
     private List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
 
     public PretixEventFilter(String event, List<PretixQnaFilter> pretixQnaFilterList) {

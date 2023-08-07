@@ -1,6 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
 import eu.planlos.pretixtonextcloudintegrator.common.util.GermanStringsUtility;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,12 +10,18 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Entity
 @Slf4j
 @EqualsAndHashCode
 @NoArgsConstructor
-public final class PretixQnaFilter {
+public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter, String> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @Getter
+    @Convert(converter = PretixQnaFilter.class)
     private final Map<String, List<String>> filterMap = new HashMap<>();
 
     public PretixQnaFilter(Map<String, List<String>> filterMap) {
@@ -74,7 +81,7 @@ public final class PretixQnaFilter {
         return sb.toString();
     }
 
-    public static PretixQnaFilter fromString(String text) {
+    private static PretixQnaFilter fromString(String text) {
         if (text == null || text.trim().isEmpty()) {
             return null;
         }
@@ -90,5 +97,15 @@ public final class PretixQnaFilter {
             }
         }
         return new PretixQnaFilter(filterMap);
+    }
+
+    @Override
+    public String convertToDatabaseColumn(PretixQnaFilter pretixQnaFilter) {
+        return toString();
+    }
+
+    @Override
+    public PretixQnaFilter convertToEntityAttribute(String dbData) {
+        return fromString(dbData);
     }
 }

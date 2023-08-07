@@ -23,9 +23,9 @@ public class PretixEventFilterConfig {
     }
 
     @ConstructorBinding
-    public PretixEventFilterConfig(Map<String, List<Map<String, List<String>>>> map, String source) {
-        this.internalEventFilterPropertiesMap.putAll(map);
+    public PretixEventFilterConfig(String source, Map<String, List<Map<String, List<String>>>> map) {
         this.pretixEventFilterSource = PretixEventFilterSource.fromString(source);
+        this.internalEventFilterPropertiesMap.putAll(map);
     }
 
     @PostConstruct

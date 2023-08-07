@@ -1,5 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.config;
 
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixEventFilter;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -12,10 +13,10 @@ import java.util.stream.Collectors;
 @ConfigurationProperties(prefix = "pretix.event-filter")
 public class PretixEventFilterConfig {
 
+    private final Map<String, List<Map<String, List<String>>>> internalEventFilterPropertiesMap = new HashMap<>();
     @Getter
     private final PretixEventFilterSource pretixEventFilterSource;
-    private final Map<String, List<Map<String, List<String>>>> internalEventFilterPropertiesMap = new HashMap<>();
-    private final Map<String, List<PretixQnaFilter>> eventFilterPropertiesMap = new HashMap<>();
+    private final List<PretixEventFilter> pretixEventFilterList = new ArrayList<>();
 
     public PretixEventFilterConfig() {
         this.pretixEventFilterSource = PretixEventFilterSource.PROPERTIES;
@@ -29,32 +30,23 @@ public class PretixEventFilterConfig {
 
     @PostConstruct
     private void setup() {
-        eventFilterPropertiesMap.putAll(internalEventFilterPropertiesMap.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> entry.getValue().stream().map(PretixQnaFilter::new).toList()
-        )));
-        validate();
+        internalEventFilterPropertiesMap.forEach((key, value) ->
+                pretixEventFilterList.add(new PretixEventFilter(key, value.stream()
+                        .map(PretixQnaFilter::new)
+                        .toList()))
+        );
     }
 
-    private void validate() {
-        eventFilterPropertiesMap.values().forEach(qnaList -> {
-            Set<PretixQnaFilter> set = new HashSet<>();
-            for (PretixQnaFilter pretixQnaFilter : qnaList) {
-                if (!set.add(pretixQnaFilter)) {
-                    throw new IllegalArgumentException("Filter is not unique");
-                }
-            }
-        });
+    public PretixEventFilter getQnaFilterFromPropertiesSource(String event) {
+        return pretixEventFilterList.stream()
+                .filter(filter -> filter.getEvent().equals(event))
+                .findFirst() // Use findFirst to get the first matching element or null if none match
+                .orElse(null);
     }
 
-    public List<PretixQnaFilter> getQnaFilterFromPropertiesSource(String event) {
-        return eventFilterPropertiesMap.getOrDefault(event, Collections.emptyList());
-    }
-
-    public static PretixEventFilterConfig with(Map<String, List<PretixQnaFilter>> eventFilterMap) {
+    public static PretixEventFilterConfig with(PretixEventFilter pretixEventFilter) {
         PretixEventFilterConfig config = new PretixEventFilterConfig();
-        config.eventFilterPropertiesMap.putAll(eventFilterMap);
-        config.validate();
+        config.pretixEventFilterList.add(pretixEventFilter);
         return config;
     }
 

@@ -1,18 +1,56 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
+import eu.planlos.pretixtonextcloudintegrator.common.util.GermanStringsUtility;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @EqualsAndHashCode
 @NoArgsConstructor
 public final class PretixQnaFilter {
 
+    @Getter
     private final Map<String, List<String>> filterMap = new HashMap<>();
 
     public PretixQnaFilter(Map<String, List<String>> filterMap) {
+        validateAnswerListUniqueEntries(filterMap.values());
         this.filterMap.putAll(filterMap);
+    }
+
+    private void validateAnswerListUniqueEntries(Collection<List<String>> values) {
+        values.forEach(answerList -> {
+            Set<String> testSet = new HashSet<>(answerList);
+            if (testSet.size() != answerList.size()) {
+                throw new IllegalArgumentException("Duplicate answer given");
+            }
+        });
+    }
+
+    public boolean filterQnA(Map<Question, Answer> qnaMap) {
+
+        Map<String, String> extractedQnaMap = extractQnaMap(qnaMap);
+
+        log.debug("Checking if map={}", qnaMap);
+        log.debug("   matches filter={}", this);
+
+        return filterMap.entrySet().stream().allMatch(entry -> {
+            String filterQuestion = entry.getKey();
+            List<String> filterAnswerList = entry.getValue();
+            String givenAnswer = extractedQnaMap.get(filterQuestion);
+            return givenAnswer != null && filterAnswerList.contains(givenAnswer);
+        });
+    }
+
+    private Map<String, String> extractQnaMap(Map<Question, Answer> qnaMap) {
+        return qnaMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> GermanStringsUtility.handleGermanChars(entry.getKey().getText()),
+                        entry -> GermanStringsUtility.handleGermanChars(entry.getValue().getText())));
     }
 
     @Override
@@ -52,9 +90,5 @@ public final class PretixQnaFilter {
             }
         }
         return new PretixQnaFilter(filterMap);
-    }
-
-    public Map<String, List<String>> filterMap() {
-        return filterMap;
     }
 }

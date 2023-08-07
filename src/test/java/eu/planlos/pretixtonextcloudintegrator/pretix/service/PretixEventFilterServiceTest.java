@@ -3,6 +3,7 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixEventFilter;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      objects
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(event, filterMatchesQuestionAndAnswer()));
+        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesQuestionAndAnswer());
         PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
@@ -41,7 +42,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      objects
         Map<Question, Answer> qnaMap = newQnaMapAdditionalQuestions();
         String event = newEvent();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(event, filterMatchesQuestionAndAnswer()));
+        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesQuestionAndAnswer());
         PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
@@ -58,7 +59,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      objects
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesOnlyQuestion()));
+        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesOnlyQuestion());
         PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
@@ -75,7 +76,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      objects
         Map<Question, Answer> qnaMap = newQnaMap();
         String event = newEvent();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesNotAllQuestions()));
+        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesNotAllQuestions());
         PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
@@ -92,7 +93,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      objects
         String event = newEvent();
         Map<Question, Answer> qnaMap = newQnaMap();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(Map.of(newEvent(), filterMatchesNoQuestion()));
+        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesNoQuestion());
         PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
         //      methods
 
@@ -103,27 +104,31 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         assertFalse(containsMatch);
     }
 
-    private List<PretixQnaFilter> filterMatchesNoQuestion() {
-        return List.of(new PretixQnaFilter(Map.of(
-                "Wrong question 1?", List.of("Wrong Answer 1.1!", "Wrong Answer 1.2!"),
-                "Wrong question 2?", List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!"))));
+    private PretixEventFilter filterMatchesNoQuestion() {
+        return new PretixEventFilter(newEvent(),
+                List.of(new PretixQnaFilter(Map.of(
+                        "Wrong question 1?", List.of("Wrong Answer 1.1!", "Wrong Answer 1.2!"),
+                        "Wrong question 2?", List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!")))));
     }
 
-    private List<PretixQnaFilter> filterMatchesQuestionAndAnswer() {
-        return List.of(new PretixQnaFilter(Map.of(
+    private PretixEventFilter filterMatchesQuestionAndAnswer() {
+        return new PretixEventFilter(newEvent(),
+                List.of(new PretixQnaFilter(Map.of(
                 CORRECT_QUESTION_1, List.of(CORRECT_ANSWER_1, "Wrong Answer!"),
-                CORRECT_QUESTION_2, List.of("Wrong Answer!", CORRECT_ANSWER_2))));
+                CORRECT_QUESTION_2, List.of("Wrong Answer!", CORRECT_ANSWER_2)))));
     }
 
-    private List<PretixQnaFilter> filterMatchesOnlyQuestion() {
-        return List.of(new PretixQnaFilter(Map.of(
+    private PretixEventFilter filterMatchesOnlyQuestion() {
+        return new PretixEventFilter(newEvent(),
+                List.of(new PretixQnaFilter(Map.of(
                 CORRECT_QUESTION_1, List.of("Wrong Answer 1.1!", "Wrong Answer 1.2!"),
-                CORRECT_QUESTION_2, List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!"))));
+                CORRECT_QUESTION_2, List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!")))));
     }
 
-    private List<PretixQnaFilter> filterMatchesNotAllQuestions() {
-        return List.of(new PretixQnaFilter(Map.of(
+    private PretixEventFilter filterMatchesNotAllQuestions() {
+        return new PretixEventFilter(newEvent(),
+                List.of(new PretixQnaFilter(Map.of(
                 "Wrong question?", List.of("Wrong Answer 1.1!", "Wrong Answer 1.2!"),
-                CORRECT_QUESTION_2, List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!"))));
+                CORRECT_QUESTION_2, List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!")))));
     }
 }

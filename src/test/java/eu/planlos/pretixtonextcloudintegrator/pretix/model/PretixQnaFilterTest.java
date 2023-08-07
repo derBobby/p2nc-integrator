@@ -1,5 +1,7 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
+import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -8,7 +10,18 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class PretixQnaFilterTest {
+class PretixQnaFilterTest extends PretixTestDataUtility {
+    @Test
+    public void duplicateAnswers_throwsException() {
+        // Prepare
+        //      objects
+        //      methods
+
+        // Act
+        new PretixQnaFilter(Map.of("Question?", List.of("Answer 1!", "Answer 2!")));
+        // Check
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new PretixQnaFilter(Map.of("Question?", List.of("Answer 1!", "Answer 1!"))));
+    }
 
     @Test
     public void filtersCreatedEqually_areEqual() {

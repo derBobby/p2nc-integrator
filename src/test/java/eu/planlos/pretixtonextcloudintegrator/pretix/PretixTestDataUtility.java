@@ -17,6 +17,8 @@ public abstract class PretixTestDataUtility {
     public final String CORRECT_ANSWER_2 = "Answer 2!";
     public final String EVENT = "zeltlager23ma";
 
+    public final String WEBHOOK_EVENT_ORDER_APPROVED = "pretix.event.order.approved";
+
     protected Booking booking() {
         return new Booking(
                 EVENT,
@@ -68,7 +70,7 @@ public abstract class PretixTestDataUtility {
     }
 
     protected WebHookDTO orderApprovedHook() {
-        return new WebHookDTO(0L, "organizer", newEvent(), newCode(), "pretix.event.order.approved");
+        return new WebHookDTO(0L, "organizer", newEvent(), newCode(), WEBHOOK_EVENT_ORDER_APPROVED);
     }
 
     protected String newEvent() {

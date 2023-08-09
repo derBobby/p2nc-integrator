@@ -19,33 +19,33 @@ public class PretixEventFilterService {
         log.debug("Event filter config set in service");
     }
 
-    public boolean irrelevantForBooking(Booking booking) {
+    public boolean irrelevantForBooking(String action, Booking booking) {
 
         List<Position> ticketPositionList = booking.getPositionList().stream()
                 .filter(position -> ! position.getProduct().getProductType().isAddon())
                 .filter(position -> ! position.getQnA().isEmpty())
-                .filter(position -> filter(booking.getEvent(), position.getQnA()))
+                .filter(position -> filter(action, booking.getEvent(), position.getQnA()))
                 .toList();
         return ticketPositionList.isEmpty();
     }
 
-    protected Boolean filter(String event, Map<Question, Answer> qnaMap) {
+    protected Boolean filter(String action, String event, Map<Question, Answer> qnaMap) {
 
         if(pretixEventFilterConfig.isUserSourceConfigured()) {
-            return filterByUserSource(event, qnaMap);
+            return filterByUserSource(action, event, qnaMap);
         }
 
-        // Is default config if nothing is provided
-        return filterByPropertiesSource(event, qnaMap);
+        // Default in Config class, if nothing is provided
+        return filterByPropertiesSource(action, event, qnaMap);
+    }
+
+    private Boolean filterByPropertiesSource(String action, String event, Map<Question, Answer> qnaMap) {
+        PretixEventFilter pretixEventFilter = pretixEventFilterConfig.getQnaFilterFromPropertiesSource(action, event);
+        return pretixEventFilter.filter(qnaMap);
     }
 
     //TODO continue here
-    private Boolean filterByUserSource(String event, Map<Question, Answer> qnaMap) {
+    private Boolean filterByUserSource(String action, String event, Map<Question, Answer> qnaMap) {
         throw new IllegalArgumentException("Feature not yet available");
-    }
-
-    private Boolean filterByPropertiesSource(String event, Map<Question, Answer> qnaMap) {
-        PretixEventFilter pretixEventFilter = pretixEventFilterConfig.getQnaFilterFromPropertiesSource(event);
-        return pretixEventFilter.filter(qnaMap);
     }
 }

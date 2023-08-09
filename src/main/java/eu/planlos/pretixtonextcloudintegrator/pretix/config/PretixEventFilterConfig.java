@@ -37,9 +37,9 @@ public class PretixEventFilterConfig {
         );
     }
 
-    public PretixEventFilter getQnaFilterFromPropertiesSource(String event) {
+    public PretixEventFilter getQnaFilterFromPropertiesSource(String action, String event) {
         return pretixEventFilterList.stream()
-                .filter(filter -> filter.getEvent().equals(event))
+                .filter(filter -> filter.getAction().equals(action) && filter.getEvent().equals(event))
                 .findFirst() // Use findFirst to get the first matching element or null if none match
                 .orElse(null);
     }

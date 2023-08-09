@@ -30,7 +30,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      methods
 
         // Act
-        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(WEBHOOK_EVENT_ORDER_APPROVED, event, qnaMap);
 
         // Check
         assertTrue(containsMatch);
@@ -47,7 +47,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      methods
 
         // Act
-        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(WEBHOOK_EVENT_ORDER_APPROVED, event, qnaMap);
 
         // Check
         assertTrue(containsMatch);
@@ -64,7 +64,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      methods
 
         // Act
-        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(WEBHOOK_EVENT_ORDER_APPROVED, event, qnaMap);
 
         // Check
         assertFalse(containsMatch);
@@ -81,7 +81,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      methods
 
         // Act
-        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(WEBHOOK_EVENT_ORDER_APPROVED, event, qnaMap);
 
         // Check
         assertFalse(containsMatch);
@@ -98,7 +98,7 @@ public class PretixEventFilterServiceTest extends PretixTestDataUtility {
         //      methods
 
         // Act
-        boolean containsMatch = pretixEventFilterService.filter(event, qnaMap);
+        boolean containsMatch = pretixEventFilterService.filter(WEBHOOK_EVENT_ORDER_APPROVED, event, qnaMap);
 
         // Check
         assertFalse(containsMatch);

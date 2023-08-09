@@ -20,12 +20,16 @@ public class PretixEventFilter {
 
     @Column
     @Getter
+    private String action;
+
+    @Column
+    @Getter
     private String event;
 
     @OneToMany
     private List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
 
-    public PretixEventFilter(String event, List<PretixQnaFilter> pretixQnaFilterList) {
+    public PretixEventFilter(String action, String event, List<PretixQnaFilter> pretixQnaFilterList) {
         validateFilterListUniqueEntries(pretixQnaFilterList);
         this.event = event;
         this.pretixQnaFilterList.addAll(pretixQnaFilterList);

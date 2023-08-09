@@ -52,13 +52,14 @@ public class AccountServiceTest extends PretixTestDataUtility {
         // Prepare
         //      objects
         WebHookDTO hook = orderApprovedHook();
+        String hookAction = hook.action();
         String hookCode = hook.code();
         String hookEvent = hook.event();
         //      methods
         when(pretixApiOrderService.getEventUrl(hookEvent, hookCode)).thenReturn(String.format("https://example.com/%s", hookCode));
 
         // Act
-        accountService.handleApprovalNotification(hookEvent, hookCode);
+        accountService.handleApprovalNotification(hookAction, hookEvent, hookCode);
 
         // Check
         verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", hookCode)));
@@ -79,7 +80,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
         positionFilterIrrelevant();
 
         // Act
-        accountService.handleUserCreation(hook.event(), hook.code());
+        accountService.handleUserCreation(hook.action(), hook.event(), hook.code());
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
@@ -98,7 +99,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
         positionFilterRelevant();
 
         // Act
-        accountService.handleUserCreation(hook.event(), hook.code());
+        accountService.handleUserCreation(hook.action(), hook.event(), hook.code());
 
         // Check
         verify(nextcloudApiUserService).createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
@@ -107,10 +108,10 @@ public class AccountServiceTest extends PretixTestDataUtility {
     }
 
     private void positionFilterIrrelevant() {
-        when(pretixEventFilterService.irrelevantForBooking(any())).thenReturn(true);
+        when(pretixEventFilterService.irrelevantForBooking(anyString(), any())).thenReturn(true);
     }
 
     private void positionFilterRelevant() {
-        when(pretixEventFilterService.irrelevantForBooking(any())).thenReturn(false);
+        when(pretixEventFilterService.irrelevantForBooking(anyString(), any())).thenReturn(false);
     }
 }

@@ -81,7 +81,7 @@ public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter
         return sb.toString();
     }
 
-    private static PretixQnaFilter fromString(String text) {
+    public static PretixQnaFilter fromString(String text) {
         if (text == null || text.trim().isEmpty()) {
             return null;
         }

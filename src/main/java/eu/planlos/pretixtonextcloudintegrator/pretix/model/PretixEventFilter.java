@@ -2,7 +2,6 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,30 +18,33 @@ public class PretixEventFilter {
     private Long id;
 
     @Column
-    @Getter
     private String action;
 
     @Column
-    @Getter
     private String event;
 
     @OneToMany
-    private List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
+    private List<PretixQnaFilter> qnas = new ArrayList<>();
 
-    public PretixEventFilter(String action, String event, List<PretixQnaFilter> pretixQnaFilterList) {
-        validateFilterListUniqueEntries(pretixQnaFilterList);
+    public PretixEventFilter(String action, String event, List<PretixQnaFilter> qnas) {
+        validateFilterListUniqueEntries(qnas);
+        this.action = action;
         this.event = event;
-        this.pretixQnaFilterList.addAll(pretixQnaFilterList);
+        this.qnas.addAll(qnas);
+    }
+
+    public void addQna(PretixQnaFilter qnaFilter) {
+        qnas.add(qnaFilter);
     }
 
     public boolean filter(Map<Question, Answer> qnaMap) {
 
         // If no filter must be applied, then filter is successful
-        if (pretixQnaFilterList.isEmpty()) {
+        if (qnas.isEmpty()) {
             return true;
         }
 
-        for (PretixQnaFilter filter : pretixQnaFilterList) {
+        for (PretixQnaFilter filter : qnas) {
 
             boolean matches = filter.filterQnA(qnaMap);
 
@@ -67,5 +69,13 @@ public class PretixEventFilter {
                 throw new IllegalArgumentException(message);
             }
         }
+    }
+
+    public boolean isForAction(String action) {
+        return this.action.equals(action);
+    }
+
+    public boolean isForEvent(String event) {
+        return this.event.equals(event);
     }
 }

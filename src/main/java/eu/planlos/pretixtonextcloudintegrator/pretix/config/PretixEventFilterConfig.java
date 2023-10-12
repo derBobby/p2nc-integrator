@@ -1,7 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.config;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixEventFilter;
-import jakarta.annotation.PostConstruct;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
@@ -15,34 +14,27 @@ import java.util.stream.Collectors;
 public class PretixEventFilterConfig {
 
     private final PretixEventFilterSource source;
-    private final List<PretixEventFilter> pretixEventFilterList = new ArrayList<>();
+    private final List<PretixQnaFilter> filterList = new ArrayList<>();
 
     public PretixEventFilterConfig() {
         this.source = PretixEventFilterSource.PROPERTIES;
     }
 
     @ConstructorBinding
-    public PretixEventFilterConfig(String source, List<PretixEventFilter> filters) {
+    public PretixEventFilterConfig(String source, List<PretixQnaFilter> filterList) {
         this.source = PretixEventFilterSource.fromString(source);
-        this.pretixEventFilterList.addAll(filters);
+        this.filterList.addAll(filterList);
     }
 
-    @PostConstruct
-    private void init() {
-        this.pretixEventFilterList.isEmpty();
-    }
-
-    public PretixEventFilter getQnaFilterFromPropertiesSource(String action, String event) {
-        return pretixEventFilterList.stream()
-                .filter(filter -> filter.isForAction(action) && filter.isForEvent(event))
-                .findFirst() // Use findFirst to get the first matching element or null if none match
-                .orElse(null);
-    }
-
-    public static PretixEventFilterConfig with(PretixEventFilter pretixEventFilter) {
+    public static PretixEventFilterConfig with(List<PretixQnaFilter> filterList) {
         PretixEventFilterConfig config = new PretixEventFilterConfig();
-        config.pretixEventFilterList.add(pretixEventFilter);
+        config.filterList.addAll(filterList);
         return config;
+    }
+
+    public List<PretixQnaFilter> getQnaFilterFromPropertiesSource(String action, String event) {
+        return filterList.stream()
+                .filter(filter -> filter.isForAction(action) && filter.isForEvent(event)).toList();
     }
 
     public boolean isPropertiesSourceConfigured() {

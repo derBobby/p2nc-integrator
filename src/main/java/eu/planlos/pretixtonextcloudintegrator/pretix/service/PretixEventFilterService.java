@@ -39,9 +39,10 @@ public class PretixEventFilterService {
         return filterByPropertiesSource(action, event, qnaMap);
     }
 
-    private Boolean filterByPropertiesSource(String action, String event, Map<Question, Answer> qnaMap) {
-        PretixEventFilter pretixEventFilter = pretixEventFilterConfig.getQnaFilterFromPropertiesSource(action, event);
-        return pretixEventFilter.filter(qnaMap);
+    private boolean filterByPropertiesSource(String action, String event, Map<Question, Answer> qnaMap) {
+        return pretixEventFilterConfig.getQnaFilterFromPropertiesSource(action, event)
+                .stream()
+                .anyMatch(filter -> filter.filterQnA(qnaMap));
     }
 
     //TODO continue here

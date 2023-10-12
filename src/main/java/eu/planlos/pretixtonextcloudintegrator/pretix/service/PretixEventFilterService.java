@@ -1,10 +1,14 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,11 +16,28 @@ import java.util.Map;
 @Service
 public class PretixEventFilterService {
 
+    private final List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
     private final PretixEventFilterConfig pretixEventFilterConfig;
 
-    public PretixEventFilterService(PretixEventFilterConfig pretixEventFilterConfig) {
+    @Autowired
+    public PretixEventFilterService(PretixEventFilterConfig pretixEventFilterConfig, ObjectMapper objectMapper) throws JsonProcessingException {
         this.pretixEventFilterConfig = pretixEventFilterConfig;
+        pretixQnaFilterList.addAll(new StringToPretixQnaFilterConverter(objectMapper).convertAll(pretixEventFilterConfig.getFilterList()));
         log.debug("Event filter config set in service");
+    }
+
+    /**
+     * Constructor package private for tests
+     * @param pretixQnaFilterList Test filter list
+     */
+    PretixEventFilterService(List<PretixQnaFilter> pretixQnaFilterList) {
+        this.pretixEventFilterConfig = new PretixEventFilterConfig(null, null);
+        this.pretixQnaFilterList.addAll(pretixQnaFilterList);
+    }
+
+    public List<PretixQnaFilter> getQnaFilterFromPropertiesSource(String action, String event) {
+        return pretixQnaFilterList.stream()
+                .filter(filter -> filter.isForAction(action) && filter.isForEvent(event)).toList();
     }
 
     public boolean irrelevantForBooking(String action, Booking booking) {
@@ -29,7 +50,7 @@ public class PretixEventFilterService {
         return ticketPositionList.isEmpty();
     }
 
-    protected Boolean filter(String action, String event, Map<Question, Answer> qnaMap) {
+    protected boolean filter(String action, String event, Map<Question, Answer> qnaMap) {
 
         if(pretixEventFilterConfig.isUserSourceConfigured()) {
             return filterByUserSource(action, event, qnaMap);
@@ -40,7 +61,7 @@ public class PretixEventFilterService {
     }
 
     private boolean filterByPropertiesSource(String action, String event, Map<Question, Answer> qnaMap) {
-        return pretixEventFilterConfig.getQnaFilterFromPropertiesSource(action, event)
+        return getQnaFilterFromPropertiesSource(action, event)
                 .stream()
                 .anyMatch(filter -> filter.filterQnA(qnaMap));
     }

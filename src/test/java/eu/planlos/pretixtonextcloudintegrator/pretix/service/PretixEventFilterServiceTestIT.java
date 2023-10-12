@@ -1,7 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.service;
 
 import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
-import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Answer;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Question;
@@ -20,8 +19,7 @@ public class PretixEventFilterServiceTestIT extends PretixTestDataUtility {
         // Prepare
         //      objects
         Map<Question, Answer> qnaMap = newCorrectQnaMap();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesQuestionAndAnswer());
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(filterMatchesQuestionAndAnswer());
         //      methods
 
         // Act
@@ -36,8 +34,7 @@ public class PretixEventFilterServiceTestIT extends PretixTestDataUtility {
         // Prepare
         //      objects
         Map<Question, Answer> qnaMap = newAdditionalQuestionsQnaMap();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesQuestionAndAnswer());
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(filterMatchesQuestionAndAnswer());
         //      methods
 
         // Act
@@ -52,8 +49,7 @@ public class PretixEventFilterServiceTestIT extends PretixTestDataUtility {
         // Prepare
         //      objects
         Map<Question, Answer> qnaMap = newCorrectQnaMap();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesOnlyQuestion());
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(filterMatchesOnlyQuestion());
         //      methods
 
         // Act
@@ -68,8 +64,7 @@ public class PretixEventFilterServiceTestIT extends PretixTestDataUtility {
         // Prepare
         //      objects
         Map<Question, Answer> qnaMap = newCorrectQnaMap();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesNotAllQuestions());
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(filterMatchesNotAllQuestions());
         //      methods
 
         // Act
@@ -84,8 +79,7 @@ public class PretixEventFilterServiceTestIT extends PretixTestDataUtility {
         // Prepare
         //      objects
         Map<Question, Answer> qnaMap = newCorrectQnaMap();
-        PretixEventFilterConfig config = PretixEventFilterConfig.with(filterMatchesNoQuestion());
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(config);
+        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(filterMatchesNoQuestion());
         //      methods
 
         // Act

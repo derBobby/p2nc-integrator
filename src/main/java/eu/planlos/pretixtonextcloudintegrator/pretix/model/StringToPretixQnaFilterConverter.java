@@ -1,14 +1,12 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.Nullable;
-import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.stereotype.Component;
 
-@Component
-@ConfigurationPropertiesBinding
-public class StringToPretixQnaFilterConverter implements Converter<String, PretixQnaFilter> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class StringToPretixQnaFilterConverter {
 
     private final ObjectMapper objectMapper;
 
@@ -16,12 +14,15 @@ public class StringToPretixQnaFilterConverter implements Converter<String, Preti
         this.objectMapper = objectMapper;
     }
 
-    @Override
-    public PretixQnaFilter convert(@Nullable String source) {
-        try {
-            return objectMapper.readValue(source, PretixQnaFilter.class);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to convert JSON string to User object", e);
+    public List<PretixQnaFilter> convertAll(List<String> filterList) throws JsonProcessingException {
+        List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
+        for (String filter : filterList) {
+            pretixQnaFilterList.add(convert(objectMapper, filter));
         }
+        return pretixQnaFilterList;
+    }
+
+    private PretixQnaFilter convert(ObjectMapper objectMapper, String filter) throws JsonProcessingException {
+        return objectMapper.readValue(filter, PretixQnaFilter.class);
     }
 }

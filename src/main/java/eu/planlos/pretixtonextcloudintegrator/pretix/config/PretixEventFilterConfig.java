@@ -1,11 +1,8 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.config;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,27 +11,15 @@ import java.util.stream.Collectors;
 public class PretixEventFilterConfig {
 
     private final PretixEventFilterSource source;
-    private final List<PretixQnaFilter> filterList = new ArrayList<>();
 
-    public PretixEventFilterConfig() {
-        this.source = PretixEventFilterSource.PROPERTIES;
-    }
+    @Getter
+    private final List<String> filterList;
 
-    @ConstructorBinding
-    public PretixEventFilterConfig(String source, List<PretixQnaFilter> filterList) {
+    public PretixEventFilterConfig(
+            String source,
+            List<String> filterList) {
         this.source = PretixEventFilterSource.fromString(source);
-        this.filterList.addAll(filterList);
-    }
-
-    public static PretixEventFilterConfig with(List<PretixQnaFilter> filterList) {
-        PretixEventFilterConfig config = new PretixEventFilterConfig();
-        config.filterList.addAll(filterList);
-        return config;
-    }
-
-    public List<PretixQnaFilter> getQnaFilterFromPropertiesSource(String action, String event) {
-        return filterList.stream()
-                .filter(filter -> filter.isForAction(action) && filter.isForEvent(event)).toList();
+        this.filterList = filterList;
     }
 
     public boolean isPropertiesSourceConfigured() {
@@ -58,7 +43,7 @@ public class PretixEventFilterConfig {
 
         public static PretixEventFilterSource fromString(String text) {
 
-            if(text.isEmpty()) {
+            if(text == null || text.isEmpty()) {
                 return PretixEventFilterSource.PROPERTIES;
             }
 

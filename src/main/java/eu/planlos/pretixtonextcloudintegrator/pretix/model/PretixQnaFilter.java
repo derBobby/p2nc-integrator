@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @EqualsAndHashCode
 @NoArgsConstructor
-public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter, String> {
+public final class PretixQnaFilter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,7 +31,7 @@ public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter
 
     @NotNull
     @JsonProperty("qna-list")
-    @Convert(converter = PretixQnaFilter.class)
+    @Convert(converter = StringToPretixQnaFilterDBConverter.class)
     private Map<String, List<String>> filterMap = new HashMap<>();
 
     /**
@@ -127,19 +127,5 @@ public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter
             }
         }
         return new PretixQnaFilter(null, null, filterMap);
-    }
-
-    /*
-     *  Database functions
-     */
-
-    @Override
-    public String convertToDatabaseColumn(PretixQnaFilter pretixQnaFilter) {
-        return toString();
-    }
-
-    @Override
-    public PretixQnaFilter convertToEntityAttribute(String dbData) {
-        return fromString(dbData);
     }
 }

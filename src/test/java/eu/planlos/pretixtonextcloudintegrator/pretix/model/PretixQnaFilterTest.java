@@ -4,6 +4,7 @@ import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ class PretixQnaFilterTest extends PretixTestDataUtility {
 
         // Act
         new PretixQnaFilter(Map.of("Question?", List.of("Answer 1!", "Answer 2!")));
+
         // Check
         Assertions.assertThrows(IllegalArgumentException.class, () -> new PretixQnaFilter(Map.of("Question?", List.of("Answer 1!", "Answer 1!"))));
     }
@@ -41,6 +43,19 @@ class PretixQnaFilterTest extends PretixTestDataUtility {
     }
 
     @Test
+    public void filterForActionAndEvent_isRecognized() {
+        // Prepare
+        //      objects
+        PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(ACTION_ORDER_APPROVED, EVENT, new HashMap<>());
+        //      methods
+
+        // Act
+        // Check
+        assertTrue(pretixQnaFilter.isForAction(ACTION_ORDER_APPROVED));
+        assertTrue(pretixQnaFilter.isForEvent(EVENT));
+    }
+
+    @Test
     public void filtersNotCreatedEqually_areNotEqual() {
         // Prepare
         //      objects
@@ -55,6 +70,81 @@ class PretixQnaFilterTest extends PretixTestDataUtility {
 
         // Check
         assertFalse(equals);
+    }
+
+    @Test
+    public void allQnaMatchFilter_isFiltered() {
+        // Prepare
+        //      objects
+        Map<Question, Answer> qnaMap = newCorrectQnaMap();
+        PretixQnaFilter pretixQnaFilter = newCorrectQnaFilter();
+        //      methods
+
+        // Act
+        boolean found = pretixQnaFilter.filterQnA(qnaMap);
+
+        // Check
+        assertTrue(found);
+    }
+
+    @Test
+    public void noQuestionsMatchFilter_isNotFiltered() {
+        // Prepare
+        //      objects
+        Map<Question, Answer> qnaMap = newIncorrectQuestionQnaMap();
+        PretixQnaFilter pretixQnaFilter = newCorrectQnaFilter();
+        //      methods
+
+        // Act
+        boolean found = pretixQnaFilter.filterQnA(qnaMap);
+
+        // Check
+        assertFalse(found);
+    }
+
+    @Test
+    public void noAnswerMatchFilter_isNotFiltered() {
+        // Prepare
+        //      objects
+        Map<Question, Answer> qnaMap = newIncorrectAnswerQnaMap();
+        PretixQnaFilter pretixQnaFilter = newCorrectQnaFilter();
+        //      methods
+
+        // Act
+        boolean found = pretixQnaFilter.filterQnA(qnaMap);
+
+        // Check
+        assertFalse(found);
+    }
+
+    @Test
+    public void notAllQuestionsMatchFilter_isNotFiltered() {
+        // Prepare
+        //      objects
+        Map<Question, Answer> qnaMap = newPartiallyCorrectQuestionsQnaMap();
+        PretixQnaFilter pretixQnaFilter = newCorrectQnaFilter();
+        //      methods
+
+        // Act
+        boolean found = pretixQnaFilter.filterQnA(qnaMap);
+
+        // Check
+        assertFalse(found);
+    }
+
+    @Test
+    public void notAllAnswersMatchFilter_isNotFiltered() {
+        // Prepare
+        //      objects
+        Map<Question, Answer> qnaMap = newPartiallyCorrectAnswesQnaMap();
+        PretixQnaFilter pretixQnaFilter = newCorrectQnaFilter();
+        //      methods
+
+        // Act
+        boolean found = pretixQnaFilter.filterQnA(qnaMap);
+
+        // Check
+        assertFalse(found);
     }
 
     private PretixQnaFilter newQnaFilter() {

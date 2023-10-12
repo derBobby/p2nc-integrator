@@ -1,61 +1,33 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.config;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixEventFilter;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @ConfigurationProperties(prefix = "pretix.event-filter")
 public class PretixEventFilterConfig {
 
-    private final Map<String, List<Map<String, List<String>>>> internalEventFilterPropertiesMap = new HashMap<>();
+    private final PretixEventFilterSource source;
+
     @Getter
-    private final PretixEventFilterSource pretixEventFilterSource;
-    private final List<PretixEventFilter> pretixEventFilterList = new ArrayList<>();
+    private final List<String> filterList;
 
-    public PretixEventFilterConfig() {
-        this.pretixEventFilterSource = PretixEventFilterSource.PROPERTIES;
-    }
-
-    @ConstructorBinding
-    public PretixEventFilterConfig(String source, Map<String, List<Map<String, List<String>>>> map) {
-        this.pretixEventFilterSource = PretixEventFilterSource.fromString(source);
-        this.internalEventFilterPropertiesMap.putAll(map);
-    }
-
-    @PostConstruct
-    private void setup() {
-        internalEventFilterPropertiesMap.forEach((key, value) ->
-                pretixEventFilterList.add(new PretixEventFilter(key, value.stream()
-                        .map(PretixQnaFilter::new)
-                        .toList()))
-        );
-    }
-
-    public PretixEventFilter getQnaFilterFromPropertiesSource(String event) {
-        return pretixEventFilterList.stream()
-                .filter(filter -> filter.getEvent().equals(event))
-                .findFirst() // Use findFirst to get the first matching element or null if none match
-                .orElse(null);
-    }
-
-    public static PretixEventFilterConfig with(PretixEventFilter pretixEventFilter) {
-        PretixEventFilterConfig config = new PretixEventFilterConfig();
-        config.pretixEventFilterList.add(pretixEventFilter);
-        return config;
+    public PretixEventFilterConfig(
+            String source,
+            List<String> filterList) {
+        this.source = PretixEventFilterSource.fromString(source);
+        this.filterList = filterList;
     }
 
     public boolean isPropertiesSourceConfigured() {
-        return pretixEventFilterSource.equals(PretixEventFilterSource.PROPERTIES);
+        return source.equals(PretixEventFilterSource.PROPERTIES);
     }
 
     public boolean isUserSourceConfigured() {
-        return pretixEventFilterSource.equals(PretixEventFilterSource.USER);
+        return source.equals(PretixEventFilterSource.USER);
     }
 
     @Getter
@@ -71,7 +43,7 @@ public class PretixEventFilterConfig {
 
         public static PretixEventFilterSource fromString(String text) {
 
-            if(text.isEmpty()) {
+            if(text == null || text.isEmpty()) {
                 return PretixEventFilterSource.PROPERTIES;
             }
 

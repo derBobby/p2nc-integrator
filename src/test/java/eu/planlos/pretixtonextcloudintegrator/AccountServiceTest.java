@@ -2,9 +2,13 @@ package eu.planlos.pretixtonextcloudintegrator;
 
 import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
+import eu.planlos.pretixtonextcloudintegrator.common.util.ZonedDateTimeUtility;
 import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Position;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.Product;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.ProductType;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixBookingService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixEventFilterService;
@@ -14,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static eu.planlos.pretixtonextcloudintegrator.AccountService.SUBJECT_IRRELEVANT;
 import static eu.planlos.pretixtonextcloudintegrator.AccountService.SUBJECT_OK;
@@ -52,13 +58,14 @@ public class AccountServiceTest extends PretixTestDataUtility {
         // Prepare
         //      objects
         WebHookDTO hook = orderApprovedHook();
+        String hookAction = hook.action();
         String hookCode = hook.code();
         String hookEvent = hook.event();
         //      methods
         when(pretixApiOrderService.getEventUrl(hookEvent, hookCode)).thenReturn(String.format("https://example.com/%s", hookCode));
 
         // Act
-        accountService.handleApprovalNotification(hookEvent, hookCode);
+        accountService.handleApprovalNotification(hookAction, hookEvent, hookCode);
 
         // Check
         verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", hookCode)));
@@ -79,7 +86,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
         positionFilterIrrelevant();
 
         // Act
-        accountService.handleUserCreation(hook.event(), hook.code());
+        accountService.handleUserCreation(hook.action(), hook.event(), hook.code());
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
@@ -98,7 +105,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
         positionFilterRelevant();
 
         // Act
-        accountService.handleUserCreation(hook.event(), hook.code());
+        accountService.handleUserCreation(hook.action(), hook.event(), hook.code());
 
         // Check
         verify(nextcloudApiUserService).createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
@@ -107,10 +114,41 @@ public class AccountServiceTest extends PretixTestDataUtility {
     }
 
     private void positionFilterIrrelevant() {
-        when(pretixEventFilterService.irrelevantForBooking(any())).thenReturn(true);
+        when(pretixEventFilterService.irrelevantForBooking(anyString(), any())).thenReturn(true);
     }
 
     private void positionFilterRelevant() {
-        when(pretixEventFilterService.irrelevantForBooking(any())).thenReturn(false);
+        when(pretixEventFilterService.irrelevantForBooking(anyString(), any())).thenReturn(false);
+    }
+
+    /*
+     * Data helper
+     */
+
+    protected WebHookDTO orderApprovedHook() {
+        return new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ACTION_ORDER_APPROVED);
+    }
+
+    protected Booking booking() {
+        return new Booking(
+                EVENT,
+                CODE_NEW,
+                "First",
+                "Last",
+                "first.last@example.com",
+                ZonedDateTimeUtility.nowCET().toLocalDateTime(),
+                positionList());
+    }
+
+    private List<Position> positionList() {
+        return List.of(new Position(product(), newCorrectQnaMap()));
+    }
+
+    private Product product() {
+        return new Product(PRETIX_ID, "some product", productTypeTicket());
+    }
+
+    private ProductType productTypeTicket() {
+        return new ProductType(PRETIX_ID, false, "some product type");
     }
 }

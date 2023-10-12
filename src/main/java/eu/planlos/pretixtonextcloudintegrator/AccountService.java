@@ -38,18 +38,18 @@ public class AccountService implements IPretixWebHookHandler {
         this.signalService = signalService;
     }
 
-    public void handleApprovalNotification(String event, String code) {
+    public void handleApprovalNotification(String hookAction, String event, String code) {
         notifyAdmin("New order",
                 String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(event, code)));
     }
 
-    public void handleUserCreation(String event, String code) {
+    public void handleUserCreation(String action, String event, String code) {
 
         try {
             Booking booking = pretixBookingService.loadOrFetch(event, code);
             log.info("Order found: {}", booking);
 
-            if(pretixEventFilterService.irrelevantForBooking(booking)) {
+            if(pretixEventFilterService.irrelevantForBooking(action, booking)) {
                 String infoMessage = String.format("Order with code %s was excluded for account creation by filter", code);
                 log.info(infoMessage);
                 notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);

@@ -1,9 +1,10 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.planlos.pretixtonextcloudintegrator.common.util.GermanStringsUtility;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,22 +15,41 @@ import java.util.stream.Collectors;
 @Slf4j
 @EqualsAndHashCode
 @NoArgsConstructor
-public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter, String> {
+public final class PretixQnaFilter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Getter
-    @Convert(converter = PretixQnaFilter.class)
-    private final Map<String, List<String>> filterMap = new HashMap<>();
+    @NotNull
+    @JsonProperty("action")
+    private String action;
 
-    public PretixQnaFilter(Map<String, List<String>> filterMap) {
-        validateAnswerListUniqueEntries(filterMap.values());
+    @NotNull
+    @JsonProperty("event")
+    private String event;
+
+    @NotNull
+    @JsonProperty("qna-list")
+    @Convert(converter = StringToPretixQnaFilterDBConverter.class)
+    private Map<String, List<String>> filterMap = new HashMap<>();
+
+    /**
+     * Constructor package private for tests
+     * @param filterMap Map that consists of question and answers
+     */
+    PretixQnaFilter(Map<String, List<String>> filterMap) {
+        this(null, null, filterMap);
+    }
+
+    public PretixQnaFilter(@NotNull String action, @NotNull String event, @NotNull Map<String, List<String>> filterMap) {
+        validateEachAnswerListConsistsOfUniqueAnswers(filterMap.values());
+        this.action = action;
+        this.event = event;
         this.filterMap.putAll(filterMap);
     }
 
-    private void validateAnswerListUniqueEntries(Collection<List<String>> values) {
+    private void validateEachAnswerListConsistsOfUniqueAnswers(Collection<List<String>> values) {
         values.forEach(answerList -> {
             Set<String> testSet = new HashSet<>(answerList);
             if (testSet.size() != answerList.size()) {
@@ -38,12 +58,20 @@ public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter
         });
     }
 
+    public boolean isForAction(String action) {
+        return this.action.equals(action);
+    }
+
+    public boolean isForEvent(String event) {
+        return this.event.equals(event);
+    }
+
     public boolean filterQnA(Map<Question, Answer> qnaMap) {
 
-        Map<String, String> extractedQnaMap = extractQnaMap(qnaMap);
-
         log.debug("Checking if map={}", qnaMap);
-        log.debug("   matches filter={}", this);
+        log.debug(" Matches filter={}", this);
+
+        Map<String, String> extractedQnaMap = extractQnaMap(qnaMap);
 
         return filterMap.entrySet().stream().allMatch(entry -> {
             String filterQuestion = entry.getKey();
@@ -60,6 +88,7 @@ public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter
                         entry -> GermanStringsUtility.handleGermanChars(entry.getValue().getText())));
     }
 
+    //TODO implement correctly according to class update
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -81,7 +110,8 @@ public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter
         return sb.toString();
     }
 
-    private static PretixQnaFilter fromString(String text) {
+    //TODO implement correctly according to class update
+    public static PretixQnaFilter fromString(String text) {
         if (text == null || text.trim().isEmpty()) {
             return null;
         }
@@ -96,16 +126,6 @@ public final class PretixQnaFilter implements AttributeConverter<PretixQnaFilter
                 filterMap.put(key, values);
             }
         }
-        return new PretixQnaFilter(filterMap);
-    }
-
-    @Override
-    public String convertToDatabaseColumn(PretixQnaFilter pretixQnaFilter) {
-        return toString();
-    }
-
-    @Override
-    public PretixQnaFilter convertToEntityAttribute(String dbData) {
-        return fromString(dbData);
+        return new PretixQnaFilter(null, null, filterMap);
     }
 }

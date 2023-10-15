@@ -31,7 +31,7 @@ public final class PretixQnaFilter {
 
     @NotNull
     @JsonProperty("qna-list")
-    @Convert(converter = StringToPretixQnaFilterDBConverter.class)
+    @Convert(converter = PretixQnaFilterMapToStringDBConverter.class)
     private Map<String, List<String>> filterMap = new HashMap<>();
 
     /**
@@ -86,46 +86,5 @@ public final class PretixQnaFilter {
                 .collect(Collectors.toMap(
                         entry -> GermanStringsUtility.handleGermanChars(entry.getKey().getText()),
                         entry -> GermanStringsUtility.handleGermanChars(entry.getValue().getText())));
-    }
-
-    //TODO implement correctly according to class update
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        for (Map.Entry<String, List<String>> entry : filterMap.entrySet()) {
-            String key = entry.getKey();
-            List<String> values = entry.getValue();
-
-            sb.append("'").append(key).append("': ");
-
-            if (!values.isEmpty()) {
-                for (int i = 0; i < values.size() - 1; i++) {
-                    sb.append("'").append(values.get(i)).append("', ");
-                }
-                sb.append("'").append(values.get(values.size() - 1)).append("'");
-            }
-        }
-
-        return sb.toString();
-    }
-
-    //TODO implement correctly according to class update
-    public static PretixQnaFilter fromString(String text) {
-        if (text == null || text.trim().isEmpty()) {
-            return null;
-        }
-
-        String[] entries = text.split(";");
-        Map<String, List<String>> filterMap = new HashMap<>();
-        for (String entry : entries) {
-            String[] parts = entry.split(":");
-            if (parts.length == 2) {
-                String key = parts[0];
-                List<String> values = Arrays.asList(parts[1].split(","));
-                filterMap.put(key, values);
-            }
-        }
-        return new PretixQnaFilter(null, null, filterMap);
     }
 }

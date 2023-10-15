@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
+import eu.planlos.pretixtonextcloudintegrator.pretix.repository.PretixQnaFilterRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,12 +21,24 @@ public class PretixEventFilterService {
 
     private final List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
     private final PretixEventFilterConfig pretixEventFilterConfig;
+    private final PretixQnaFilterRepository pretixQnaFilterRepository;
 
     @Autowired
-    public PretixEventFilterService(PretixEventFilterConfig pretixEventFilterConfig, ObjectMapper objectMapper) throws JsonProcessingException {
+    public PretixEventFilterService(PretixEventFilterConfig pretixEventFilterConfig, ObjectMapper objectMapper, PretixQnaFilterRepository pretixQnaFilterRepository) throws JsonProcessingException {
         this.pretixEventFilterConfig = pretixEventFilterConfig;
+        this.pretixQnaFilterRepository = pretixQnaFilterRepository;
         pretixQnaFilterList.addAll(new StringToPretixQnaFilterConverter(objectMapper).convertAll(pretixEventFilterConfig.getFilterList()));
-        log.debug("Event filter config set in service");
+        log.debug("Event QnA filter list configured in service");
+    }
+
+    //TODO write test for persisting
+    @PostConstruct
+    @Profile(value = "DEVELOPMENT")
+    public void persist() {
+        pretixQnaFilterRepository.saveAll(pretixQnaFilterList);
+        log.debug("Event QnA filter list saved in database");
+        List<PretixQnaFilter> pretixQnaFilterDBList = pretixQnaFilterRepository.findAll();
+        log.debug("Event QnA filter list loaded from database: {}", pretixQnaFilterDBList);
     }
 
     /**
@@ -33,12 +48,12 @@ public class PretixEventFilterService {
     PretixEventFilterService(List<PretixQnaFilter> pretixQnaFilterList) {
         this.pretixEventFilterConfig = new PretixEventFilterConfig(null, null);
         this.pretixQnaFilterList.addAll(pretixQnaFilterList);
+        this.pretixQnaFilterRepository = null;
     }
 
-    public List<PretixQnaFilter> getQnaFilterFromPropertiesSource(String action, String event) {
-        return pretixQnaFilterList.stream()
-                .filter(filter -> filter.isForAction(action) && filter.isForEvent(event)).toList();
-    }
+    /*
+     * Filtering methods
+     */
 
     public boolean irrelevantForBooking(String action, Booking booking) {
 
@@ -60,14 +75,14 @@ public class PretixEventFilterService {
         return filterByPropertiesSource(action, event, qnaMap);
     }
 
-    private boolean filterByPropertiesSource(String action, String event, Map<Question, Answer> qnaMap) {
-        return getQnaFilterFromPropertiesSource(action, event)
-                .stream()
-                .anyMatch(filter -> filter.filterQnA(qnaMap));
-    }
-
     //TODO continue here
     private Boolean filterByUserSource(String action, String event, Map<Question, Answer> qnaMap) {
         throw new IllegalArgumentException("Feature not yet available");
+    }
+
+    private boolean filterByPropertiesSource(String action, String event, Map<Question, Answer> qnaMap) {
+        return pretixQnaFilterList.stream()
+                .filter(filter -> filter.isForAction(action) && filter.isForEvent(event))
+                .anyMatch(filter -> filter.filterQnA(qnaMap));
     }
 }

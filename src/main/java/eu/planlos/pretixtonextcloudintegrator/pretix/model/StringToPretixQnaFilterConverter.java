@@ -17,12 +17,12 @@ public class StringToPretixQnaFilterConverter {
     public List<PretixQnaFilter> convertAll(List<String> filterList) throws JsonProcessingException {
         List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
         for (String filter : filterList) {
-            pretixQnaFilterList.add(convert(objectMapper, filter));
+            pretixQnaFilterList.add(convert(filter));
         }
         return pretixQnaFilterList;
     }
 
-    private PretixQnaFilter convert(ObjectMapper objectMapper, String filter) throws JsonProcessingException {
+    private PretixQnaFilter convert(String filter) throws JsonProcessingException {
         return objectMapper.readValue(filter, PretixQnaFilter.class);
     }
 }

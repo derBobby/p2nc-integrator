@@ -38,11 +38,13 @@ public class AccountService implements IPretixWebHookHandler {
         this.signalService = signalService;
     }
 
+    @Override
     public void handleApprovalNotification(String hookAction, String event, String code) {
         notifyAdmin("New order",
                 String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(event, code)));
     }
 
+    @Override
     public void handleUserCreation(String action, String event, String code) {
 
         try {

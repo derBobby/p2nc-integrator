@@ -3,6 +3,7 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void webHook(@RequestBody WebHookDTO hook) {
+    public void webHook(@RequestBody @Valid WebHookDTO hook) {
 
         MDC.put("orderCode", hook.code());
         log.info("Incoming webhook={}", hook);

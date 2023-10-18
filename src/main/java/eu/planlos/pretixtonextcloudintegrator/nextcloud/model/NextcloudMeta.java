@@ -16,8 +16,4 @@ public class NextcloudMeta {
     private String message;
     private String totalitems;
     private String itemsperpage;
-
-    public int getTotalItemsInt() {
-        return Integer.parseInt(totalitems);
-    }
 }

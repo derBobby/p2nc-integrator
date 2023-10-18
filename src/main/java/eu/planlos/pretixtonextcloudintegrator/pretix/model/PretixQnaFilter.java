@@ -6,13 +6,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Slf4j
 @EqualsAndHashCode
 @NoArgsConstructor
 public final class PretixQnaFilter {
@@ -67,9 +65,6 @@ public final class PretixQnaFilter {
     }
 
     public boolean filterQnA(Map<Question, Answer> qnaMap) {
-
-        log.debug("Checking if map={}", qnaMap);
-        log.debug(" Matches filter={}", this);
 
         Map<String, String> extractedQnaMap = extractQnaMap(qnaMap);
 

@@ -23,6 +23,7 @@ public final class Booking {
     private String event;
 
     @NotNull
+    @Column(unique = true)
     private String code;
 
     @NotNull
@@ -42,10 +43,6 @@ public final class Booking {
     @OneToMany(cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<Position> positionList;
-
-    public void setPositionList(@NotNull List<Position> positionList) {
-        this.positionList = positionList;
-    }
 
     public Booking(@NotNull String event, @NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Position> positionList) {
         this.code = code;

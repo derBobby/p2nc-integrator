@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 public class NextcloudApiUserService extends NextcloudApiService {
 
     private static final String SUCCESS_MESSAGE_CREATE_USER = "Created user: {}";
+    private static final String SUCCESS_API_INACTIVE = "No user created: API is inactive";
     private static final String FAIL_MESSAGE_CREATE_USER = "Could not create  user: {}, Error: {}";
     private static final String FAIL_MESSAGE_GET_USERS = "Could not load users from nextcloud";
     private static final String NC_API_JSON_SUFFIX = "?format=json";
@@ -53,7 +54,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
                     .retrieve()
                     .bodyToMono(JsonNode.class)
                     .block();
-            log.debug(jsonNode.toPrettyString());
+            logJsonResponse(jsonNode);
         }
 
         NextcloudApiResponse<NextcloudUserList> apiResponse = webClient
@@ -84,7 +85,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
                     .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
                     .doOnError(error -> log.error("{}: {}", FAIL_MESSAGE_GET_USERS, error.getMessage()))
                     .block();
-            log.debug(jsonNode.toPrettyString());
+            logJsonResponse(jsonNode);
         }
 
         NextcloudApiResponse<NextcloudUser> apiResponse = webClient
@@ -103,6 +104,14 @@ public class NextcloudApiUserService extends NextcloudApiService {
         return apiResponse.getData();
     }
 
+    private static void logJsonResponse(JsonNode jsonNode) {
+        if(jsonNode == null) {
+            log.error("JSON is null");
+        } else {
+            log.debug(jsonNode.toPrettyString());
+        }
+    }
+
     public Map<String, String> getAllUsersAsUseridEmailMap() {
 
         if (nextcloudApiConfig.inactive()) {
@@ -119,7 +128,8 @@ public class NextcloudApiUserService extends NextcloudApiService {
     public String createUser(String email, String firstName, String lastName) {
 
         if (nextcloudApiConfig.inactive()) {
-            return "api-inactive";
+            log.info(SUCCESS_API_INACTIVE);
+            return "<none, API inactive>";
         }
 
         Map<String, String> allUsersMap = getAllUsersAsUseridEmailMap();
@@ -152,7 +162,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
         if (apiResponse.getMeta().getStatus().equals("failure")) {
             throw new ApiException(String.format("Status is 'failure': %s", apiResponse));
         }
-        log.debug(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
+        log.info(SUCCESS_MESSAGE_CREATE_USER, apiResponse.getMeta());
 
         return userid;
     }

@@ -31,7 +31,7 @@ public class PretixEventFilterService {
         log.debug("Event QnA filter list configured in service");
     }
 
-    //TODO write test for persisting
+    //TODO write test for persisting, include unique key check
     @PostConstruct
     @Profile(value = "DEVELOPMENT")
     public void persist() {

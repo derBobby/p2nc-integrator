@@ -2,20 +2,20 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.SupportedActions;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTONotValidException;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
-import jakarta.validation.Valid;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTOValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/webhook")
 @Slf4j
- public class PretixWebhookController {
-
-    private static final String ORDER_APPROVED = "pretix.event.order.approved";
-    private static final String ORDER_NEED_APPROVAL = "pretix.event.order.placed.require_approval";
+public class PretixWebhookController {
 
     private final AuditService webHookAuditService;
     private final IPretixWebHookHandler webHookHandler;
@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.*;
 
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void webHook(@RequestBody @Valid WebHookDTO hook) {
+    public void webHook(@RequestBody WebHookDTO hook) {
+
+        new WebHookDTOValidator().validateOrThrowException(hook);
 
         MDC.put("orderCode", hook.code());
         log.info("Incoming webhook={}", hook);
@@ -39,12 +41,12 @@ import org.springframework.web.bind.annotation.*;
         String hookAction = hook.action();
         String hookCode = hook.code();
 
-        if(hookAction.equals(ORDER_NEED_APPROVAL)) {
+        if (hookAction.equals(SupportedActions.ORDER_NEED_APPROVAL)) {
             webHookHandler.handleApprovalNotification(hookAction, hookEvent, hookCode);
             return;
         }
 
-        if(hookAction.equals(ORDER_APPROVED)) {
+        if (hookAction.equals(SupportedActions.ORDER_APPROVED)) {
             webHookHandler.handleUserCreation(hookAction, hookEvent, hookCode);
             return;
         }
@@ -54,5 +56,12 @@ import org.springframework.web.bind.annotation.*;
 
     private String orderApprovalString(WebHookDTO hook) {
         return String.format("Hook=%s reports order approval event for order=%s", hook.notification_id(), hook.code());
+    }
+
+    //TODO Test return code and message
+    @ExceptionHandler(WebHookDTONotValidException.class)
+    public ResponseEntity<String> handleWebHookDTONotValidException(WebHookDTONotValidException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }

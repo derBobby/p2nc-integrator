@@ -6,13 +6,13 @@ import lombok.Getter;
 import java.util.Arrays;
 
 @Getter
-public enum SupportedActions {
+public enum SupportedAction {
     ORDER_APPROVED("pretix.event.order.approved"),
     ORDER_NEED_APPROVAL("pretix.event.order.placed.require_approval");
 
     private final String action;
 
-    SupportedActions(String action) {
+    SupportedAction(String action) {
         this.action = action;
     }
 

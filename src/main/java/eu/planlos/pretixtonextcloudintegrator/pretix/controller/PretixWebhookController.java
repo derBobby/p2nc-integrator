@@ -2,7 +2,7 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.SupportedActions;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.SupportedAction;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTONotValidException;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTOValidator;
@@ -41,12 +41,16 @@ public class PretixWebhookController {
         String hookAction = hook.action();
         String hookCode = hook.code();
 
-        if (hookAction.equals(SupportedActions.ORDER_NEED_APPROVAL)) {
+        //TODO replace hookAction String with Enum everywhere?
+
+        SupportedAction hookActionEnum = SupportedAction.valueOf(hook.action());
+
+        if (hookActionEnum.equals(SupportedAction.ORDER_NEED_APPROVAL)) {
             webHookHandler.handleApprovalNotification(hookAction, hookEvent, hookCode);
             return;
         }
 
-        if (hookAction.equals(SupportedActions.ORDER_APPROVED)) {
+        if (hookActionEnum.equals(SupportedAction.ORDER_APPROVED)) {
             webHookHandler.handleUserCreation(hookAction, hookEvent, hookCode);
             return;
         }

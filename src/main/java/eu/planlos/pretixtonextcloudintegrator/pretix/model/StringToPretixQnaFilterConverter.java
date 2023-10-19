@@ -15,6 +15,11 @@ public class StringToPretixQnaFilterConverter {
     }
 
     public List<PretixQnaFilter> convertAll(List<String> filterList) throws JsonProcessingException {
+
+        if(filterList == null) {
+            return new ArrayList<>();
+        }
+
         List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
         for (String filter : filterList) {
             pretixQnaFilterList.add(convert(filter));

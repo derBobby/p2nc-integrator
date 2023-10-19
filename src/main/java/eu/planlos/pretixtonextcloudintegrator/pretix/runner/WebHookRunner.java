@@ -34,6 +34,7 @@ public class WebHookRunner implements ApplicationRunner {
         pretixApiConfig.eventList().forEach(this::sendHook);
     }
 
+    //TODO move to test
     private void sendHook(String event) {
         if (pretixFeatureConfig.sendDebugWebHookEnabled()) {
             WebHookDTO webHookDTO = new WebHookDTO(64158L, "kvkraichgau", event, "3PCGD", "pretix.event.order.approved");

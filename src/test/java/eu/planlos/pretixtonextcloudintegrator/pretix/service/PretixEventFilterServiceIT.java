@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PretixEventFilterServiceTestIT extends PretixTestDataUtility {
+public class PretixEventFilterServiceIT extends PretixTestDataUtility {
 
     @Test
     public void matchesAllQnA_isTrue() {

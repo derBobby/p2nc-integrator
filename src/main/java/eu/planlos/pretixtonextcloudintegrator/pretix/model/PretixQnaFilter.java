@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.planlos.pretixtonextcloudintegrator.common.util.GermanStringsUtility;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
+@EqualsAndHashCode
 @NoArgsConstructor
 public final class PretixQnaFilter {
 

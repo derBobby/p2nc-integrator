@@ -2,7 +2,7 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.SupportedAction;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTOSupportedAction;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTONotValidException;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTOValidator;
@@ -30,7 +30,10 @@ public class PretixWebhookController {
     public void webHook(@RequestBody WebHookDTO hook) {
 
         new WebHookDTOValidator().validateOrThrowException(hook);
+        //TODO Test
+        WebHookDTOSupportedAction hookActionEnum = getAction(hook);
 
+        // Add order code to log output
         MDC.put("orderCode", hook.code());
         log.info("Incoming webhook={}", hook);
         webHookAuditService.log(orderApprovalString(hook));
@@ -42,20 +45,26 @@ public class PretixWebhookController {
         String hookCode = hook.code();
 
         //TODO replace hookAction String with Enum everywhere?
-
-        SupportedAction hookActionEnum = SupportedAction.valueOf(hook.action());
-
-        if (hookActionEnum.equals(SupportedAction.ORDER_NEED_APPROVAL)) {
+        if (hookActionEnum.equals(WebHookDTOSupportedAction.ORDER_NEED_APPROVAL)) {
             webHookHandler.handleApprovalNotification(hookAction, hookEvent, hookCode);
             return;
         }
 
-        if (hookActionEnum.equals(SupportedAction.ORDER_APPROVED)) {
+        if (hookActionEnum.equals(WebHookDTOSupportedAction.ORDER_APPROVED)) {
             webHookHandler.handleUserCreation(hookAction, hookEvent, hookCode);
             return;
         }
 
         log.info("Webhook={} not relevant", hook);
+    }
+
+    private WebHookDTOSupportedAction getAction(WebHookDTO hook) {
+        log.debug("Looking up Enum for {}", hook.action());
+        try {
+            return WebHookDTOSupportedAction.getEnumByAction(hook.action());
+        } catch (IllegalArgumentException e) {
+            throw new WebHookDTONotValidException(e.getMessage());
+        }
     }
 
     private String orderApprovalString(WebHookDTO hook) {

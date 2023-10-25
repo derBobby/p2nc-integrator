@@ -1,0 +1,25 @@
+name: Merge Dependabot PR
+
+on:
+  pull_request:
+    types:
+      - synchronize
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if Dependabot
+        id: dependabot-check
+        run: echo ::set-output name=IS_DEPENDABOT::${{ contains(github.event.pull_request.user.login, 'dependabot') }}
+
+      - name: Merge Dependabot PR
+        if: steps.dependabot-check.outputs.IS_DEPENDABOT == 'true' && github.event.pull_request.mergeable == true
+        run: |
+          git fetch origin refs/pull/${{ github.event.pull_request.number }}/merge:refs/pull/${{ github.event.pull_request.number }}/merge
+          git checkout refs/pull/${{ github.event.pull_request.number }}/merge
+          git merge --ff-only HEAD
+          git push origin HEAD:${{ github.event.pull_request.base.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

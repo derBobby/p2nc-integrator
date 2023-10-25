@@ -31,16 +31,6 @@ public class PretixEventFilterService {
         log.debug("Event QnA filter list configured in service");
     }
 
-    //TODO write test for persisting, include unique key check
-    @PostConstruct
-    @Profile(value = "DEVELOPMENT")
-    public void persist() {
-        pretixQnaFilterRepository.saveAll(pretixQnaFilterList);
-        log.debug("Event QnA filter list saved in database");
-        List<PretixQnaFilter> pretixQnaFilterDBList = pretixQnaFilterRepository.findAll();
-        log.debug("Event QnA filter list loaded from database: {}", pretixQnaFilterDBList);
-    }
-
     /**
      * Constructor package private for tests
      * @param pretixQnaFilterList Test filter list

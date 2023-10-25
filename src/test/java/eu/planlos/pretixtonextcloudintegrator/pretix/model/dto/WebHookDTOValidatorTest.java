@@ -1,6 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.model.dto;
 
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.SupportedAction;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTOSupportedAction;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTONotValidException;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ class WebHookDTOValidatorTest {
     public void allMembersOK_noExceptionThrown() {
         // Prepare
         //      objects
-        WebHookDTO webHookDTO = new WebHookDTO(0L, "some-organizer", "some-event", "XC0DE", SupportedAction.ORDER_APPROVED.getAction());
+        WebHookDTO webHookDTO = new WebHookDTO(0L, "some-organizer", "some-event", "XC0DE", WebHookDTOSupportedAction.ORDER_APPROVED.getAction());
         WebHookDTOValidator webHookDTOValidator = new WebHookDTOValidator();
         //      methods
 
@@ -25,7 +25,7 @@ class WebHookDTOValidatorTest {
     public void organizerContainsSpecialChars_throwsException() {
         // Prepare
         //      objects
-        WebHookDTO webHookDTO = new WebHookDTO(0L, "<script>alert(\"X\")</script>", "some-event", "XC0DE", SupportedAction.ORDER_APPROVED.getAction());
+        WebHookDTO webHookDTO = new WebHookDTO(0L, "<script>alert(\"X\")</script>", "some-event", "XC0DE", WebHookDTOSupportedAction.ORDER_APPROVED.getAction());
         //      methods
 
         // Act
@@ -38,7 +38,7 @@ class WebHookDTOValidatorTest {
     public void organizerExceedsChars_throwsException() {
         // Prepare
         //      objects
-        WebHookDTO webHookDTO = new WebHookDTO(0L, "0123456789012345678901234567891", "some-event", "XC0DE", SupportedAction.ORDER_APPROVED.getAction());
+        WebHookDTO webHookDTO = new WebHookDTO(0L, "0123456789012345678901234567891", "some-event", "XC0DE", WebHookDTOSupportedAction.ORDER_APPROVED.getAction());
         //      methods
 
         // Act
@@ -51,7 +51,7 @@ class WebHookDTOValidatorTest {
     public void eventContainsSpecialChars_throwsException() {
         // Prepare
         //      objects
-        WebHookDTO webHookDTO = new WebHookDTO(0L, "organizer", "<script>alert(\"X\")</script>", "XC0DE", SupportedAction.ORDER_APPROVED.getAction());
+        WebHookDTO webHookDTO = new WebHookDTO(0L, "organizer", "<script>alert(\"X\")</script>", "XC0DE", WebHookDTOSupportedAction.ORDER_APPROVED.getAction());
         //      methods
 
         // Act
@@ -64,7 +64,7 @@ class WebHookDTOValidatorTest {
     public void eventExceedsChars_throwsException() {
         // Prepare
         //      objects
-        WebHookDTO webHookDTO = new WebHookDTO(0L, "organizer", "0123456789012345678901234567891", "XC0DE", SupportedAction.ORDER_APPROVED.getAction());
+        WebHookDTO webHookDTO = new WebHookDTO(0L, "organizer", "0123456789012345678901234567891", "XC0DE", WebHookDTOSupportedAction.ORDER_APPROVED.getAction());
         //      methods
 
         // Act
@@ -77,7 +77,7 @@ class WebHookDTOValidatorTest {
     public void codeContainsSpecialChars_throwsException() {
         // Prepare
         //      objects
-        WebHookDTO webHookDTO = new WebHookDTO(0L, "organizer", "some-event", "{<?>}", SupportedAction.ORDER_APPROVED.getAction());
+        WebHookDTO webHookDTO = new WebHookDTO(0L, "organizer", "some-event", "{<?>}", WebHookDTOSupportedAction.ORDER_APPROVED.getAction());
         //      methods
 
         // Act
@@ -90,7 +90,7 @@ class WebHookDTOValidatorTest {
     public void codeExceedsChars_throwsException() {
         // Prepare
         //      objects
-        WebHookDTO webHookDTO = new WebHookDTO(0L, "organizer", "some-event", "123456", SupportedAction.ORDER_APPROVED.getAction());
+        WebHookDTO webHookDTO = new WebHookDTO(0L, "organizer", "some-event", "123456", WebHookDTOSupportedAction.ORDER_APPROVED.getAction());
         //      methods
 
         // Act

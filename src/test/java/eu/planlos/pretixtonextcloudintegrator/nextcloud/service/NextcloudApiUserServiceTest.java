@@ -138,7 +138,7 @@ public class NextcloudApiUserServiceTest extends NextcloudTestDataUtility {
         assertEquals("kv-kraichgau-diname", userId);
     }
 
-        @Test
+    @Test
     public void firstnameNotLongEnoughToAvoidExisting_accountCreationFails() {
             // Prepare
             //      objects
@@ -173,6 +173,5 @@ public class NextcloudApiUserServiceTest extends NextcloudTestDataUtility {
             // Act
             // Check
             assertThrows(AccountCreationException.class, () -> nextcloudApiUserService.createUser("newuser@example.com", "D", "Name"));
-
         }
 }

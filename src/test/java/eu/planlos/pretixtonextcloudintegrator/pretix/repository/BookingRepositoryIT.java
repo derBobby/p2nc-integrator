@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-class BookingRepositoryIntegrationTest {
+class BookingRepositoryIT {
 
     @Autowired
     private BookingRepository bookingRepository;

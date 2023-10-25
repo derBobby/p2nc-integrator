@@ -13,6 +13,7 @@ import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -29,6 +30,10 @@ public class PretixApiQuestionService extends PretixApiService {
      * Query
      */
     public List<QuestionDTO> queryAllQuestions(String event) {
+
+        if(isAPIDisabled()) {
+            return Collections.emptyList();
+        }
 
         QuestionsDTO dto = webClient
                 .get()
@@ -49,6 +54,10 @@ public class PretixApiQuestionService extends PretixApiService {
     }
 
     public QuestionDTO queryQuestion(String event, PretixId questionId) {
+
+        if(isAPIDisabled()) {
+            return null;
+        }
 
         QuestionDTO questionDto = webClient
                 .get()

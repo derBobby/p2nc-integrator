@@ -18,16 +18,26 @@ public class SignalWebClientConfig {
     @Qualifier("SignalWebClient")
     public static WebClient configureSignalWebClient(SignalApiConfig apiConfig) {
 
+        String address = apiConfig.address();
+        String user = apiConfig.user();
+        String password = apiConfig.password();
+
+        if (apiConfig.inactive()) {
+            address = "mocked-address";
+            user = "mocked-user";
+            password = "mocked-password";
+        }
+
         log.info("Creating WebClient using:");
-        log.info("- Signal address: {}", apiConfig.address());
-        log.info("- Signal username: {}", apiConfig.user());
+        log.info("- Signal address: {}", address);
+        log.info("- Signal username: {}", user);
 
         return WebClient.builder()
-                .baseUrl(apiConfig.address())
+                .baseUrl(address)
                 .filter(WebClientRequestFilter.logRequest())
                 .filter(WebClientResponseFilter.logResponse())
                 .filter(WebClientResponseFilter.handleError())
-                .filter(ExchangeFilterFunctions.basicAuthentication(apiConfig.user(), apiConfig.password()))
+                .filter(ExchangeFilterFunctions.basicAuthentication(user, password))
                 .defaultHeaders(httpHeaders -> {
                     httpHeaders.set(HttpHeaders.ACCEPT, "application/json");
                 })

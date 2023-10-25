@@ -2,9 +2,9 @@ package eu.planlos.pretixtonextcloudintegrator.nextcloud.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudApiResponse;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientRequestFilter;
 import eu.planlos.pretixtonextcloudintegrator.common.web.WebClientResponseFilter;
+import eu.planlos.pretixtonextcloudintegrator.nextcloud.model.NextcloudApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -23,10 +23,22 @@ public class NextcloudWebClientConfig {
     @Qualifier("NextcloudWebClient")
     public static WebClient configureNextcloudWebClient(NextcloudApiConfig apiConfig) {
 
+        String address = apiConfig.address();
+        String user = apiConfig.user();
+        String defaultGroup = apiConfig.defaultGroup();
+        String password = apiConfig.password();
+
+        if (apiConfig.inactive()) {
+            address = "mocked-address";
+            user = "mocked-user";
+            defaultGroup = "mocked-default-group";
+            password = "mocked-password";
+        }
+
         log.info("Creating WebClient using:");
-        log.info("- Nextcloud address: {}", apiConfig.address());
-        log.info("- Nextcloud username: {}", apiConfig.user());
-        log.info("- Nextcloud default group: {}", apiConfig.defaultGroup());
+        log.info("- Nextcloud address: {}", address);
+        log.info("- Nextcloud username: {}", user);
+        log.info("- Nextcloud default group: {}", defaultGroup);
 
         ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
                 .codecs(configurer -> {
@@ -41,9 +53,9 @@ public class NextcloudWebClientConfig {
                 .build();
 
         return WebClient.builder()
-                .baseUrl(apiConfig.address())
+                .baseUrl(address)
                 .exchangeStrategies(exchangeStrategies)
-                .filter(ExchangeFilterFunctions.basicAuthentication(apiConfig.user(), apiConfig.password()))
+                .filter(ExchangeFilterFunctions.basicAuthentication(user, password))
                 .filter(WebClientRequestFilter.logRequest())
                 .filter(WebClientResponseFilter.logResponse())
                 .filter(WebClientResponseFilter.handleError())

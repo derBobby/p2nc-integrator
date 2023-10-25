@@ -43,7 +43,7 @@ public class NextcloudApiUserService extends NextcloudApiService {
 
     public List<String> getAllUserIdsFromNextcloud() {
 
-        if (nextcloudApiConfig.inactive()) {
+        if(isAPIDisabled()) {
             return Collections.emptyList();
         }
 

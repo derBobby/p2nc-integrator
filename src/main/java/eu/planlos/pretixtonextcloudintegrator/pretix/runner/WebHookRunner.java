@@ -10,6 +10,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Component;
 
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Slf4j
 @Component
 public class WebHookRunner implements ApplicationRunner {
@@ -31,7 +32,9 @@ public class WebHookRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments arg0) {
-        pretixApiConfig.eventList().forEach(this::sendHook);
+        if(pretixApiConfig.eventList() != null) {
+            pretixApiConfig.eventList().forEach(this::sendHook);
+        }
     }
 
     //TODO move to test

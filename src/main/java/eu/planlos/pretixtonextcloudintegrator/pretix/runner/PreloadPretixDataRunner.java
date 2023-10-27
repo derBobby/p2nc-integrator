@@ -11,6 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Component;
 
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Slf4j
 @Component
 public class PreloadPretixDataRunner implements ApplicationRunner {
@@ -36,7 +37,9 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments arg0) {
-        pretixApiConfig.eventList().forEach(this::preload);
+        if(pretixApiConfig.eventList() != null) {
+            pretixApiConfig.eventList().forEach(this::preload);
+        }
     }
 
     private void preload(String event) {

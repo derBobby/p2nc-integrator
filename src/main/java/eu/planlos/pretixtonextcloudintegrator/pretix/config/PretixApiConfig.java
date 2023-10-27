@@ -6,10 +6,8 @@ import org.springframework.context.annotation.Profile;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "pretix.api")
-//TODO necessary?
 @Profile("!TEST")
 public record PretixApiConfig(boolean active, String address, String token, String organizer, List<String> eventList) {
-
     public boolean inactive() {
         return !active;
     }

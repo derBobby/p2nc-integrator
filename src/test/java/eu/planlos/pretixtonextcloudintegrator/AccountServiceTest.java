@@ -19,8 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 import static eu.planlos.pretixtonextcloudintegrator.AccountService.SUBJECT_IRRELEVANT;
@@ -116,11 +114,11 @@ public class AccountServiceTest extends PretixTestDataUtility {
     }
 
     private void positionFilterIrrelevant() {
-        when(pretixEventFilterService.irrelevantForBooking(anyString(), any())).thenReturn(true);
+        when(pretixEventFilterService.filterBookings(anyString(), any())).thenReturn(true);
     }
 
     private void positionFilterRelevant() {
-        when(pretixEventFilterService.irrelevantForBooking(anyString(), any())).thenReturn(false);
+        when(pretixEventFilterService.filterBookings(anyString(), any())).thenReturn(false);
     }
 
     /*
@@ -152,25 +150,5 @@ public class AccountServiceTest extends PretixTestDataUtility {
 
     private ProductType productTypeTicket() {
         return new ProductType(PRETIX_ID, false, "some product type");
-    }
-
-    /*
-     * Stopwatch functions for debugging
-     */
-
-    boolean stopwatchUsed;
-    Instant stopwatchStart;
-
-    private void startSW() {
-        if(stopwatchUsed) {
-            throw new RuntimeException();
-        }
-        stopwatchUsed = true;
-        stopwatchStart = Instant.now();
-    }
-
-    private void stopSW() {
-        stopwatchUsed = false;
-        System.out.println(Duration.between(stopwatchStart, Instant.now()).toMillis() + "ms");
     }
 }

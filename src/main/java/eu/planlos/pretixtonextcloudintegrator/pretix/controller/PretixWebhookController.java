@@ -2,15 +2,19 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTOSupportedAction;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.WebHookDTONotValidException;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTOValidator;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/webhook")
@@ -27,11 +31,13 @@ public class PretixWebhookController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void webHook(@RequestBody WebHookDTO hook) {
+    public void webHook(@Valid @RequestBody WebHookDTO hook, BindingResult bindingResult) {
 
-        new WebHookDTOValidator().validateOrThrowException(hook);
-        //TODO Test
-        WebHookDTOSupportedAction hookActionEnum = getAction(hook);
+        //TODO can this be automated?
+        handleValidationErrors(bindingResult);
+
+        //TODO Test, Action enum directly into WebHookDTO
+        PretixSupportedActions hookActionEnum = getAction(hook);
 
         // Add order code to log output
         MDC.put("orderCode", hook.code());
@@ -45,12 +51,12 @@ public class PretixWebhookController {
         String hookCode = hook.code();
 
         //TODO replace hookAction String with Enum everywhere?
-        if (hookActionEnum.equals(WebHookDTOSupportedAction.ORDER_NEED_APPROVAL)) {
+        if (hookActionEnum.equals(PretixSupportedActions.ORDER_NEED_APPROVAL)) {
             webHookHandler.handleApprovalNotification(hookAction, hookEvent, hookCode);
             return;
         }
 
-        if (hookActionEnum.equals(WebHookDTOSupportedAction.ORDER_APPROVED)) {
+        if (hookActionEnum.equals(PretixSupportedActions.ORDER_APPROVED)) {
             webHookHandler.handleUserCreation(hookAction, hookEvent, hookCode);
             return;
         }
@@ -58,23 +64,30 @@ public class PretixWebhookController {
         log.info("Webhook={} not relevant", hook);
     }
 
-    private WebHookDTOSupportedAction getAction(WebHookDTO hook) {
-        log.debug("Looking up Enum for {}", hook.action());
-        try {
-            return WebHookDTOSupportedAction.getEnumByAction(hook.action());
-        } catch (IllegalArgumentException e) {
-            throw new WebHookDTONotValidException(e.getMessage());
+    private void handleValidationErrors(BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // Validation errors are present
+            Map<String, String> validationErrors = new HashMap<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                validationErrors.put(error.getField(), error.getDefaultMessage());
+            }
+
+            // Construct and return an error response as a Map
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Validation Error");
+            errorResponse.put("errors", validationErrors);
+
+            // Return the error response with a 400 Bad Request status
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorResponse.toString());
         }
+    }
+
+    private PretixSupportedActions getAction(WebHookDTO hook) {
+        log.debug("Looking up Enum for {}", hook.action());
+        return PretixSupportedActions.getEnumByAction(hook.action());
     }
 
     private String orderApprovalString(WebHookDTO hook) {
         return String.format("Hook=%s reports order approval event for order=%s", hook.notification_id(), hook.code());
-    }
-
-    //TODO Test return code and message
-    @ExceptionHandler(WebHookDTONotValidException.class)
-    public ResponseEntity<String> handleWebHookDTONotValidException(WebHookDTONotValidException e) {
-        log.warn(e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }

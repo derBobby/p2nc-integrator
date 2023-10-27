@@ -1,4 +1,4 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.model;
+package eu.planlos.pretixtonextcloudintegrator.pretix.model.dto;
 
 
 import lombok.Getter;
@@ -6,13 +6,13 @@ import lombok.Getter;
 import java.util.Arrays;
 
 @Getter
-public enum WebHookDTOSupportedAction {
+public enum PretixSupportedActions {
     ORDER_APPROVED("pretix.event.order.approved"),
     ORDER_NEED_APPROVAL("pretix.event.order.placed.require_approval");
 
     private final String action;
 
-    WebHookDTOSupportedAction(String action) {
+    PretixSupportedActions(String action) {
         this.action = action;
     }
 
@@ -21,7 +21,7 @@ public enum WebHookDTOSupportedAction {
                 .anyMatch(supportedAction -> supportedAction.getAction().equals(actionString));
     }
 
-    public static WebHookDTOSupportedAction getEnumByAction(String targetAction) {
+    public static PretixSupportedActions getEnumByAction(String targetAction) {
         return Arrays.stream(values())
                 .filter(action -> action.getAction().equals(targetAction))
                 .findFirst()

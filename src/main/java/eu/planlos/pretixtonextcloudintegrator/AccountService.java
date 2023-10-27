@@ -51,7 +51,7 @@ public class AccountService implements IPretixWebHookHandler {
             Booking booking = pretixBookingService.loadOrFetch(event, code);
             log.info("Order found: {}", booking);
 
-            if(pretixEventFilterService.irrelevantForBooking(action, booking)) {
+            if(pretixEventFilterService.filterBookings(action, booking)) {
                 String infoMessage = String.format("Order with code %s was excluded for account creation by filter", code);
                 log.info(infoMessage);
                 notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);

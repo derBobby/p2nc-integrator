@@ -31,7 +31,7 @@ public class PretixEventFilterConfig {
     }
 
     @Getter
-    public enum PretixEventFilterSource {
+    private enum PretixEventFilterSource {
         PROPERTIES("properties"),
         USER("user");
 

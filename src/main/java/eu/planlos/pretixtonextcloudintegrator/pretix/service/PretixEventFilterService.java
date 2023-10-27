@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.pretixtonextcloudintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.*;
 import eu.planlos.pretixtonextcloudintegrator.pretix.repository.PretixQnaFilterRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,7 +43,7 @@ public class PretixEventFilterService {
      * Filtering methods
      */
 
-    public boolean irrelevantForBooking(String action, Booking booking) {
+    public boolean filterBookings(String action, Booking booking) {
 
         List<Position> ticketPositionList = booking.getPositionList().stream()
                 .filter(position -> ! position.getProduct().getProductType().isAddon())

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
     ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void correctHook_returnsOK() throws Exception {
+    public void correctHook_returns200() throws Exception {
 
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/v1/webhook")
@@ -62,12 +63,103 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
     }
 
     @Test
-    public void organizerInHookIsNull_returns400() throws Exception {
+    public void organizerIsNull_returns400() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/v1/webhook")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(missingOrganizerActionHookJson()))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(result -> {
+                    String errorMessage = result.getResolvedException().getMessage();
+                    assertTrue(errorMessage.contains("Validation Error"));
+                    assertTrue(errorMessage.contains("must not be null"));
+                });
+    }
+
+    @Test
+    public void organizerContainsSpecialChars_returns400() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(specialCharInOrganizerHookJson()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(result -> {
+                    String errorMessage = result.getResolvedException().getMessage();
+                    assertTrue(errorMessage.contains("Validation Error"));
+                    assertTrue(errorMessage.contains("Invalid organizer"));
+                });
+    }
+
+    @Test
+    public void organizerExceedsChars_returns400() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(tooManyCharsInOrganizerHookJson()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(result -> {
+                    String errorMessage = result.getResolvedException().getMessage();
+                    assertTrue(errorMessage.contains("Validation Error"));
+                    assertTrue(errorMessage.contains("Invalid organizer"));
+                });
+
+    }
+
+    @Test
+    public void eventContainsSpecialChars_returns400() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(specialCharInEventHookJson()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(result -> {
+                    String errorMessage = result.getResolvedException().getMessage();
+                    assertTrue(errorMessage.contains("Validation Error"));
+                    assertTrue(errorMessage.contains("Invalid event"));
+                });
+    }
+
+    @Test
+    public void eventExceedsChars_returns400() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(tooManyCharsInEventHookJson()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(result -> {
+                    String errorMessage = result.getResolvedException().getMessage();
+                    assertTrue(errorMessage.contains("Validation Error"));
+                    assertTrue(errorMessage.contains("Invalid event"));
+                });
+    }
+
+    @Test
+    public void codeContainsSpecialChars_returns400() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(specialCharInCodeHookJson()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(result -> {
+                    String errorMessage = result.getResolvedException().getMessage();
+                    assertTrue(errorMessage.contains("Validation Error"));
+                    assertTrue(errorMessage.contains("Invalid code"));
+                });
+
+    }
+
+    @Test
+    public void codeExceedsChars_returns400() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(tooManyCharsInCodeHookJson()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(result -> {
+                    String errorMessage = result.getResolvedException().getMessage();
+                    assertTrue(errorMessage.contains("Validation Error"));
+                    assertTrue(errorMessage.contains("Invalid code"));
+                });
     }
 
     /*
@@ -76,7 +168,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
 
     private String orderApprovedHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ACTION_ORDER_APPROVED));
+                new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
     }
 
     private String wrongActionHookJson() throws JsonProcessingException {
@@ -86,6 +178,36 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
 
     private String missingOrganizerActionHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, null, EVENT, CODE_NEW, ACTION_ORDER_APPROVED));
+                new WebHookDTO(0L, null, EVENT, CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+    }
+
+    private String specialCharInOrganizerHookJson() throws JsonProcessingException {
+        return mapper.writeValueAsString(
+                new WebHookDTO(0L, "<script>alert(\"X\")</script>", EVENT, CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+    }
+
+    private String tooManyCharsInOrganizerHookJson() throws JsonProcessingException {
+        return mapper.writeValueAsString(
+                new WebHookDTO(0L, "0123456789012345678901234567891", EVENT, CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+    }
+
+    private String specialCharInEventHookJson() throws JsonProcessingException {
+        return mapper.writeValueAsString(
+                new WebHookDTO(0L, ORGANIZER, "<script>alert(\"X\")</script>", CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+    }
+
+    private String tooManyCharsInEventHookJson() throws JsonProcessingException {
+        return mapper.writeValueAsString(
+                new WebHookDTO(0L, ORGANIZER, "0123456789012345678901234567891", CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+    }
+
+    private String specialCharInCodeHookJson() throws JsonProcessingException {
+        return mapper.writeValueAsString(
+                new WebHookDTO(0L, ORGANIZER, EVENT, "{<?>}", PretixSupportedActions.ORDER_APPROVED.getAction()));
+    }
+
+    private String tooManyCharsInCodeHookJson() throws JsonProcessingException {
+        return mapper.writeValueAsString(
+                new WebHookDTO(0L, ORGANIZER, EVENT, "123456", PretixSupportedActions.ORDER_APPROVED.getAction()));
     }
 }

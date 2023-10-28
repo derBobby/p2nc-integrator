@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @Slf4j
-public class MonitoringController {
+public class HealthcheckController {
 
     @GetMapping("/health")
     public ResponseEntity<String> health() {

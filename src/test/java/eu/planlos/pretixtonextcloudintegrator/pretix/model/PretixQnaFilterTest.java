@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PretixQnaFilterTest extends PretixTestDataUtility {
+
     @Test
     public void duplicateAnswers_throwsException() {
         // Prepare

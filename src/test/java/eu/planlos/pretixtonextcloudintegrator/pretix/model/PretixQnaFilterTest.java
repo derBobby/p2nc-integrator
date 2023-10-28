@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,12 +48,12 @@ class PretixQnaFilterTest extends PretixTestDataUtility {
     public void filterForActionAndEvent_isRecognized() {
         // Prepare
         //      objects
-        PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(ACTION_ORDER_APPROVED, EVENT, new HashMap<>());
+        PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(ORDER_APPROVED.getAction(), EVENT, new HashMap<>());
         //      methods
 
         // Act
         // Check
-        assertTrue(pretixQnaFilter.isForAction(ACTION_ORDER_APPROVED));
+        assertTrue(pretixQnaFilter.isForAction(ORDER_APPROVED.getAction()));
         assertTrue(pretixQnaFilter.isForEvent(EVENT));
     }
 

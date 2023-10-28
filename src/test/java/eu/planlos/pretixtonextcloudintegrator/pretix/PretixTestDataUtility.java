@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions.ORDER_APPROVED;
+
 public abstract class PretixTestDataUtility {
 
     public final String CORRECT_QUESTION_1 = "Question 1?";
@@ -17,7 +19,6 @@ public abstract class PretixTestDataUtility {
     public final String CORRECT_QUESTION_2 = "Question 2?";
     public final String CORRECT_ANSWER_2 = "Answer 2!";
     public final String EVENT = "zeltlager23ma";
-    public final String ACTION_ORDER_APPROVED = "pretix.event.order.approved";
     public final String CODE_NEW = "NC0DE";
     public final String ORGANIZER = "organizer";
     public final PretixId PRETIX_ID = new PretixId(0L);
@@ -86,7 +87,7 @@ public abstract class PretixTestDataUtility {
 
     protected PretixQnaFilter newCorrectQnaFilter() {
         return new PretixQnaFilter(
-                ACTION_ORDER_APPROVED,
+                ORDER_APPROVED.getAction(),
                 EVENT,
                 Map.of(
                         CORRECT_QUESTION_1,

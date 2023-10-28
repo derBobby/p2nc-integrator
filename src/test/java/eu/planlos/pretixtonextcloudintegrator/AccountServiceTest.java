@@ -23,6 +23,7 @@ import java.util.List;
 
 import static eu.planlos.pretixtonextcloudintegrator.AccountService.SUBJECT_IRRELEVANT;
 import static eu.planlos.pretixtonextcloudintegrator.AccountService.SUBJECT_OK;
+import static eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -126,7 +127,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
      */
 
     protected WebHookDTO orderApprovedHook() {
-        return new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ACTION_ORDER_APPROVED);
+        return new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_APPROVED.getAction());
     }
 
     protected Booking booking() {

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.PretixTestDataUtility;
-import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Creds to:
@@ -168,7 +168,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
 
     private String orderApprovedHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+                new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_APPROVED.getAction()));
     }
 
     private String wrongActionHookJson() throws JsonProcessingException {
@@ -178,36 +178,36 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
 
     private String missingOrganizerActionHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, null, EVENT, CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+                new WebHookDTO(0L, null, EVENT, CODE_NEW, ORDER_APPROVED.getAction()));
     }
 
     private String specialCharInOrganizerHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, "<script>alert(\"X\")</script>", EVENT, CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+                new WebHookDTO(0L, "<script>alert(\"X\")</script>", EVENT, CODE_NEW, ORDER_APPROVED.getAction()));
     }
 
     private String tooManyCharsInOrganizerHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, "0123456789012345678901234567891", EVENT, CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+                new WebHookDTO(0L, "0123456789012345678901234567891", EVENT, CODE_NEW, ORDER_APPROVED.getAction()));
     }
 
     private String specialCharInEventHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, ORGANIZER, "<script>alert(\"X\")</script>", CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+                new WebHookDTO(0L, ORGANIZER, "<script>alert(\"X\")</script>", CODE_NEW, ORDER_APPROVED.getAction()));
     }
 
     private String tooManyCharsInEventHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, ORGANIZER, "0123456789012345678901234567891", CODE_NEW, PretixSupportedActions.ORDER_APPROVED.getAction()));
+                new WebHookDTO(0L, ORGANIZER, "0123456789012345678901234567891", CODE_NEW, ORDER_APPROVED.getAction()));
     }
 
     private String specialCharInCodeHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, ORGANIZER, EVENT, "{<?>}", PretixSupportedActions.ORDER_APPROVED.getAction()));
+                new WebHookDTO(0L, ORGANIZER, EVENT, "{<?>}", ORDER_APPROVED.getAction()));
     }
 
     private String tooManyCharsInCodeHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
-                new WebHookDTO(0L, ORGANIZER, EVENT, "123456", PretixSupportedActions.ORDER_APPROVED.getAction()));
+                new WebHookDTO(0L, ORGANIZER, EVENT, "123456", ORDER_APPROVED.getAction()));
     }
 }

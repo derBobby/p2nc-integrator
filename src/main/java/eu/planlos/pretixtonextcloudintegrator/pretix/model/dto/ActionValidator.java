@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class ActionValidator implements ConstraintValidator<ValidAction, String> {
+
     @Override
     public void initialize(ValidAction constraintAnnotation) {
     }
@@ -13,13 +14,6 @@ public class ActionValidator implements ConstraintValidator<ValidAction, String>
         if (actionString == null) {
             return true;
         }
-
-        //TODO use PSA.isSupportedAction ?
-        try {
-            PretixSupportedActions.getEnumByAction(actionString);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return PretixSupportedActions.isSupportedAction(actionString);
     }
 }

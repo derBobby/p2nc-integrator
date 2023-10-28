@@ -23,7 +23,7 @@ public enum PretixSupportedActions {
 
     public static PretixSupportedActions getEnumByAction(String targetAction) {
         return Arrays.stream(values())
-                .filter(action -> action.getAction().equals(targetAction))
+                .filter(supportedAction -> supportedAction.getAction().equals(targetAction))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Action not available"));
     }

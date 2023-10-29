@@ -8,10 +8,10 @@ import jakarta.validation.constraints.NotNull;
 
 public record WebHookDTO(
         @NotNull Long notification_id,
-        @ValidOrganizer String organizer,
-        @ValidEvent String event,
-        @ValidCode String code,
-        @ValidAction String action) {
+        @NotNull @ValidOrganizer String organizer,
+        @NotNull @ValidEvent String event,
+        @NotNull @ValidCode String code,
+        @NotNull @ValidAction String action) {
 }
 
 

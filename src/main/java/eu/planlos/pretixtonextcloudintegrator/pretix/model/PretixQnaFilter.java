@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.planlos.pretixtonextcloudintegrator.pretix.model.validation.FilterMapValidator.validateAnswerListsContainUniqueAnswers;
+
 @Entity
 @EqualsAndHashCode
 @NoArgsConstructor
@@ -24,19 +26,19 @@ public final class PretixQnaFilter {
     @Getter
     private Long id;
 
-    @NotNull
     @JsonProperty("action")
+    @NotNull
     @ValidAction
     private String action;
 
-    @NotNull
     @JsonProperty("event")
+    @NotNull
     @ValidEvent
     private String event;
 
-    @NotNull
     @JsonProperty("qna-list")
     @Convert(converter = PretixQnaFilterMapToStringDBConverter.class)
+    @NotNull
     @ValidFilterMap
     private Map<String, List<String>> filterMap = new HashMap<>();
 
@@ -49,21 +51,10 @@ public final class PretixQnaFilter {
     }
 
     public PretixQnaFilter(@NotNull String action, @NotNull String event, @NotNull Map<String, List<String>> filterMap) {
-        //TODO in validator or here?
-        validateEachAnswerListConsistsOfUniqueAnswers(filterMap.values());
+        validateAnswerListsContainUniqueAnswers(filterMap.values());
         this.action = action;
         this.event = event;
         this.filterMap.putAll(filterMap);
-    }
-
-    //TODO in validator or here?
-    private void validateEachAnswerListConsistsOfUniqueAnswers(Collection<List<String>> values) {
-        values.forEach(answerList -> {
-            Set<String> testSet = new HashSet<>(answerList);
-            if (testSet.size() != answerList.size()) {
-                throw new IllegalArgumentException("Duplicate answer given");
-            }
-        });
     }
 
     public boolean isForAction(String action) {

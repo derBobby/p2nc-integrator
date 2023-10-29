@@ -25,7 +25,12 @@ public class PretixEventFilterService {
     public PretixEventFilterService(PretixEventFilterConfig pretixEventFilterConfig, ObjectMapper objectMapper, PretixQnaFilterRepository pretixQnaFilterRepository) throws JsonProcessingException {
         this.pretixEventFilterConfig = pretixEventFilterConfig;
         this.pretixQnaFilterRepository = pretixQnaFilterRepository;
-        pretixQnaFilterList.addAll(new StringToPretixQnaFilterConverter(objectMapper).convertAll(pretixEventFilterConfig.getFilterList()));
+
+        //TODO test this switch
+        if(pretixEventFilterConfig.isPropertiesSourceConfigured()) {
+            pretixQnaFilterList.addAll(new StringToPretixQnaFilterConverter(objectMapper).convertAll(pretixEventFilterConfig.getFilterList()));
+        }
+
         log.debug("Event QnA filter list configured in service");
     }
 
@@ -37,6 +42,19 @@ public class PretixEventFilterService {
         this.pretixEventFilterConfig = new PretixEventFilterConfig(null, null);
         this.pretixQnaFilterList.addAll(pretixQnaFilterList);
         this.pretixQnaFilterRepository = null;
+    }
+
+    /*
+     * User source methods
+     */
+    public void addUserFilter(PretixQnaFilter pretixQnaFilter) {
+        this.pretixQnaFilterList.add(pretixQnaFilter);
+        this.pretixQnaFilterRepository.save(pretixQnaFilter);
+    }
+
+    public void addUserFilterList(List<PretixQnaFilter> pretixQnaFilterList) {
+        this.pretixQnaFilterList.addAll(pretixQnaFilterList);
+        this.pretixQnaFilterRepository.saveAll(pretixQnaFilterList);
     }
 
     /*

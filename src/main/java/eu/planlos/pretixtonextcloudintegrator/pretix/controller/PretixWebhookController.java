@@ -28,9 +28,8 @@ public class PretixWebhookController {
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void webHook(@Valid @RequestBody WebHookDTO hook, BindingResult bindingResult) {
-        WebHookValidationErrorHandler.handle(bindingResult);
+        ControllerValidationErrorHandler.handle(bindingResult);
 
-        // Add order code to log output
         log.info("Incoming webhook={}", hook);
         webHookAuditService.log(orderApprovalString(hook));
 
@@ -39,7 +38,6 @@ public class PretixWebhookController {
         String hookEvent = hook.event();
         String hookCode = hook.code();
 
-        //TODO replace hookAction String with Enum everywhere?
         if (hookActionEnum.equals(PretixSupportedActions.ORDER_NEED_APPROVAL)) {
             webHookHandler.handleApprovalNotification(hookAction, hookEvent, hookCode);
             return;

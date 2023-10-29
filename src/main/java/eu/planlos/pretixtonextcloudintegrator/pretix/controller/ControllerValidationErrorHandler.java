@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class WebHookValidationErrorHandler {
+public class ControllerValidationErrorHandler {
 
     public static void handle(BindingResult bindingResult) {
 
@@ -30,6 +30,6 @@ public class WebHookValidationErrorHandler {
             // Return the error response with a 400 Bad Request status
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorResponse.toString());
         }
-        log.debug("Validation successfull for request");
+        log.debug("Validation successful for request");
     }
 }

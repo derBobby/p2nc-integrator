@@ -2,9 +2,13 @@ package eu.planlos.pretixtonextcloudintegrator.pretix.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import eu.planlos.pretixtonextcloudintegrator.common.util.GermanStringsUtility;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.validation.ValidAction;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.validation.ValidEvent;
+import eu.planlos.pretixtonextcloudintegrator.pretix.model.validation.ValidFilterMap;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
@@ -17,19 +21,23 @@ public final class PretixQnaFilter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Getter
     private Long id;
 
     @NotNull
     @JsonProperty("action")
+    @ValidAction
     private String action;
 
     @NotNull
     @JsonProperty("event")
+    @ValidEvent
     private String event;
 
     @NotNull
     @JsonProperty("qna-list")
     @Convert(converter = PretixQnaFilterMapToStringDBConverter.class)
+    @ValidFilterMap
     private Map<String, List<String>> filterMap = new HashMap<>();
 
     /**
@@ -41,12 +49,14 @@ public final class PretixQnaFilter {
     }
 
     public PretixQnaFilter(@NotNull String action, @NotNull String event, @NotNull Map<String, List<String>> filterMap) {
+        //TODO in validator or here?
         validateEachAnswerListConsistsOfUniqueAnswers(filterMap.values());
         this.action = action;
         this.event = event;
         this.filterMap.putAll(filterMap);
     }
 
+    //TODO in validator or here?
     private void validateEachAnswerListConsistsOfUniqueAnswers(Collection<List<String>> values) {
         values.forEach(answerList -> {
             Set<String> testSet = new HashSet<>(answerList);

@@ -1,12 +1,14 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.config;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @ConfigurationProperties(prefix = "pretix.event-filter")
 public class PretixEventFilterConfig {
 
@@ -20,6 +22,9 @@ public class PretixEventFilterConfig {
             List<String> filterList) {
         this.source = PretixEventFilterSource.fromString(source);
         this.filterList = filterList;
+
+        log.info("Creating pretix event filter config:");
+        log.info("- filter source: {}", source);
     }
 
     public boolean isPropertiesSourceConfigured() {

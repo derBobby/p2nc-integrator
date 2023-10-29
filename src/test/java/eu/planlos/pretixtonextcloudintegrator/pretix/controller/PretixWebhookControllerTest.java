@@ -72,7 +72,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                 .andExpect(result -> {
                     String errorMessage = result.getResolvedException().getMessage();
                     assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("must not be null"));
+                    assertTrue(errorMessage.contains("Invalid organizer"));
                 });
     }
 

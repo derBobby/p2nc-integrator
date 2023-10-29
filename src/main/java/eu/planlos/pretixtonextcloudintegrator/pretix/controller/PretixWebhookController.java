@@ -6,15 +6,16 @@ import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedAc
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/webhook")
+@RequestMapping(PretixWebhookController.URL_WEBHOOK)
 @Slf4j
 public class PretixWebhookController {
+
+    public static final String URL_WEBHOOK = "/api/v1/webhook";
 
     private final AuditService webHookAuditService;
     private final IPretixWebHookHandler webHookHandler;
@@ -29,18 +30,13 @@ public class PretixWebhookController {
     public void webHook(@Valid @RequestBody WebHookDTO hook, BindingResult bindingResult) {
         WebHookValidationErrorHandler.handle(bindingResult);
 
-        //TODO Test, Action enum directly into WebHookDTO
-        PretixSupportedActions hookActionEnum = getAction(hook);
-
         // Add order code to log output
-        MDC.put("orderCode", hook.code());
         log.info("Incoming webhook={}", hook);
         webHookAuditService.log(orderApprovalString(hook));
 
-        // Event ID is set for later requests to the Pretix API.
-        //      This avoids the need to loop the var through all methods and outside of the package
-        String hookEvent = hook.event();
+        PretixSupportedActions hookActionEnum = getAction(hook);
         String hookAction = hook.action();
+        String hookEvent = hook.event();
         String hookCode = hook.code();
 
         //TODO replace hookAction String with Enum everywhere?

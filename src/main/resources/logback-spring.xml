@@ -5,7 +5,7 @@
         <turboFilter class="eu.planlos.pretixtonextcloudintegrator.common.logging.CustomOrderIDTurboFilter"/>
         <encoder>
             <!-- Use %notEmpty to conditionally add 'orderCode' if it's available -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-36logger{36}%replace(%X{orderCode}){'^(?!$)', ' - $0'}: %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-36logger{36}%replace(%X{requestUUID}){'^(?!$)', ' - $0'}: %msg%n</pattern>
         </encoder>
     </appender>
 

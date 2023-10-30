@@ -13,7 +13,7 @@ public class ActionValidator implements ConstraintValidator<ValidAction, String>
     @Override
     public boolean isValid(String action, ConstraintValidatorContext context) {
         if (action == null) {
-            return false;
+            return true;
         }
         return PretixSupportedActions.isSupportedAction(action);
     }

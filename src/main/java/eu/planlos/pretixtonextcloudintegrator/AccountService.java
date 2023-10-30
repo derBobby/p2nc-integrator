@@ -11,6 +11,8 @@ import eu.planlos.pretixtonextcloudintegrator.pretix.service.api.PretixApiOrderS
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * Core class of the application. Has callback interface for Pretix package and runs request against Nextcloud API
  */
@@ -45,7 +47,7 @@ public class AccountService implements IPretixWebHookHandler {
     }
 
     @Override
-    public void handleUserCreation(String action, String event, String code) {
+    public Optional<String> handleUserCreation(String action, String event, String code) {
 
         try {
             Booking booking = pretixBookingService.loadOrFetch(event, code);
@@ -55,7 +57,7 @@ public class AccountService implements IPretixWebHookHandler {
                 String infoMessage = String.format("Order with code %s was excluded for account creation by filter", code);
                 log.info(infoMessage);
                 notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);
-                return;
+                return Optional.empty();
             }
 
             String userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
@@ -63,10 +65,13 @@ public class AccountService implements IPretixWebHookHandler {
             notifyAdmin(SUBJECT_OK, successMessage);
             log.info(successMessage);
 
+            return Optional.of(successMessage);
+
         } catch (Exception e) {
             String errorMessage = String.format("Error creating account for order code %s: %s", code, e.getMessage());
             log.error(errorMessage);
             notifyAdmin(SUBJECT_FAIL, errorMessage);
+            return Optional.empty();
         }
     }
 

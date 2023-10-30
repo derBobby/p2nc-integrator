@@ -17,7 +17,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions.ORDER_APPROVED;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -38,128 +39,130 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
 
     ObjectMapper mapper = new ObjectMapper();
 
+    /*
+     * Order requires approval
+     */
+
+    @Test
+    public void orderNeedsApproval_returns200() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(orderNeedsApprovalHookJson()))
+                .andExpect(status().is(HttpStatus.NO_CONTENT.value()));
+    }
+
+    /*
+     * Helper
+     */
+
+    private String orderNeedsApprovalHookJson() throws JsonProcessingException {
+        return mapper.writeValueAsString(
+                new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_NEED_APPROVAL.getAction()));
+    }
+
+
+    /*
+     * Order approved tests
+     */
+
     @Test
     public void correctHook_returns200() throws Exception {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/v1/webhook")
+                MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(orderApprovedHookJson()))
-                .andExpect(status().is(HttpStatus.NO_CONTENT.value()));
+                .andExpect(status().is(HttpStatus.OK.value()));
     }
 
     @Test
     public void hookUsesInvalidAction_returns400() throws Exception {
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(wrongActionHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("Invalid action"));
-                });
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid action")));
+
     }
 
     @Test
     public void organizerIsNull_returns400() throws Exception {
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(missingOrganizerActionHookJson()))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("must not be null"));
-                });
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("must not be null")));
     }
 
     @Test
     public void organizerContainsSpecialChars_returns400() throws Exception {
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(specialCharInOrganizerHookJson()))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("Invalid organizer"));
-                });
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid organizer")));
     }
 
     @Test
     public void organizerExceedsChars_returns400() throws Exception {
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(tooManyCharsInOrganizerHookJson()))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("Invalid organizer"));
-                });
-
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid organizer")));
     }
 
     @Test
     public void eventContainsSpecialChars_returns400() throws Exception {
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(specialCharInEventHookJson()))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("Invalid event"));
-                });
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid event")));
     }
 
     @Test
     public void eventExceedsChars_returns400() throws Exception {
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(tooManyCharsInEventHookJson()))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("Invalid event"));
-                });
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid event")));
     }
 
     @Test
     public void codeContainsSpecialChars_returns400() throws Exception {
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(specialCharInCodeHookJson()))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("Invalid code"));
-                });
-
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid code")));
     }
 
     @Test
     public void codeExceedsChars_returns400() throws Exception {
         mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/webhook")
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(tooManyCharsInCodeHookJson()))
-                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    assertTrue(errorMessage.contains("Validation Error"));
-                    assertTrue(errorMessage.contains("Invalid code"));
-                });
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
+                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid code")));
     }
 
     /*

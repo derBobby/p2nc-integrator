@@ -1,16 +1,18 @@
-package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
+package eu.planlos.pretixtonextcloudintegrator.common.web;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controllers outsource the error handling to this Handler.
+ * It generates error messages, that are used by the ControllerAdvice to generate readable messages to the requester
+ */
 @Slf4j
-public class ControllerValidationErrorHandler {
+public class DtoValidationErrorHandler {
 
     public static void handle(BindingResult bindingResult) {
 
@@ -22,13 +24,7 @@ public class ControllerValidationErrorHandler {
                 validationErrors.put(error.getField(), error.getDefaultMessage());
             }
 
-            // Construct and return an error response as a Map
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("message", "Validation Error");
-            errorResponse.put("errors", validationErrors);
-
-            // Return the error response with a 400 Bad Request status
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorResponse.toString());
+            throw new DtoValidationException(validationErrors);
         }
         log.debug("Validation successful for request");
     }

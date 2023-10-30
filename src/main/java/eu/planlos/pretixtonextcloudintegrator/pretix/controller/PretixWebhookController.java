@@ -1,14 +1,20 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
 import eu.planlos.pretixtonextcloudintegrator.common.audit.AuditService;
+import eu.planlos.pretixtonextcloudintegrator.common.web.DtoValidationErrorHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.PretixSupportedActions;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.dto.WebHookDTO;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping(PretixWebhookController.URL_WEBHOOK)
@@ -26,9 +32,10 @@ public class PretixWebhookController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void webHook(@Valid @RequestBody WebHookDTO hook, BindingResult bindingResult) {
-        ControllerValidationErrorHandler.handle(bindingResult);
+    public ResponseEntity<String> webHook(@Valid @RequestBody WebHookDTO hook, BindingResult bindingResult) {
+
+        //TODO can this be moved to an annotation?
+        DtoValidationErrorHandler.handle(bindingResult);
 
         log.info("Incoming webhook={}", hook);
         webHookAuditService.log(orderApprovalString(hook));
@@ -40,15 +47,19 @@ public class PretixWebhookController {
 
         if (hookActionEnum.equals(PretixSupportedActions.ORDER_NEED_APPROVAL)) {
             webHookHandler.handleApprovalNotification(hookAction, hookEvent, hookCode);
-            return;
+            return ResponseEntity.noContent().build();
         }
 
         if (hookActionEnum.equals(PretixSupportedActions.ORDER_APPROVED)) {
-            webHookHandler.handleUserCreation(hookAction, hookEvent, hookCode);
-            return;
+            Optional<String> optionalMessage = webHookHandler.handleUserCreation(hookAction, hookEvent, hookCode);
+            return optionalMessage
+                    .map(s -> ResponseEntity.ok().body(s))
+                    .orElseGet(
+                            () -> ResponseEntity.ok().body("WebHook is ignored, no filter matched")
+                    );
         }
 
-        log.info("Webhook={} not relevant", hook);
+        throw new IllegalArgumentException("We should not reach this point.");
     }
 
     private PretixSupportedActions getAction(WebHookDTO hook) {

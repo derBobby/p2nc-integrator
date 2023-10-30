@@ -13,7 +13,11 @@ public class FilterMapValidator implements ConstraintValidator<ValidFilterMap, M
 
     @Override
     public boolean isValid(Map<String, List<String>> filterMap, ConstraintValidatorContext context) {
-        if (filterMap == null || filterMap.isEmpty()) {
+        if (filterMap == null) {
+            return true;
+        }
+
+        if (filterMap.isEmpty()) {
             return false;
         }
 

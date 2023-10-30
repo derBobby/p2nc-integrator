@@ -14,7 +14,7 @@ public class CodeValidator implements ConstraintValidator<ValidCode, String> {
     @Override
     public boolean isValid(String code, ConstraintValidatorContext context) {
         if (code == null) {
-            return false;
+            return true;
         }
         String patternString = "(?i)^[a-z0-9_-]{5}$";
         return Pattern.matches(patternString, code);

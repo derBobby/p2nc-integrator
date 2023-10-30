@@ -1,5 +1,6 @@
 package eu.planlos.pretixtonextcloudintegrator.pretix.controller;
 
+import eu.planlos.pretixtonextcloudintegrator.common.web.DtoValidationErrorHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.PretixQnaFilter;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixEventFilterService;
 import jakarta.validation.Valid;
@@ -25,7 +26,9 @@ public class PretixEventFilterController {
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void webHook(@Valid @RequestBody PretixQnaFilter pretixQnaFilter, BindingResult bindingResult) {
-        ControllerValidationErrorHandler.handle(bindingResult);
+
+        //TODO can this be moved to an annotation?
+        DtoValidationErrorHandler.handle(bindingResult);
 
         log.info("Incoming filter={}", pretixQnaFilter);
 

@@ -14,7 +14,7 @@ public class OrganizerValidator implements ConstraintValidator<ValidOrganizer, S
     @Override
     public boolean isValid(String organizer, ConstraintValidatorContext context) {
         if (organizer == null) {
-            return false;
+            return true;
         }
         String patternString = "(?i)^[a-z0-9_-]{1,30}$";
         return Pattern.matches(patternString, organizer);

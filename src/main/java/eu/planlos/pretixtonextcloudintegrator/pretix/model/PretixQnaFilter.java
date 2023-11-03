@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import static eu.planlos.pretixtonextcloudintegrator.pretix.model.validation.Fil
 @Entity
 @EqualsAndHashCode
 @NoArgsConstructor
+@ToString
 public final class PretixQnaFilter {
 
     @Id

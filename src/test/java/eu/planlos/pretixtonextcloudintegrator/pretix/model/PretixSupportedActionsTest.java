@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PretixSupportedActionsTest {
 
     @Test
-    void getAction() {
+    public void getAction() {
         String action = PretixSupportedActions.ORDER_APPROVED.getAction();
         PretixSupportedActions retrievedEnum = PretixSupportedActions.getEnumByAction(action);
         assertEquals(PretixSupportedActions.ORDER_APPROVED, retrievedEnum);

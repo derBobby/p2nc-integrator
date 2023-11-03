@@ -41,7 +41,7 @@ public class AccountService implements IPretixWebHookHandler {
     }
 
     @Override
-    public void handleApprovalNotification(String hookAction, String event, String code) {
+    public void handleApprovalNotification(String action, String event, String code) {
         notifyAdmin("New order",
                 String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(event, code)));
     }

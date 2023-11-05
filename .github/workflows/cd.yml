@@ -38,12 +38,12 @@ jobs:
     - name: Install Library - java-utilities
       working-directory: ${{ github.workspace }}/java-utilities
       run: |
-        cd library1
+        cd java-utilities
         mvn clean install
     - name: Install Library - nextcloud-java-connector
       working-directory: ${{ github.workspace }}/nextcloud-java-connector
       run: |
-        cd library2
+        cd nextcloud-java-connector
         mvn clean install
 
     - name: Build with Maven

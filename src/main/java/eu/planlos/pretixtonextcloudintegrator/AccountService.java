@@ -1,8 +1,8 @@
 package eu.planlos.pretixtonextcloudintegrator;
 
+import eu.planlos.javanextcloudconnector.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.MailService;
 import eu.planlos.pretixtonextcloudintegrator.common.notification.SignalService;
-import eu.planlos.pretixtonextcloudintegrator.nextcloud.service.NextcloudApiUserService;
 import eu.planlos.pretixtonextcloudintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.pretixtonextcloudintegrator.pretix.model.Booking;
 import eu.planlos.pretixtonextcloudintegrator.pretix.service.PretixBookingService;

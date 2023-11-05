@@ -20,11 +20,13 @@ jobs:
       with:
         repository: derBobby/java-utilities
         ref: main
+        path: java-utilities
     - name: Checkout Library - nextcloud-java-connector
       uses: actions/checkout@v4
       with:
         repository: derBobby/nextcloud-java-connector
         ref: main
+        path: nextcloud-java-connector
 
     - name: Set up JDK 17
       uses: actions/setup-java@v3

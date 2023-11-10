@@ -16,6 +16,8 @@
     </parent>
 
     <properties>
+        <github.user>derBobby</github.user>
+        <github.repo>${project.artifactId}</github.repo>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -92,6 +94,22 @@
 <!--            <scope>test</scope>-->
 <!--        </dependency>-->
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>github-packages-target</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/${github.user}/${github.repo}</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>github-packages-source</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/${github.user}/*</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

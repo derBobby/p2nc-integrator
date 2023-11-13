@@ -11,8 +11,8 @@ Currently the project hosts additional classes required to access the Pretix API
 
 ## Status
 
-![Deployment](https://github.com/derBobby/PretixToNextcloudIntegrator/actions/workflows/deploy-staging.yml/badge.svg)
-
 ![CodeQL](https://github.com/derBobby/PretixToNextcloudIntegrator/actions/workflows/codeql.yml/badge.svg)
 
 ![Test](https://github.com/derBobby/PretixToNextcloudIntegrator/actions/workflows/test-and-publish.yml/badge.svg)
+
+![Deployment](https://github.com/derBobby/PretixToNextcloudIntegrator/actions/workflows/deploy-staging.yml/badge.svg)

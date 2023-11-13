@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="PretixToNextcloudIntegrator" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ACTIVE_PROFILES" value="DEVELOPMENT" />
-    <module name="PretixToNextcloudIntegrator" />
+    <module name="p2nc-integrator" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="eu.planlos.pretixtonextcloudintegrator.PretixToNextcloudIntegrator" />
     <method v="2">
       <option name="Make" enabled="true" />

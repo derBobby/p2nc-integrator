@@ -75,7 +75,7 @@ jobs:
     #- name: Autobuild
     #  uses: github/codeql-action/autobuild@v2
     - name: Build Java
-      run: mvn --batch-mode --file pom.xml build
+      run: mvn --batch-mode --file pom.xml compile
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Tests" type="JUnit" factoryName="JUnit">
-    <module name="PretixToNextcloudIntegrator" />
-    <option name="PACKAGE_NAME" value="eu.planlos.pretixtonextcloudintegrator" />
+    <module name="p2nc-integrator" />
+    <option name="PACKAGE_NAME" value="eu.planlos.p2ncintegrator" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="package" />

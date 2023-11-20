@@ -2,14 +2,14 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <!-- Use the custom CustomOrderIDTurboFilter -->
-        <turboFilter class="eu.planlos.pretixtonextcloudintegrator.common.logging.CustomOrderIDTurboFilter"/>
+        <turboFilter class="eu.planlos.p2ncintegrator.common.logging.CustomOrderIDTurboFilter"/>
         <encoder>
             <!-- Use %notEmpty to conditionally add 'orderCode' if it's available -->
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-36logger{36}%replace(%X{requestUUID}){'^(?!$)', ' - $0'}: %msg%n</pattern>
         </encoder>
     </appender>
 
-    <logger name="eu.planlos.pretixtonextcloudintegrator" level="DEBUG" additivity="false">
+    <logger name="eu.planlos.p2ncintegrator" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
 

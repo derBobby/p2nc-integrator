@@ -1,14 +1,12 @@
 package eu.planlos.p2ncintegrator.pretix.controller;
 
 import eu.planlos.p2ncintegrator.common.audit.AuditService;
-import eu.planlos.p2ncintegrator.common.web.DtoValidationErrorHandler;
 import eu.planlos.p2ncintegrator.pretix.IPretixWebHookHandler;
 import eu.planlos.p2ncintegrator.pretix.model.dto.PretixSupportedActions;
 import eu.planlos.p2ncintegrator.pretix.model.dto.WebHookDTO;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,10 +30,7 @@ public class PretixWebhookController {
     }
 
     @PostMapping
-    public ResponseEntity<String> webHook(@Valid @RequestBody WebHookDTO hook, BindingResult bindingResult) {
-
-        //TODO can this be moved to an annotation?
-        DtoValidationErrorHandler.handle(bindingResult);
+    public ResponseEntity<String> webHook(@Valid @RequestBody WebHookDTO hook) {
 
         log.info("Incoming webhook={}", hook);
         webHookAuditService.log(orderApprovalString(hook));

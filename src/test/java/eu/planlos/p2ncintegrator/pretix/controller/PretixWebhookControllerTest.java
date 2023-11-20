@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static eu.planlos.p2ncintegrator.pretix.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static eu.planlos.p2ncintegrator.pretix.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -83,9 +82,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(wrongActionHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid action")));
-
+                .andExpect(MockMvcResultMatchers.content().string("{\"action\":\"Invalid action\"}"));
     }
 
     @Test
@@ -95,8 +92,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(missingOrganizerActionHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("must not be null")));
+                .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"must not be null\"}"));
     }
 
     @Test
@@ -106,8 +102,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(specialCharInOrganizerHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid organizer")));
+                .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"Invalid organizer\"}"));
     }
 
     @Test
@@ -117,8 +112,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(tooManyCharsInOrganizerHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid organizer")));
+                .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"Invalid organizer\"}"));
     }
 
     @Test
@@ -128,8 +122,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(specialCharInEventHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid event")));
+                .andExpect(MockMvcResultMatchers.content().string("{\"event\":\"Invalid event\"}"));
     }
 
     @Test
@@ -139,8 +132,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(tooManyCharsInEventHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid event")));
+                .andExpect(MockMvcResultMatchers.content().string("{\"event\":\"Invalid event\"}"));
     }
 
     @Test
@@ -150,8 +142,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(specialCharInCodeHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid code")));
+                .andExpect(MockMvcResultMatchers.content().string("{\"code\":\"Invalid code\"}"));
     }
 
     @Test
@@ -161,8 +152,7 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(tooManyCharsInCodeHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Validation Error")))
-                .andExpect(MockMvcResultMatchers.content().string(containsString("Invalid code")));
+                .andExpect(MockMvcResultMatchers.content().string("{\"code\":\"Invalid code\"}"));
     }
 
     /*

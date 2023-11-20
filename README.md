@@ -1,4 +1,4 @@
-# p2nc-integrator
+# PretixToNextcloudIntegrator
 This applications main purpose is to handle incoming WebHooks of a Pretix ticket shop.
 Currently the project hosts additional classes required to access the Pretix API.
 
@@ -11,8 +11,8 @@ Currently the project hosts additional classes required to access the Pretix API
 
 ## Status
 
-![Deployment](https://github.com/derBobby/p2nc-integrator/actions/workflows/deploy-staging.yml/badge.svg)
-
 ![CodeQL](https://github.com/derBobby/p2nc-integrator/actions/workflows/codeql.yml/badge.svg)
 
-![Test](https://github.com/derBobby/PretixToNextcloudIntegrator/actions/workflows/test-and-publish.yml/badge.svg)
+![Test](https://github.com/derBobby/p2nc-integrator/actions/workflows/test-and-publish.yml/badge.svg)
+
+![Deployment](https://github.com/derBobby/p2nc-integrator/actions/workflows/deploy-staging.yml/badge.svg)

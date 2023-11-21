@@ -3,6 +3,7 @@ package eu.planlos.p2ncintegrator.pretix.model;
 import eu.planlos.javautilities.GermanStringsUtility;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterDTO;
 import eu.planlos.p2ncintegrator.pretix.model.validation.ValidAction;
 import eu.planlos.p2ncintegrator.pretix.model.validation.ValidEvent;
 import eu.planlos.p2ncintegrator.pretix.model.validation.ValidFilterMap;
@@ -85,5 +86,10 @@ public final class PretixQnaFilter {
                 .collect(Collectors.toMap(
                         entry -> GermanStringsUtility.normalizeGermanCharacters(entry.getKey().getText()),
                         entry -> GermanStringsUtility.normalizeGermanCharacters(entry.getValue().getText())));
+    }
+
+    //TODO test
+    public PretixQnaFilter(PretixQnaFilterDTO dto) {
+        this(dto.action(), dto.event(), dto.filterMap());
     }
 }

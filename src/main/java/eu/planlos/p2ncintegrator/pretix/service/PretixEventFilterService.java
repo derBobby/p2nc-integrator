@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -55,6 +56,16 @@ public class PretixEventFilterService {
     public void addUserFilterList(List<PretixQnaFilter> pretixQnaFilterList) {
         this.pretixQnaFilterList.addAll(pretixQnaFilterList);
         this.pretixQnaFilterRepository.saveAll(pretixQnaFilterList);
+    }
+
+    //TODO test
+    public Optional<PretixQnaFilter> get(Long id) {
+        return pretixQnaFilterList.stream().filter(filter -> filter.getId().equals(id)).findFirst();
+    }
+
+    //TODO test
+    public List<PretixQnaFilter> getAll() {
+        return pretixQnaFilterList;
     }
 
     /*

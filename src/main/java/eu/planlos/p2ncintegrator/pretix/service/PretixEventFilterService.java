@@ -7,7 +7,9 @@ import eu.planlos.p2ncintegrator.pretix.model.*;
 import eu.planlos.p2ncintegrator.pretix.repository.PretixQnaFilterRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,22 +50,41 @@ public class PretixEventFilterService {
     /*
      * User source methods
      */
+    //TODO test
+    //TODO only allowed is USER source
     public void addUserFilter(PretixQnaFilter pretixQnaFilter) {
         this.pretixQnaFilterList.add(pretixQnaFilter);
         this.pretixQnaFilterRepository.save(pretixQnaFilter);
     }
 
+    //TODO test
+    //TODO only allowed is USER source
+    public void updateUserFilter(PretixQnaFilter pretixQnaFilter) {
+        this.pretixQnaFilterList.stream()
+                .filter(filter -> pretixQnaFilter.getId().equals(filter.getId()))
+                .findAny()
+                .map(x -> x.updateBy(pretixQnaFilter))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    //TODO delete
+
+    //TODO test
+    //TODO only allowed is USER source
+    //TODO the elements in the list get the ID from repo save?
     public void addUserFilterList(List<PretixQnaFilter> pretixQnaFilterList) {
         this.pretixQnaFilterList.addAll(pretixQnaFilterList);
         this.pretixQnaFilterRepository.saveAll(pretixQnaFilterList);
     }
 
     //TODO test
+    //TODO only allowed is USER source
     public Optional<PretixQnaFilter> get(Long id) {
-        return pretixQnaFilterList.stream().filter(filter -> filter.getId().equals(id)).findFirst();
+        return pretixQnaFilterList.stream().filter(filter -> id.equals(filter.getId())).findFirst();
     }
 
     //TODO test
+    //TODO only allowed is USER source
     public List<PretixQnaFilter> getAll() {
         return pretixQnaFilterList;
     }

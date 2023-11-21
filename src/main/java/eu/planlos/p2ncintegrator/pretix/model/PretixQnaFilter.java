@@ -92,4 +92,11 @@ public final class PretixQnaFilter {
     public PretixQnaFilter(PretixQnaFilterDTO dto) {
         this(dto.action(), dto.event(), dto.filterMap());
     }
+
+    public PretixQnaFilter updateBy(PretixQnaFilter pretixQnaFilter) {
+        this.action = pretixQnaFilter.action;
+        this.event = pretixQnaFilter.event;
+        this.filterMap = pretixQnaFilter.filterMap;
+        return this;
+    }
 }

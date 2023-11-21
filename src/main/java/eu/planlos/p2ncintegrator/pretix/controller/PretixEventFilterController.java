@@ -24,7 +24,6 @@ public class PretixEventFilterController {
         this.pretixEventFilterService = pretixEventFilterService;
     }
 
-    //TODO return JSON
     //TODO continue: update, delete,
     //TODO test
     /**
@@ -34,44 +33,44 @@ public class PretixEventFilterController {
      * @return JSON representation
      */
     @PostMapping
-    public ResponseEntity<String> webHook(@Valid @RequestBody PretixQnaFilterDTO pretixQnaFilterDTO) {
-
+    public ResponseEntity<PretixQnaFilter> post(@Valid @RequestBody PretixQnaFilterDTO pretixQnaFilterDTO) {
         PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(pretixQnaFilterDTO);
 
         log.info("Incoming filter={}", pretixQnaFilter);
-
         pretixEventFilterService.addUserFilter(pretixQnaFilter);
-
         log.info("Filter saved with id={}", pretixQnaFilter.getId());
 
-        return ResponseEntity.ok().body(pretixQnaFilter.toString());
+        return ResponseEntity.ok().body(pretixQnaFilter);
     }
 
-    //TODO return JSON
+    @PutMapping
+    public ResponseEntity<PretixQnaFilter> put(@Valid @RequestBody PretixQnaFilter pretixQnaFilter) {
+        pretixEventFilterService.updateUserFilter(pretixQnaFilter);
+        return ResponseEntity.ok().body(pretixQnaFilter);
+    }
+
     //TODO test
     /**
      * curl -s -X GET http://localhost:8080/api/v1/filter/1
      * @return JSON representation
      */
     @GetMapping
-    public List<PretixQnaFilter> getAll() {
-        return pretixEventFilterService.getAll();
+    public ResponseEntity<List<PretixQnaFilter>> getAll() {
+        return ResponseEntity.ok().body(pretixEventFilterService.getAll());
     }
 
-    //TODO return JSON
     //TODO test
     /**
      * cURL example:
      * curl -s -X GET http://localhost:8080/api/v1/filter/1
      * @param id of the filter
-     * @return JSON representation
+     * @return PretixQnaFilter.class as JSON
      */
     @GetMapping("/{id}")
-    public ResponseEntity<String> get(@PathVariable Long id) {
-
+    public ResponseEntity<PretixQnaFilter> get2(@PathVariable Long id) {
         Optional<PretixQnaFilter> optionalPretixQnaFilter = pretixEventFilterService.get(id);
         return optionalPretixQnaFilter
-                .map(pretixQnaFilter -> ResponseEntity.ok().body(pretixQnaFilter.toString()))
+                .map(pretixQnaFilter -> ResponseEntity.ok().body(pretixQnaFilter))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

@@ -13,7 +13,7 @@ import java.util.Map;
 public class DtoValidationAdvice {
 
     /**
-     * This Handler can be used if a REST request sends an invalid @RequestBody
+     * This handler can be used if a REST request sends an invalid @RequestBody
      * to the REST method. An invalid request would result in an
      * {@link MethodArgumentNotValidException}
      *

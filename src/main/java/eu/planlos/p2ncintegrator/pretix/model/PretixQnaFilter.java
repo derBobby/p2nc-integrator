@@ -3,16 +3,14 @@ package eu.planlos.p2ncintegrator.pretix.model;
 import eu.planlos.javautilities.GermanStringsUtility;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterDTO;
+import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterCreateDTO;
+import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterUpdateDTO;
 import eu.planlos.p2ncintegrator.pretix.model.validation.ValidAction;
 import eu.planlos.p2ncintegrator.pretix.model.validation.ValidEvent;
 import eu.planlos.p2ncintegrator.pretix.model.validation.ValidFilterMap;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +20,7 @@ import static eu.planlos.p2ncintegrator.pretix.model.validation.FilterMapValidat
 @Entity
 @EqualsAndHashCode
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 public final class PretixQnaFilter {
 
@@ -89,14 +88,12 @@ public final class PretixQnaFilter {
     }
 
     //TODO test
-    public PretixQnaFilter(PretixQnaFilterDTO dto) {
+    public PretixQnaFilter(PretixQnaFilterCreateDTO dto) {
         this(dto.action(), dto.event(), dto.filterMap());
     }
 
-    public PretixQnaFilter updateBy(PretixQnaFilter pretixQnaFilter) {
-        this.action = pretixQnaFilter.action;
-        this.event = pretixQnaFilter.event;
-        this.filterMap = pretixQnaFilter.filterMap;
-        return this;
+    //TODO test
+    public PretixQnaFilter(PretixQnaFilterUpdateDTO dto) {
+        this(dto.id(), dto.action(), dto.event(), dto.filterMap());
     }
 }

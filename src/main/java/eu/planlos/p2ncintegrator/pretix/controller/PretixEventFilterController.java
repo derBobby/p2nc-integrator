@@ -1,10 +1,12 @@
 package eu.planlos.p2ncintegrator.pretix.controller;
 
 import eu.planlos.p2ncintegrator.pretix.model.PretixQnaFilter;
-import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterDTO;
+import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterCreateDTO;
+import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterUpdateDTO;
 import eu.planlos.p2ncintegrator.pretix.service.PretixEventFilterService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +26,10 @@ public class PretixEventFilterController {
         this.pretixEventFilterService = pretixEventFilterService;
     }
 
-    //TODO continue: update, delete,
+    /*
+     * CRUD
+     */
+
     //TODO test
     /**
      * cURL example:
@@ -33,19 +38,12 @@ public class PretixEventFilterController {
      * @return JSON representation
      */
     @PostMapping
-    public ResponseEntity<PretixQnaFilter> post(@Valid @RequestBody PretixQnaFilterDTO pretixQnaFilterDTO) {
+    public ResponseEntity<PretixQnaFilter> post(@Valid @RequestBody PretixQnaFilterCreateDTO pretixQnaFilterDTO) {
         PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(pretixQnaFilterDTO);
+        log.info("Create filter={}", pretixQnaFilter);
+        pretixEventFilterService.addFilter(pretixQnaFilter);
+        log.info("Created filter id={}", pretixQnaFilter.getId());
 
-        log.info("Incoming filter={}", pretixQnaFilter);
-        pretixEventFilterService.addUserFilter(pretixQnaFilter);
-        log.info("Filter saved with id={}", pretixQnaFilter.getId());
-
-        return ResponseEntity.ok().body(pretixQnaFilter);
-    }
-
-    @PutMapping
-    public ResponseEntity<PretixQnaFilter> put(@Valid @RequestBody PretixQnaFilter pretixQnaFilter) {
-        pretixEventFilterService.updateUserFilter(pretixQnaFilter);
         return ResponseEntity.ok().body(pretixQnaFilter);
     }
 
@@ -56,6 +54,7 @@ public class PretixEventFilterController {
      */
     @GetMapping
     public ResponseEntity<List<PretixQnaFilter>> getAll() {
+        log.info("Read all filters");
         return ResponseEntity.ok().body(pretixEventFilterService.getAll());
     }
 
@@ -67,10 +66,30 @@ public class PretixEventFilterController {
      * @return PretixQnaFilter.class as JSON
      */
     @GetMapping("/{id}")
-    public ResponseEntity<PretixQnaFilter> get2(@PathVariable Long id) {
-        Optional<PretixQnaFilter> optionalPretixQnaFilter = pretixEventFilterService.get(id);
+    public ResponseEntity<PretixQnaFilter> get(@PathVariable Long id) {
+        log.info("Read filter id={}", id);
+        Optional<PretixQnaFilter> optionalPretixQnaFilter = pretixEventFilterService.getFilter(id);
         return optionalPretixQnaFilter
                 .map(pretixQnaFilter -> ResponseEntity.ok().body(pretixQnaFilter))
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    //TODO test
+    @PutMapping
+    public ResponseEntity<PretixQnaFilter> put(@Valid @RequestBody PretixQnaFilterUpdateDTO pretixQnaFilterDTO) {
+        PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(pretixQnaFilterDTO);
+        log.info("Update filter={}", pretixQnaFilter);
+        pretixEventFilterService.updateFilter(pretixQnaFilter);
+        log.info("Updated filter id={}", pretixQnaFilter.getId());
+        return ResponseEntity.ok().body(pretixQnaFilter);
+    }
+
+    //TODO test
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable Long id) {
+        log.info("Delete filter id={}", id);
+        pretixEventFilterService.deleteUserFilter(id);
+        log.info("Deleted filter id={}", id);
     }
 }

@@ -5,13 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.p2ncintegrator.pretix.config.PretixEventFilterConfig;
 import eu.planlos.p2ncintegrator.pretix.model.*;
 import eu.planlos.p2ncintegrator.pretix.repository.PretixQnaFilterRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,7 +18,6 @@ import java.util.Optional;
 @Service
 public class PretixEventFilterService {
 
-    private final List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
     private final PretixEventFilterConfig pretixEventFilterConfig;
     private final PretixQnaFilterRepository pretixQnaFilterRepository;
 
@@ -31,7 +28,7 @@ public class PretixEventFilterService {
 
         //TODO test this switch
         if(pretixEventFilterConfig.isPropertiesSourceConfigured()) {
-            pretixQnaFilterList.addAll(new StringToPretixQnaFilterConverter(objectMapper).convertAll(pretixEventFilterConfig.getFilterList()));
+            pretixQnaFilterRepository.saveAll(new StringToPretixQnaFilterConverter(objectMapper).convertAll(pretixEventFilterConfig.getFilterList()));
         }
 
         log.debug("Event QnA filter list configured in service");
@@ -41,52 +38,61 @@ public class PretixEventFilterService {
      * Constructor package private for tests
      * @param pretixQnaFilterList Test filter list
      */
-    PretixEventFilterService(List<PretixQnaFilter> pretixQnaFilterList) {
+    PretixEventFilterService(PretixQnaFilterRepository pretixQnaFilterRepository, List<PretixQnaFilter> pretixQnaFilterList) {
         this.pretixEventFilterConfig = new PretixEventFilterConfig(null, null);
-        this.pretixQnaFilterList.addAll(pretixQnaFilterList);
-        this.pretixQnaFilterRepository = null;
+        this.pretixQnaFilterRepository = pretixQnaFilterRepository;
+        this.pretixQnaFilterRepository.saveAll(pretixQnaFilterList);
     }
 
     /*
      * User source methods
      */
+
     //TODO test
-    //TODO only allowed is USER source
-    public void addUserFilter(PretixQnaFilter pretixQnaFilter) {
-        this.pretixQnaFilterList.add(pretixQnaFilter);
-        this.pretixQnaFilterRepository.save(pretixQnaFilter);
+    /**
+     * Creates filter if it exists or not
+     * Not idempotent repo access, will create new for each call
+     * @param pretixQnaFilter Filter object
+     */
+    public void addFilter(PretixQnaFilter pretixQnaFilter) {
+        if(pretixQnaFilter.getId() == null) {
+            this.pretixQnaFilterRepository.save(pretixQnaFilter);
+            return;
+        }
+        throw new IllegalArgumentException("Filter must not have id");
     }
 
     //TODO test
-    //TODO only allowed is USER source
-    public void updateUserFilter(PretixQnaFilter pretixQnaFilter) {
-        this.pretixQnaFilterList.stream()
-                .filter(filter -> pretixQnaFilter.getId().equals(filter.getId()))
-                .findAny()
-                .map(x -> x.updateBy(pretixQnaFilter))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
-    //TODO delete
-
-    //TODO test
-    //TODO only allowed is USER source
-    //TODO the elements in the list get the ID from repo save?
-    public void addUserFilterList(List<PretixQnaFilter> pretixQnaFilterList) {
-        this.pretixQnaFilterList.addAll(pretixQnaFilterList);
-        this.pretixQnaFilterRepository.saveAll(pretixQnaFilterList);
+    public Optional<PretixQnaFilter> getFilter(Long id) {
+        return this.pretixQnaFilterRepository.findById(id);
     }
 
     //TODO test
-    //TODO only allowed is USER source
-    public Optional<PretixQnaFilter> get(Long id) {
-        return pretixQnaFilterList.stream().filter(filter -> id.equals(filter.getId())).findFirst();
-    }
-
-    //TODO test
-    //TODO only allowed is USER source
     public List<PretixQnaFilter> getAll() {
-        return pretixQnaFilterList;
+        return pretixQnaFilterRepository.findAll();
+    }
+
+    //TODO test
+    /**
+     * Creates or updates filter.
+     * Idempotent method.
+     * @param pretixQnaFilter Filter object
+     */
+    public void updateFilter(PretixQnaFilter pretixQnaFilter) {
+        if(pretixQnaFilter.getId() != null) {
+            this.pretixQnaFilterRepository.save(pretixQnaFilter);
+            return;
+        }
+        throw new IllegalArgumentException("Filter must have have id");
+    }
+
+    //TODO test
+    public void deleteUserFilter(Long id) {
+        if(getFilter(id).isPresent()) {
+            this.pretixQnaFilterRepository.deleteById(id);
+            return;
+        }
+        throw new EntityNotFoundException("Filter does not exist id=" + id);
     }
 
     /*
@@ -119,8 +125,8 @@ public class PretixEventFilterService {
     }
 
     private boolean filterByPropertiesSource(String action, String event, Map<Question, Answer> qnaMap) {
-        return pretixQnaFilterList.stream()
-                .filter(filter -> filter.isForAction(action) && filter.isForEvent(event))
+
+        return pretixQnaFilterRepository.findByActionAndEvent(action, event).stream()
                 .anyMatch(filter -> filter.filterQnA(qnaMap));
     }
 }

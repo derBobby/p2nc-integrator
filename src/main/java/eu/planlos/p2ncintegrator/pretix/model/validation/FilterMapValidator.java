@@ -21,7 +21,7 @@ public class FilterMapValidator implements ConstraintValidator<ValidFilterMap, M
     }
 
     /**
-     * Checks questions ans answers for validity. Used by Annotations.
+     * Checks questions and answers for validity. Used by Annotations and JPA
      * @param filterMap Map of questions and answers
      * @param context Not necessary here.
      * @return true if valid
@@ -41,11 +41,7 @@ public class FilterMapValidator implements ConstraintValidator<ValidFilterMap, M
         return true;
     }
 
-    /**
-     * Required for constructors on startup
-     * @param values List of answers for a filter
-     */
-    public static void validateAnswerListsContainUniqueAnswers(Collection<List<String>> values) {
+    private void validateAnswerListsContainUniqueAnswers(Collection<List<String>> values) {
         values.forEach(answerList -> {
             Set<String> testSet = new HashSet<>(answerList);
             if (testSet.size() != answerList.size()) {

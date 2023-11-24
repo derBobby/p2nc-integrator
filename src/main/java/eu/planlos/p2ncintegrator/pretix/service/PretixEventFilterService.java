@@ -26,12 +26,27 @@ public class PretixEventFilterService {
         this.pretixEventFilterConfig = pretixEventFilterConfig;
         this.pretixQnaFilterRepository = pretixQnaFilterRepository;
 
-        //TODO test this switch
         if(pretixEventFilterConfig.isPropertiesSourceConfigured()) {
-            pretixQnaFilterRepository.saveAll(new StringToPretixQnaFilterConverter(objectMapper).convertAll(pretixEventFilterConfig.getFilterList()));
+            log.debug("Filters provided by properties file are configured");
+            handlePropertiesAsFilterSource(objectMapper);
+            return;
         }
+        log.debug("Filters provided by user are configured");
+    }
 
-        log.debug("Event QnA filter list configured in service");
+    private void handlePropertiesAsFilterSource(ObjectMapper objectMapper) throws JsonProcessingException {
+        if(pretixQnaFilterRepository.findAll().isEmpty()) {
+            log.debug("No filters in DB found. Proceed to persist filters from properties file");
+            persistFilterFromProperties(objectMapper);
+        } else {
+            throw new IllegalArgumentException("Config file is configured as source for filters, but filters already exist in DB. Clean DB or switch to source USER");
+        }
+    }
+
+    private void persistFilterFromProperties(ObjectMapper objectMapper) throws JsonProcessingException {
+        pretixQnaFilterRepository.saveAll(
+                new StringToPretixQnaFilterConverter(objectMapper)
+                        .convertAll(pretixEventFilterConfig.getFilterList()));
     }
 
     /**
@@ -56,7 +71,7 @@ public class PretixEventFilterService {
      */
     public void addFilter(PretixQnaFilter pretixQnaFilter) {
         if(pretixQnaFilter.getId() == null) {
-            this.pretixQnaFilterRepository.save(pretixQnaFilter);
+            pretixQnaFilterRepository.save(pretixQnaFilter);
             return;
         }
         throw new IllegalArgumentException("Filter must not have id");
@@ -64,7 +79,7 @@ public class PretixEventFilterService {
 
     //TODO test
     public Optional<PretixQnaFilter> getFilter(Long id) {
-        return this.pretixQnaFilterRepository.findById(id);
+        return pretixQnaFilterRepository.findById(id);
     }
 
     //TODO test
@@ -80,7 +95,7 @@ public class PretixEventFilterService {
      */
     public void updateFilter(PretixQnaFilter pretixQnaFilter) {
         if(pretixQnaFilter.getId() != null) {
-            this.pretixQnaFilterRepository.save(pretixQnaFilter);
+            pretixQnaFilterRepository.save(pretixQnaFilter);
             return;
         }
         throw new IllegalArgumentException("Filter must have have id");
@@ -89,7 +104,7 @@ public class PretixEventFilterService {
     //TODO test
     public void deleteUserFilter(Long id) {
         if(getFilter(id).isPresent()) {
-            this.pretixQnaFilterRepository.deleteById(id);
+            pretixQnaFilterRepository.deleteById(id);
             return;
         }
         throw new EntityNotFoundException("Filter does not exist id=" + id);
@@ -103,29 +118,13 @@ public class PretixEventFilterService {
 
         List<Position> ticketPositionList = booking.getPositionList().stream()
                 .filter(position -> ! position.getProduct().getProductType().isAddon())
-                .filter(position -> ! position.getQnA().isEmpty())
-                .filter(position -> filter(action, booking.getEvent(), position.getQnA()))
+                .filter(position -> ! position.getQnA().isEmpty()) //TODO could be removed?
+                .filter(position -> matchesQnaFilter(action, booking.getEvent(), position.getQnA()))
                 .toList();
         return ticketPositionList.isEmpty();
     }
 
-    protected boolean filter(String action, String event, Map<Question, Answer> qnaMap) {
-
-        if(pretixEventFilterConfig.isUserSourceConfigured()) {
-            return filterByUserSource(action, event, qnaMap);
-        }
-
-        // Default in Config class, if nothing is provided
-        return filterByPropertiesSource(action, event, qnaMap);
-    }
-
-    //TODO continue here
-    private Boolean filterByUserSource(String action, String event, Map<Question, Answer> qnaMap) {
-        throw new IllegalArgumentException("Feature not yet available");
-    }
-
-    private boolean filterByPropertiesSource(String action, String event, Map<Question, Answer> qnaMap) {
-
+    protected boolean matchesQnaFilter(String action, String event, Map<Question, Answer> qnaMap) {
         return pretixQnaFilterRepository.findByActionAndEvent(action, event).stream()
                 .anyMatch(filter -> filter.filterQnA(qnaMap));
     }

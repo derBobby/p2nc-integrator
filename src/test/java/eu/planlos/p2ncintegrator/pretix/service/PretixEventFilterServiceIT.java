@@ -1,22 +1,17 @@
 package eu.planlos.p2ncintegrator.pretix.service;
 
 import eu.planlos.p2ncintegrator.pretix.PretixTestDataUtility;
-import eu.planlos.p2ncintegrator.pretix.model.Answer;
-import eu.planlos.p2ncintegrator.pretix.model.PretixQnaFilter;
-import eu.planlos.p2ncintegrator.pretix.model.Question;
 import eu.planlos.p2ncintegrator.pretix.repository.PretixQnaFilterRepository;
+import jakarta.validation.ConstraintViolationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.List;
-import java.util.Map;
-
 import static eu.planlos.p2ncintegrator.pretix.model.dto.PretixSupportedActions.ORDER_APPROVED;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -25,121 +20,68 @@ public class PretixEventFilterServiceIT extends PretixTestDataUtility {
     @Autowired
     private PretixQnaFilterRepository pretixQnaFilterRepository;
 
-    @Test
-    public void matchesAllQnA_isTrue() {
-        // Prepare
-        //      objects
-        Map<Question, Answer> qnaMap = newCorrectQnaMap();
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(pretixQnaFilterRepository, filterMatchesQuestionAndAnswer());
-        //      methods
+    private PretixEventFilterService pretixEventFilterService;
 
-        // Act
-        boolean containsMatch = pretixEventFilterService.filter(ORDER_APPROVED.getAction(), EVENT, qnaMap);
-
-        // Check
-        assertTrue(containsMatch);
-    }
-
-    @Test
-    public void matchesAllQnAWithAdditionalQuestionsInFilter_isTrue() {
-        // Prepare
-        //      objects
-        Map<Question, Answer> qnaMap = newAdditionalQuestionsQnaMap();
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(pretixQnaFilterRepository, filterMatchesQuestionAndAnswer());
-        //      methods
-
-        // Act
-        boolean containsMatch = pretixEventFilterService.filter(ORDER_APPROVED.getAction(), EVENT, qnaMap);
-
-        // Check
-        assertTrue(containsMatch);
-    }
-
-    @Test
-    public void matchesOnlyQuestions_isFalse() {
-        // Prepare
-        //      objects
-        Map<Question, Answer> qnaMap = newCorrectQnaMap();
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(pretixQnaFilterRepository, filterMatchesOnlyQuestion());
-        //      methods
-
-        // Act
-        boolean containsMatch = pretixEventFilterService.filter(ORDER_APPROVED.getAction(), EVENT, qnaMap);
-
-        // Check
-        assertFalse(containsMatch);
-    }
-
-    @Test
-    public void matchesNotAllQuestions_isFalse() {
-        // Prepare
-        //      objects
-        Map<Question, Answer> qnaMap = newCorrectQnaMap();
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(pretixQnaFilterRepository, filterMatchesNotAllQuestions());
-        //      methods
-
-        // Act
-        boolean containsMatch = pretixEventFilterService.filter(ORDER_APPROVED.getAction(), EVENT, qnaMap);
-
-        // Check
-        assertFalse(containsMatch);
-    }
-
-    @Test
-    public void matchesNoQuestion_isFalse() {
-        // Prepare
-        //      objects
-        Map<Question, Answer> qnaMap = newCorrectQnaMap();
-        PretixEventFilterService pretixEventFilterService = new PretixEventFilterService(pretixQnaFilterRepository, filterMatchesNoQuestion());
-        //      methods
-
-        // Act
-        boolean containsMatch = pretixEventFilterService.filter(ORDER_APPROVED.getAction(), EVENT, qnaMap);
-
-        // Check
-        assertFalse(containsMatch);
+    @BeforeEach
+    public void setUp() {
+        pretixEventFilterService = new PretixEventFilterService(pretixQnaFilterRepository, filterOKList());
     }
 
     /*
-     * Support methods
+     * Violation tests
      */
-    private List<PretixQnaFilter> filterMatchesNoQuestion() {
-        return List.of(
-                new PretixQnaFilter(
-                        ORDER_APPROVED.getAction(),
-                        EVENT,
-                        Map.of(
-                                "Wrong question 1?", List.of("Wrong Answer 1.1!", "Wrong Answer 1.2!"),
-                                "Wrong question 2?", List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!"))));
+
+    @Test
+    public void duplicateAnswer_throwsException() {
+        pretixEventFilterService.addFilter(filterWithDuplicateAnswer());
+        assertFlushResultsInConstraingViolation();
     }
 
-    private List<PretixQnaFilter> filterMatchesQuestionAndAnswer() {
-        return List.of(
-                new PretixQnaFilter(
-                        ORDER_APPROVED.getAction(),
-                        EVENT,
-                        Map.of(
-                                CORRECT_QUESTION_1, List.of(CORRECT_ANSWER_1, "Wrong Answer!"),
-                                CORRECT_QUESTION_2, List.of("Wrong Answer!", CORRECT_ANSWER_2))));
+    @Test
+    public void invalidAction_throwsException() {
+        pretixEventFilterService.addFilter(filterWithInvalidAction());
+        assertFlushResultsInConstraingViolation();
     }
 
-    private List<PretixQnaFilter> filterMatchesOnlyQuestion() {
-        return List.of(
-                new PretixQnaFilter(
-                        ORDER_APPROVED.getAction(),
-                        EVENT,
-                        Map.of(
-                                CORRECT_QUESTION_1, List.of("Wrong Answer 1.1!", "Wrong Answer 1.2!"),
-                                CORRECT_QUESTION_2, List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!"))));
+    /*
+     * Filter tests
+     */
+
+    @Test
+    public void goodQnA_matchesFilter() {
+        assertTrue(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, correctQnaMap()));
     }
 
-    private List<PretixQnaFilter> filterMatchesNotAllQuestions() {
-        return List.of(
-                new PretixQnaFilter(
-                        ORDER_APPROVED.getAction(),
-                        EVENT,
-                        Map.of(
-                                "Wrong question?", List.of("Wrong Answer 1.1!", "Wrong Answer 1.2!"),
-                                CORRECT_QUESTION_2, List.of("Wrong Answer 2.1!", "Wrong Answer 2.2!"))));
+    @Test
+    public void missingQuestionQna_doesntMatchFilter() {
+        assertFalse(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, missingQuestionQnaMap()));
+    }
+
+    @Test
+    public void moreQnAThanInFilter_matchesFilter() {
+        assertTrue(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, additionalQuestionsQnaMap()));
+    }
+
+    @Test
+    public void noQuestionAnswered_isFalse() {
+        assertFalse(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, allQuestionsMissingQnaMap()));
+    }
+
+    @Test
+    public void notAllAnswersCorrect_isFalse() {
+        assertFalse(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, notAllAnswersCorrectMap()));
+    }
+
+    @Test
+    public void allAnswersWrong_isFalse() {
+        assertFalse(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, noAnswerCorrectMap()));
+    }
+
+    /*
+     * Assert helpers
+     */
+
+    private void assertFlushResultsInConstraingViolation() {
+        assertThrows(ConstraintViolationException.class, () -> pretixQnaFilterRepository.flush());
     }
 }

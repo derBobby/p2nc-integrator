@@ -1,8 +1,7 @@
 package eu.planlos.p2ncintegrator.pretix.model;
 
-import eu.planlos.javautilities.GermanStringsUtility;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import eu.planlos.javautilities.GermanStringsUtility;
 import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterCreateDTO;
 import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterUpdateDTO;
 import eu.planlos.p2ncintegrator.pretix.model.validation.ValidAction;
@@ -12,14 +11,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import static eu.planlos.p2ncintegrator.pretix.model.validation.FilterMapValidator.validateAnswerListsContainUniqueAnswers;
 
 @Entity
 @EqualsAndHashCode
-@NoArgsConstructor
+@NoArgsConstructor /* Required for ObjectMapper*/
 @AllArgsConstructor
 @ToString
 public final class PretixQnaFilter {
@@ -45,26 +44,29 @@ public final class PretixQnaFilter {
     @ValidFilterMap
     private Map<String, List<String>> filterMap = new HashMap<>();
 
-    /**
-     * Constructor package private for tests
-     * @param filterMap Map that consists of question and answers
-     */
-    PretixQnaFilter(Map<String, List<String>> filterMap) {
-        this(null, null, filterMap);
-    }
-
     public PretixQnaFilter(@NotNull String action, @NotNull String event, @NotNull Map<String, List<String>> filterMap) {
-        validateAnswerListsContainUniqueAnswers(filterMap.values());
         this.action = action;
         this.event = event;
         this.filterMap.putAll(filterMap);
     }
 
-    public boolean isForAction(String action) {
+    /**
+     * Constructor package private for tests
+     * Only used in test
+     * @param action action name
+     * @return true if action matches
+     */
+    boolean isForAction(String action) {
         return this.action.equals(action);
     }
 
-    public boolean isForEvent(String event) {
+    /**
+     * Constructor package private for tests
+     * Only used in test
+     * @param event event name
+     * @return true if event matches
+     */
+    boolean isForEvent(String event) {
         return this.event.equals(event);
     }
 
@@ -87,12 +89,10 @@ public final class PretixQnaFilter {
                         entry -> GermanStringsUtility.normalizeGermanCharacters(entry.getValue().getText())));
     }
 
-    //TODO test
     public PretixQnaFilter(PretixQnaFilterCreateDTO dto) {
         this(dto.action(), dto.event(), dto.filterMap());
     }
 
-    //TODO test
     public PretixQnaFilter(PretixQnaFilterUpdateDTO dto) {
         this(dto.id(), dto.action(), dto.event(), dto.filterMap());
     }

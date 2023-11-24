@@ -142,7 +142,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
     }
 
     private List<Position> positionList() {
-        return List.of(new Position(product(), newCorrectQnaMap()));
+        return List.of(new Position(product(), correctQnaMap()));
     }
 
     private Product product() {

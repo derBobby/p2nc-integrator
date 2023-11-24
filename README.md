@@ -1,4 +1,4 @@
-# PretixToNextcloudIntegrator
+# Pretix2Nextcloud integrator
 This applications main purpose is to handle incoming WebHooks of a Pretix ticket shop.
 Currently the project hosts additional classes required to access the Pretix API.
 

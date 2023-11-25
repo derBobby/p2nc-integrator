@@ -3,12 +3,8 @@ package eu.planlos.p2ncintegrator;
 import eu.planlos.javanextcloudconnector.service.NextcloudApiUserService;
 import eu.planlos.p2ncintegrator.common.notification.MailService;
 import eu.planlos.p2ncintegrator.common.notification.SignalService;
-import eu.planlos.javautilities.ZonedDateTimeUtility;
 import eu.planlos.p2ncintegrator.pretix.PretixTestDataUtility;
 import eu.planlos.p2ncintegrator.pretix.model.Booking;
-import eu.planlos.p2ncintegrator.pretix.model.Position;
-import eu.planlos.p2ncintegrator.pretix.model.Product;
-import eu.planlos.p2ncintegrator.pretix.model.ProductType;
 import eu.planlos.p2ncintegrator.pretix.model.dto.WebHookDTO;
 import eu.planlos.p2ncintegrator.pretix.service.PretixBookingService;
 import eu.planlos.p2ncintegrator.pretix.service.PretixEventFilterService;
@@ -19,11 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-
 import static eu.planlos.p2ncintegrator.AccountService.SUBJECT_IRRELEVANT;
 import static eu.planlos.p2ncintegrator.AccountService.SUBJECT_OK;
-import static eu.planlos.p2ncintegrator.pretix.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -81,7 +74,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
         // Prepare
         //      objects
         WebHookDTO hook = orderApprovedHook();
-        Booking booking = booking();
+        Booking booking = ticketBooking();
         //      methods
         when(pretixBookingService.loadOrFetch(hook.event(), hook.code())).thenReturn(booking);
         positionFilterIrrelevant();
@@ -100,7 +93,7 @@ public class AccountServiceTest extends PretixTestDataUtility {
         // Prepare
         //      objects
         WebHookDTO hook = orderApprovedHook();
-        Booking booking = booking();
+        Booking booking = ticketBooking();
         //      methods
         when(pretixBookingService.loadOrFetch(hook.event(), hook.code())).thenReturn(booking);
         positionFilterRelevant();
@@ -115,41 +108,10 @@ public class AccountServiceTest extends PretixTestDataUtility {
     }
 
     private void positionFilterIrrelevant() {
-        when(pretixEventFilterService.filterBookings(anyString(), any())).thenReturn(true);
+        when(pretixEventFilterService.bookingNotWantedByAnyFilter(anyString(), any())).thenReturn(true);
     }
 
     private void positionFilterRelevant() {
-        when(pretixEventFilterService.filterBookings(anyString(), any())).thenReturn(false);
-    }
-
-    /*
-     * Data helper
-     */
-
-    protected WebHookDTO orderApprovedHook() {
-        return new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_APPROVED.getAction());
-    }
-
-    protected Booking booking() {
-        return new Booking(
-                EVENT,
-                CODE_NEW,
-                "First",
-                "Last",
-                "first.last@example.com",
-                ZonedDateTimeUtility.nowCET().toLocalDateTime(),
-                positionList());
-    }
-
-    private List<Position> positionList() {
-        return List.of(new Position(product(), correctQnaMap()));
-    }
-
-    private Product product() {
-        return new Product(PRETIX_ID, "some product", productTypeTicket());
-    }
-
-    private ProductType productTypeTicket() {
-        return new ProductType(PRETIX_ID, false, "some product type");
+        when(pretixEventFilterService.bookingNotWantedByAnyFilter(anyString(), any())).thenReturn(false);
     }
 }

@@ -1,6 +1,8 @@
 package eu.planlos.p2ncintegrator.pretix.service;
 
 import eu.planlos.p2ncintegrator.pretix.PretixTestDataUtility;
+import eu.planlos.p2ncintegrator.pretix.model.PretixQnaFilter;
+import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterUpdateDTO;
 import eu.planlos.p2ncintegrator.pretix.repository.PretixQnaFilterRepository;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +30,51 @@ public class PretixEventFilterServiceIT extends PretixTestDataUtility {
     }
 
     /*
+     * CRUD tests
+     */
+
+    @Test
+    public void createWithGivenId_throwsException() {
+        PretixQnaFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK(1L);
+        PretixQnaFilter updatePretixEventFilter = new PretixQnaFilter(pretixEventFilterUpdateDTO);
+        assertThrows(IllegalArgumentException.class, () -> pretixEventFilterService.addFilter(updatePretixEventFilter));
+    }
+
+    @Test
+    public void createAndFindFilter_successful() {
+        PretixQnaFilter givenPretixEventFilter = filterOK();
+        pretixEventFilterService.addFilter(givenPretixEventFilter);
+        PretixQnaFilter databasePretixEventFilter = pretixEventFilterService.getFilter(givenPretixEventFilter.getId()).get();
+        assertEquals(databasePretixEventFilter, givenPretixEventFilter);
+    }
+
+    @Test
+    public void createAndDeleteFilter_successful() {
+        PretixQnaFilter pretixEventFilter = filterOK();
+        pretixEventFilterService.addFilter(pretixEventFilter);
+        pretixQnaFilterRepository.flush();
+        assertTrue(pretixEventFilterService.getFilter(pretixEventFilter.getId()).isPresent());
+
+        pretixEventFilterService.deleteFilter(pretixEventFilter.getId());
+        pretixQnaFilterRepository.flush();
+        assertFalse(pretixEventFilterService.getFilter(pretixEventFilter.getId()).isPresent());
+    }
+
+    @Test
+    public void createAndUpdateFilter_successfull() {
+        PretixQnaFilter originalpretixEventFilter = filterOK();
+        pretixEventFilterService.addFilter(originalpretixEventFilter);
+        pretixQnaFilterRepository.flush();
+
+        PretixQnaFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK(originalpretixEventFilter.getId());
+        PretixQnaFilter updatePretixEventFilter = new PretixQnaFilter(pretixEventFilterUpdateDTO);
+        pretixEventFilterService.updateFilter(updatePretixEventFilter);
+        pretixQnaFilterRepository.flush();
+
+        assertEquals(pretixEventFilterService.getFilter(originalpretixEventFilter.getId()).get(), updatePretixEventFilter);
+    }
+
+    /*
      * Violation tests
      */
 
@@ -41,6 +88,25 @@ public class PretixEventFilterServiceIT extends PretixTestDataUtility {
     public void invalidAction_throwsException() {
         pretixEventFilterService.addFilter(filterWithInvalidAction());
         assertFlushResultsInConstraingViolation();
+    }
+
+    /*
+     * Filter tests on booking level
+     */
+
+    @Test
+    public void ticketBooking_matchesFilter() {
+        assertFalse(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED.getAction(), ticketBooking()));
+    }
+
+    @Test
+    public void addonBooking_doesntMatchFilter() {
+        assertTrue(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED.getAction(), addonBooking()));
+    }
+
+    @Test
+    public void noPositionBooking_doesntMatchFilter() {
+        assertTrue(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED.getAction(), noPositionsBooking()));
     }
 
     /*

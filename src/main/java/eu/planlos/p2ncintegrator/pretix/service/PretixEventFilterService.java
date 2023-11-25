@@ -63,7 +63,6 @@ public class PretixEventFilterService {
      * User source methods
      */
 
-    //TODO test
     /**
      * Creates filter if it exists or not
      * Not idempotent repo access, will create new for each call
@@ -77,32 +76,30 @@ public class PretixEventFilterService {
         throw new IllegalArgumentException("Filter must not have id");
     }
 
-    //TODO test
     public Optional<PretixQnaFilter> getFilter(Long id) {
         return pretixQnaFilterRepository.findById(id);
     }
 
-    //TODO test
-    public List<PretixQnaFilter> getAll() {
+    public List<PretixQnaFilter> getAllFilters() {
         return pretixQnaFilterRepository.findAll();
     }
 
-    //TODO test
     /**
      * Creates or updates filter.
      * Idempotent method.
      * @param pretixQnaFilter Filter object
      */
     public void updateFilter(PretixQnaFilter pretixQnaFilter) {
-        if(pretixQnaFilter.getId() != null) {
-            pretixQnaFilterRepository.save(pretixQnaFilter);
-            return;
+        if(pretixQnaFilter.getId() == null) {
+            throw new IllegalArgumentException("Filter must have have id");
         }
-        throw new IllegalArgumentException("Filter must have have id");
+        if(! pretixQnaFilterRepository.existsById(pretixQnaFilter.getId())) {
+            throw new EntityNotFoundException("Filter does not exist id=" + pretixQnaFilter.getId());
+        }
+        pretixQnaFilterRepository.save(pretixQnaFilter);
     }
 
-    //TODO test
-    public void deleteUserFilter(Long id) {
+    public void deleteFilter(Long id) {
         if(getFilter(id).isPresent()) {
             pretixQnaFilterRepository.deleteById(id);
             return;
@@ -114,8 +111,13 @@ public class PretixEventFilterService {
      * Filtering methods
      */
 
-    public boolean filterBookings(String action, Booking booking) {
-
+    /**
+     * Looks if filter exists for given action-booking that is interested in it.
+     * @param action to be looked for
+     * @param booking to be looked for
+     * @return true if there is no  filter at all, that wants the booking
+     */
+    public boolean bookingNotWantedByAnyFilter(String action, Booking booking) {
         List<Position> ticketPositionList = booking.getPositionList().stream()
                 .filter(position -> ! position.getProduct().getProductType().isAddon())
                 .filter(position -> ! position.getQnA().isEmpty()) //TODO could be removed?
@@ -124,7 +126,15 @@ public class PretixEventFilterService {
         return ticketPositionList.isEmpty();
     }
 
-    protected boolean matchesQnaFilter(String action, String event, Map<Question, Answer> qnaMap) {
+    /**
+     * Check if matching filter exists in database
+     * Not private for tests.
+     * @param action to be looked for
+     * @param event to be looked for
+     * @param qnaMap to be looked for
+     * @return true if a filter exists
+     */
+    boolean matchesQnaFilter(String action, String event, Map<Question, Answer> qnaMap) {
         return pretixQnaFilterRepository.findByActionAndEvent(action, event).stream()
                 .anyMatch(filter -> filter.filterQnA(qnaMap));
     }

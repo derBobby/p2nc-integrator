@@ -55,7 +55,7 @@ public class PretixEventFilterController {
     @GetMapping
     public ResponseEntity<List<PretixQnaFilter>> getAll() {
         log.info("Read all filters");
-        return ResponseEntity.ok().body(pretixEventFilterService.getAll());
+        return ResponseEntity.ok().body(pretixEventFilterService.getAllFilters());
     }
 
     //TODO test
@@ -89,7 +89,7 @@ public class PretixEventFilterController {
     @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable Long id) {
         log.info("Delete filter id={}", id);
-        pretixEventFilterService.deleteUserFilter(id);
+        pretixEventFilterService.deleteFilter(id);
         log.info("Deleted filter id={}", id);
     }
 }

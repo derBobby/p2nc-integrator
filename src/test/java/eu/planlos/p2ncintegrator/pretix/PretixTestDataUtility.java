@@ -1,10 +1,11 @@
 package eu.planlos.p2ncintegrator.pretix;
 
-import eu.planlos.p2ncintegrator.pretix.model.Answer;
-import eu.planlos.p2ncintegrator.pretix.model.PretixId;
-import eu.planlos.p2ncintegrator.pretix.model.PretixQnaFilter;
-import eu.planlos.p2ncintegrator.pretix.model.Question;
+import eu.planlos.javautilities.ZonedDateTimeUtility;
+import eu.planlos.p2ncintegrator.pretix.model.*;
+import eu.planlos.p2ncintegrator.pretix.model.dto.PretixQnaFilterUpdateDTO;
+import eu.planlos.p2ncintegrator.pretix.model.dto.WebHookDTO;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -110,6 +111,22 @@ public abstract class PretixTestDataUtility {
                         List.of(CORRECT_ANSWER_2)));
     }
 
+    /**
+     * Must correspont to filterOK()
+     * @return filter update dto
+     */
+    protected PretixQnaFilterUpdateDTO updateFilterOK(Long id) {
+        return new PretixQnaFilterUpdateDTO(
+                id,
+                ORDER_APPROVED.getAction(),
+                "UPDATED_EVENT",
+                Map.of(
+                        CORRECT_QUESTION_1,
+                        List.of(CORRECT_ANSWER_1),
+                        CORRECT_QUESTION_2,
+                        List.of(CORRECT_ANSWER_2)));
+    }
+
     protected PretixQnaFilter filterWithDuplicateAnswer() {
         return new PretixQnaFilter(
                 ORDER_APPROVED.getAction(),
@@ -136,5 +153,74 @@ public abstract class PretixTestDataUtility {
                         Map.of(
                                 CORRECT_QUESTION_1, List.of(CORRECT_ANSWER_1, CORRECT_ANSWER_2),
                                 CORRECT_QUESTION_2, List.of(CORRECT_ANSWER_1, CORRECT_ANSWER_2))));
+    }
+
+    /*
+     * Webhooks
+     */
+
+    protected WebHookDTO orderApprovedHook() {
+        return new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_APPROVED.getAction());
+    }
+
+    /*
+     * Booking
+     */
+
+    protected Booking ticketBooking() {
+        return new Booking(
+                EVENT,
+                CODE_NEW,
+                "First",
+                "Last",
+                "first.last@example.com",
+                ZonedDateTimeUtility.nowCET().toLocalDateTime(),
+                ticketPositionList());
+    }
+
+    protected Booking addonBooking() {
+        return new Booking(
+                EVENT,
+                CODE_NEW,
+                "First",
+                "Last",
+                "first.last@example.com",
+                ZonedDateTimeUtility.nowCET().toLocalDateTime(),
+                addonPositionList());
+    }
+
+    protected Booking noPositionsBooking() {
+        return new Booking(
+                EVENT,
+                CODE_NEW,
+                "First",
+                "Last",
+                "first.last@example.com",
+                ZonedDateTimeUtility.nowCET().toLocalDateTime(),
+                Collections.emptyList());
+    }
+
+    private List<Position> ticketPositionList() {
+        return List.of(new Position(ticketProduct(), correctQnaMap()));
+    }
+
+    private List<Position> addonPositionList() {
+        return List.of(new Position(addonProduct(), correctQnaMap()));
+    }
+
+    private Product ticketProduct() {
+        return new Product(PRETIX_ID, "ticket", ticketProductType());
+    }
+
+    private Product addonProduct() {
+        return new Product(PRETIX_ID, "probably a hoodie", addonProductType());
+    }
+
+    private ProductType ticketProductType() {
+        return new ProductType(PRETIX_ID, false, "Some kind of ticket");
+    }
+
+    private ProductType addonProductType() {
+        return new ProductType(PRETIX_ID, true, "Not a ticket, probably a hoodie");
     }
 }

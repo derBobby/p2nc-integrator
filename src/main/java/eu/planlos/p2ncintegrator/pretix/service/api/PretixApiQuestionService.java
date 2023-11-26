@@ -22,8 +22,8 @@ public class PretixApiQuestionService extends PretixApiService {
 
     private static final String FETCH_MESSAGE = "Fetched question from Pretix: {}";
 
-    public PretixApiQuestionService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient) {
-        super(pretixApiConfig, webClient);
+    public PretixApiQuestionService(PretixApiConfig config, @Qualifier("PretixWebClient") WebClient webClient) {
+        super(config, webClient);
     }
 
     /*
@@ -40,7 +40,7 @@ public class PretixApiQuestionService extends PretixApiService {
                 .uri(questionListUri(event))
                 .retrieve()
                 .bodyToMono(QuestionsDTO.class)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Message fetching all questions from Pretix API: {}", error.getMessage()))
                 .block();
 
@@ -64,7 +64,7 @@ public class PretixApiQuestionService extends PretixApiService {
                 .uri(specificQuestionUri(event, questionId.getValue()))
                 .retrieve()
                 .bodyToMono(QuestionDTO.class)
-                .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Message fetching question={} from Pretix API: {}", questionId, error.getMessage()))
                 .block();
         if (questionDto != null) {
@@ -81,7 +81,7 @@ public class PretixApiQuestionService extends PretixApiService {
     private String specificQuestionUri(String event, Long questionId) {
         return String.join(
                 "",
-                "api/v1/organizers/", pretixApiConfig.organizer(),
+                "api/v1/organizers/", config.organizer(),
                 "/events/", event,
                 "/questions/", questionId.toString(), "/");
     }
@@ -89,7 +89,7 @@ public class PretixApiQuestionService extends PretixApiService {
     private String questionListUri(String event) {
         return String.join(
                 "",
-                "api/v1/organizers/", pretixApiConfig.organizer(),
+                "api/v1/organizers/", config.organizer(),
                 "/events/", event,
                 "/questions/");
     }

@@ -12,11 +12,11 @@ public class TestConfig {
 
     @Bean
     public SignalApiConfig signalApiConfig() {
-        return new SignalApiConfig(false, "testAddress", "testUser", "testPassword", "testSender", "testReceiver");
+        return new SignalApiConfig(false, "testAddress", "testUser", "testPassword", "testSender", "testReceiver", 0, 0);
     }
 
     @Bean
     public PretixApiConfig pretixApiConfig() {
-        return new PretixApiConfig(false, "testAddress", "testToken", "testOrganizer", new ArrayList<>());
+        return new PretixApiConfig(false, "testAddress", "testToken", "testOrganizer", new ArrayList<>(), 0, 0);
     }
 }

@@ -21,8 +21,8 @@ public class PretixApiOrderService extends PretixApiService {
 
     private static final String FETCH_MESSAGE = "Fetched order from Pretix: {}";
 
-    public PretixApiOrderService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient) {
-        super(pretixApiConfig, webClient);
+    public PretixApiOrderService(PretixApiConfig config, @Qualifier("PretixWebClient") WebClient webClient) {
+        super(config, webClient);
     }
 
     /*
@@ -39,7 +39,7 @@ public class PretixApiOrderService extends PretixApiService {
                 .uri(orderListUri(event))
                 .retrieve()
                 .bodyToMono(OrdersDTO.class)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Message fetching all orders from Pretix API: {}", error.getMessage()))
                 .block();
 
@@ -63,7 +63,7 @@ public class PretixApiOrderService extends PretixApiService {
                 .uri(specificOrderUri(event, code))
                 .retrieve()
                 .bodyToMono(OrderDTO.class)
-                .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Message fetching order={} from Pretix API: {}", code, error.getMessage()))
                 .block();
         if (orderDto != null) {
@@ -80,7 +80,7 @@ public class PretixApiOrderService extends PretixApiService {
     private String specificOrderUri(String event, String orderCode) {
         return String.join(
                 "",
-                "api/v1/organizers/", pretixApiConfig.organizer(),
+                "api/v1/organizers/", config.organizer(),
                 "/events/", event,
                 "/orders/", orderCode, "/");
     }
@@ -88,7 +88,7 @@ public class PretixApiOrderService extends PretixApiService {
     private String orderListUri(String event) {
         return String.join(
                 "",
-                "api/v1/organizers/", pretixApiConfig.organizer(),
+                "api/v1/organizers/", config.organizer(),
                 "/events/", event,
                 "/orders/");
     }
@@ -96,8 +96,8 @@ public class PretixApiOrderService extends PretixApiService {
     public String getEventUrl(String event, String orderCode) {
         return String.join(
                 "",
-                pretixApiConfig.address(),
-                "/control/event/", pretixApiConfig.organizer(),
+                config.address(),
+                "/control/event/", config.organizer(),
                 "/", event,
                 "/orders/", orderCode, "/");
     }

@@ -7,17 +7,17 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 public abstract class PretixApiService extends ApiService {
 
-    protected final PretixApiConfig pretixApiConfig;
+    protected final PretixApiConfig config;
     protected final WebClient webClient;
 
-    public PretixApiService(PretixApiConfig pretixApiConfig, WebClient webClient) {
-        this.pretixApiConfig = pretixApiConfig;
+    public PretixApiService(PretixApiConfig config, WebClient webClient) {
+        this.config = config;
         this.webClient = webClient;
     }
 
     @Override
     public boolean isAPIDisabled() {
-        if(pretixApiConfig.inactive()) {
+        if(config.inactive()) {
             log.info("Pretix API is not enabled. Returning empty list or null");
             return true;
         }

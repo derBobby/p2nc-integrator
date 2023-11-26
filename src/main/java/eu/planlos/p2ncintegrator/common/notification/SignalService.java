@@ -72,7 +72,7 @@ public class SignalService extends NotificationService {
                 .bodyValue(jsonMessage)
                 .retrieve()
                 .bodyToMono(String.class)
-                .retryWhen(Retry.fixedDelay(0, Duration.ofSeconds(1)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Notification failed."))
                 .block();
         if (apiResponse != null) {

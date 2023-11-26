@@ -22,8 +22,8 @@ public class PretixApiItemService extends PretixApiService {
 
     private static final String FETCH_MESSAGE = "Fetched item from Pretix: {}";
 
-    public PretixApiItemService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient) {
-        super(pretixApiConfig, webClient);
+    public PretixApiItemService(PretixApiConfig config, @Qualifier("PretixWebClient") WebClient webClient) {
+        super(config, webClient);
     }
 
     /*
@@ -40,7 +40,7 @@ public class PretixApiItemService extends PretixApiService {
                 .uri(itemListUri(event))
                 .retrieve()
                 .bodyToMono(ItemsDTO.class)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Message fetching all items from Pretix API: {}", error.getMessage()))
                 .block();
 
@@ -64,7 +64,7 @@ public class PretixApiItemService extends PretixApiService {
                 .uri(specificItemUri(event, itemId.getValue()))
                 .retrieve()
                 .bodyToMono(ItemDTO.class)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Message fetching item={} from Pretix API: {}", itemId, error.getMessage()))
                 .block();
         if (itemDTO != null) {
@@ -85,7 +85,7 @@ public class PretixApiItemService extends PretixApiService {
     private String itemListUri(String event) {
         return String.join(
                 "",
-                "api/v1/organizers/", pretixApiConfig.organizer(),
+                "api/v1/organizers/", config.organizer(),
                 "/events/", event,
                 "/items/");
     }

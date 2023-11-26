@@ -22,8 +22,8 @@ public class PretixApiItemCategoryService extends PretixApiService {
 
     private static final String FETCH_MESSAGE = "Fetched item category from Pretix: {}";
 
-    public PretixApiItemCategoryService(PretixApiConfig pretixApiConfig, @Qualifier("PretixWebClient") WebClient webClient) {
-        super(pretixApiConfig, webClient);
+    public PretixApiItemCategoryService(PretixApiConfig config, @Qualifier("PretixWebClient") WebClient webClient) {
+        super(config, webClient);
     }
 
     /*
@@ -40,7 +40,7 @@ public class PretixApiItemCategoryService extends PretixApiService {
                 .uri(itemCategoryListUri(event))
                 .retrieve()
                 .bodyToMono(ItemCategoriesDTO.class)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Message fetching all item categories from Pretix API: {}", error.getMessage()))
                 .block();
 
@@ -64,7 +64,7 @@ public class PretixApiItemCategoryService extends PretixApiService {
                 .uri(specificItemCategoryUri(event, itemCategoryId.getValue()))
                 .retrieve()
                 .bodyToMono(ItemCategoryDTO.class)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(3)))
+                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
                 .doOnError(error -> log.error("Message fetching item category={} from Pretix API: {}", itemCategoryId, error.getMessage()))
                 .block();
         if (itemCategoryDTO != null) {
@@ -85,7 +85,7 @@ public class PretixApiItemCategoryService extends PretixApiService {
     private String itemCategoryListUri(String event) {
         return String.join(
                 "",
-                "api/v1/organizers/", pretixApiConfig.organizer(),
+                "api/v1/organizers/", config.organizer(),
                 "/events/", event,
                 "/categories/");
     }

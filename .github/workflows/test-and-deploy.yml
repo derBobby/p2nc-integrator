@@ -25,6 +25,13 @@ jobs:
     needs: mvn-publish
     runs-on: ubuntu-latest
     steps:
+
+      - name: Download JAR from cache
+        uses: actions/cache@v2
+        with:
+          path: ./target
+          key: ${{ runner.os }}-jar-${{ hashFiles('target/*.jar') }}
+
       - name: Login to DockerHub
         uses: docker/login-action@v3.0.0
         with:

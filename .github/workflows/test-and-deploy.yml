@@ -15,26 +15,16 @@ on:
 
 jobs:
   mvn-publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: derBobby/java-pipelines/.github/workflows/callable-mvn.yml@main
-        with:
-          mvn-stage: deploy
-      - name: DEBUG
-        run: find . -type f -not -path '*/\.git/*';
+    uses: derBobby/java-pipelines/.github/workflows/callable-mvn.yml@main
+    with:
+      mvn-stage: deploy
   codeql:
-    runs-on: ubuntu-latest
     needs: mvn-publish
-    steps:
-      - uses: derBobby/java-pipelines/.github/workflows/callable-codeql.yml@main
-      - name: DEBUG
-        run: find . -type f -not -path '*/\.git/*';
+    uses: derBobby/java-pipelines/.github/workflows/callable-codeql.yml@main
   docker:
-    runs-on: ubuntu-latest
     needs: mvn-publish
+    runs-on: ubuntu-latest
     steps:
-      - name: DEBUG
-        run: find . -type f -not -path '*/\.git/*';
       - name: Login to DockerHub
         uses: docker/login-action@v3.0.0
         with:

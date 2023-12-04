@@ -38,10 +38,7 @@ jobs:
         with:
           path: ./target
           key: ${{ needs.mvn-publish.outputs.cache-key }}
-#          fail-on-cache-miss: true
-      - name: DEBUG
-        run: | 
-          find ./target -type f
+          fail-on-cache-miss: true
       - name: Login to DockerHub
         uses: docker/login-action@v3.0.0
         with:
@@ -57,7 +54,7 @@ jobs:
         uses: garygrossgarten/github-action-ssh@0.7.0
         with:
           command: -a p2nc-integrator -e ${{ inputs.environment }} -t latest
-          host: ${{ secrets.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOYMENT_USER }}
+          host: ${{ secrets.DEPLOYMENT_HOST }}
           port: ${{ secrets.DEPLOYMENT_PORT }}
           privateKey: ${{ secrets.DEPLOYMENT_SSH_KEY }}

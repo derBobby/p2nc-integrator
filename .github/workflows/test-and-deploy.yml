@@ -30,8 +30,6 @@ jobs:
   codeql:
     needs: mvn-publish
     uses: derBobby/java-pipelines/.github/workflows/callable-codeql.yml@main
-    with:
-      cache-key: ${{ needs.mvn-publish.outputs.cache-key }}
   docker:
     needs: mvn-publish
     runs-on: ubuntu-latest
@@ -41,9 +39,7 @@ jobs:
       - name: Download from cache
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.m2
-            ./target
+          path: ./target
           key: ${{ needs.mvn-publish.outputs.cache-key }}
           fail-on-cache-miss: true
       - name: Login to DockerHub

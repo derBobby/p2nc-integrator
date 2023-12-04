@@ -11,8 +11,6 @@ Currently the project hosts additional classes required to access the Pretix API
 
 ## Status
 
-![CodeQL](https://github.com/derBobby/p2nc-integrator/actions/workflows/codeql.yml/badge.svg)
+[![Merge Dependabot PR](https://github.com/derBobby/p2nc-integrator/actions/workflows/dependabot-automerge.yml/badge.svg)](https://github.com/derBobby/p2nc-integrator/actions/workflows/dependabot-automerge.yml)
 
-![Test](https://github.com/derBobby/p2nc-integrator/actions/workflows/test-and-publish.yml/badge.svg)
-
-![Deployment](https://github.com/derBobby/p2nc-integrator/actions/workflows/deploy-staging.yml/badge.svg)
+[![Merge Dependabot PR](https://github.com/derBobby/java-nextcloud-connector/actions/workflows/dependabot-automerge.yml/badge.svg)](https://github.com/derBobby/java-nextcloud-connector/actions/workflows/dependabot-automerge.yml)

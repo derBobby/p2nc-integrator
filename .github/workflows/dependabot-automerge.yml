@@ -2,6 +2,8 @@ name: "Merge Dependabot PR"
 
 on:
   pull_request:
+    types:
+      - opened
 
 jobs:
   mvn-test:

@@ -41,7 +41,9 @@ jobs:
       - name: Download JAR from cache
         uses: actions/cache@v3
         with:
-          path: ./target
+          path: |
+            ~/.m2
+            ./target
           key: ${{ needs.mvn-publish.outputs.cache-key }}
           fail-on-cache-miss: true
       - name: Login to DockerHub

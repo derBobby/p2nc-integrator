@@ -13,4 +13,4 @@ Currently the project hosts additional classes required to access the Pretix API
 
 [![Merge Dependabot PR](https://github.com/derBobby/p2nc-integrator/actions/workflows/dependabot-automerge.yml/badge.svg)](https://github.com/derBobby/p2nc-integrator/actions/workflows/dependabot-automerge.yml)
 
-[![CD](https://github.com/derBobby/p2nc-integrator/actions/workflows/dependabot-automerge.yml/badge.svg)](https://github.com/derBobby/p2nc-integrator/actions/workflows/dependabot-automerge.yml)
+[![CD](https://github.com/derBobby/p2nc-integrator/actions/workflows/test-and-deploy.yml/badge.svg)](https://github.com/derBobby/p2nc-integrator/actions/workflows/test-and-deploy.yml)

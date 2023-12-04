@@ -49,9 +49,7 @@ jobs:
         with:
           push: true
           context: ${{ github.workspace }}
-          tags:
-          - "${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest"
-          - "deployed-on-${{ inputs.environment }}"
+          tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest,${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ inputs.environment }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Deploy on Server

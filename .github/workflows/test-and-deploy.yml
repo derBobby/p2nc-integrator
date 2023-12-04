@@ -18,6 +18,9 @@ on:
         default: "staging"
         description: Environment to which the deployment is done.
 
+env:
+  environment: ${{ inputs.environment || "staging" }}
+
 jobs:
   mvn-publish:
     uses: derBobby/java-pipelines/.github/workflows/callable-mvn.yml@main
@@ -49,11 +52,11 @@ jobs:
         with:
           push: true
           context: ${{ github.workspace }}
-          tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest,${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ inputs.environment }}
+          tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest,${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ env.environment || "staging" }}
       - name: Deploy on Server
         uses: garygrossgarten/github-action-ssh@0.7.0
         with:
-          command: -a p2nc-integrator -e ${{ inputs.environment }} -t latest
+          command: -a p2nc-integrator -e ${{ env.environment || "staging" }} -t latest
           username: ${{ secrets.DEPLOYMENT_USER }}
           host: ${{ secrets.DEPLOYMENT_HOST }}
           port: ${{ secrets.DEPLOYMENT_PORT }}

@@ -27,9 +27,16 @@ jobs:
     with:
       mvn-stage: deploy
       cache-jar: true
+########################
+      cache-m2: true
+########################
   codeql:
     needs: mvn-publish
     uses: derBobby/java-pipelines/.github/workflows/callable-codeql.yml@main
+########################
+    with:
+      cache-key-m2: ${{ needs.mvn-publish.outputs.cache-key-m2 }}
+########################
   docker:
     needs: mvn-publish
     runs-on: ubuntu-latest

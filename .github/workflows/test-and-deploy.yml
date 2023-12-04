@@ -19,7 +19,7 @@ on:
         description: Environment to which the deployment is done.
 
 env:
-  environment: ${{ github.event.inputs.environment || 'staging' }}
+  environment: ${{ inputs.environment || 'staging' }}
 
 jobs:
   mvn-publish:

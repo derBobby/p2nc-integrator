@@ -10,16 +10,13 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        options:
-          #- development
-          - staging
-          - production
-        required: true
         # TODO can be environment. Advantages?
         type: choice
+        options:
+          - "staging"
+          - "production"
+        default: "staging"
         description: Environment to which the deployment is done.
-env:
-  environment: ${{ inputs.environment || 'staging' }}
 
 jobs:
   mvn-publish:
@@ -55,7 +52,7 @@ jobs:
       - name: Deploy on Server
         uses: garygrossgarten/github-action-ssh@0.7.0
         with:
-          command: -a p2nc-integrator -e ${{ env.environment }} -t latest
+          command: -a p2nc-integrator -e ${{ inputs.environment }} -t latest
           host: ${{ secrets.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOYMENT_USER }}
           port: ${{ secrets.DEPLOYMENT_PORT }}

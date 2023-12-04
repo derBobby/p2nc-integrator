@@ -11,7 +11,7 @@ on:
     inputs:
       environment:
         options:
-          - development
+          #- development
           - staging
           - production
         required: true

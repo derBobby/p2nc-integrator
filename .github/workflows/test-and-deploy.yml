@@ -1,7 +1,8 @@
-name: Deploy to staging
+name: "CD"
 
 on:
   pull_request:
+    branches: [ main ]
     types:
       - closed
   push:
@@ -9,14 +10,14 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        options:
-          - development
-          - staging
-          - production
-        required: true
         # TODO can be environment. Advantages?
         type: choice
+        options:
+          - "staging"
+          - "production"
+        default: "staging"
         description: Environment to which the deployment is done.
+
 env:
   environment: ${{ inputs.environment || 'staging' }}
 
@@ -25,7 +26,7 @@ jobs:
     uses: derBobby/java-pipelines/.github/workflows/callable-mvn.yml@main
     with:
       mvn-stage: deploy
-      cache-jar: true
+      cache: true
   codeql:
     needs: mvn-publish
     uses: derBobby/java-pipelines/.github/workflows/callable-codeql.yml@main
@@ -35,12 +36,12 @@ jobs:
     steps:
       - name: Checkout Git
         uses: actions/checkout@v4
-      # TODO this job must have knowledge about called job. How to solve this?
-      - name: Download JAR from cache
+      - name: Download from cache
         uses: actions/cache@v3
         with:
           path: ./target
-          key: ${{ runner.os }}-jar-${{ hashFiles('target/*.jar') }}
+          key: ${{ needs.mvn-publish.outputs.cache-key }}
+          fail-on-cache-miss: true
       - name: Login to DockerHub
         uses: docker/login-action@v3.0.0
         with:
@@ -51,12 +52,12 @@ jobs:
         with:
           push: true
           context: ${{ github.workspace }}
-          tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest
+          tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest,${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ env.environment }}
       - name: Deploy on Server
         uses: garygrossgarten/github-action-ssh@0.7.0
         with:
           command: -a p2nc-integrator -e ${{ env.environment }} -t latest
-          host: ${{ secrets.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOYMENT_USER }}
+          host: ${{ secrets.DEPLOYMENT_HOST }}
           port: ${{ secrets.DEPLOYMENT_PORT }}
           privateKey: ${{ secrets.DEPLOYMENT_SSH_KEY }}

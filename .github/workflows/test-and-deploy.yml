@@ -56,11 +56,13 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest,${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ env.environment }}
   deploy:
     needs: docker
-    name: Deploy on Server
-    uses: garygrossgarten/github-action-ssh@0.7.0
-    with:
-      command: -a p2nc-integrator -e ${{ env.environment }} -t latest
-      username: ${{ secrets.DEPLOYMENT_USER }}
-      host: ${{ secrets.DEPLOYMENT_HOST }}
-      port: ${{ secrets.DEPLOYMENT_PORT }}
-      privateKey: ${{ secrets.DEPLOYMENT_SSH_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy on Server
+        uses: garygrossgarten/github-action-ssh@0.7.0
+        with:
+          command: -a p2nc-integrator -e ${{ env.environment }} -t latest
+          username: ${{ secrets.DEPLOYMENT_USER }}
+          host: ${{ secrets.DEPLOYMENT_HOST }}
+          port: ${{ secrets.DEPLOYMENT_PORT }}
+          privateKey: ${{ secrets.DEPLOYMENT_SSH_KEY }}

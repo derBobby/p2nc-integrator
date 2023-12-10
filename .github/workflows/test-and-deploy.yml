@@ -61,5 +61,3 @@ jobs:
           host: ${{ secrets.DEPLOYMENT_HOST }}
           port: ${{ secrets.DEPLOYMENT_PORT }}
           privateKey: ${{ secrets.DEPLOYMENT_SSH_KEY }}
-
-

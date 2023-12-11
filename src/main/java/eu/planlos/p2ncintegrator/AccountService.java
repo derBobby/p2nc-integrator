@@ -1,17 +1,20 @@
 package eu.planlos.p2ncintegrator;
 
 import eu.planlos.javanextcloudconnector.service.NextcloudApiUserService;
+import eu.planlos.javapretixconnector.IPretixWebHookHandler;
+import eu.planlos.javapretixconnector.model.Booking;
+import eu.planlos.javapretixconnector.model.dto.PretixSupportedActions;
+import eu.planlos.javapretixconnector.model.dto.WebHookResult;
+import eu.planlos.javapretixconnector.service.PretixBookingService;
+import eu.planlos.javapretixconnector.service.PretixEventFilterService;
+import eu.planlos.javapretixconnector.service.api.PretixApiOrderService;
 import eu.planlos.p2ncintegrator.common.notification.MailService;
 import eu.planlos.p2ncintegrator.common.notification.SignalService;
-import eu.planlos.p2ncintegrator.pretix.IPretixWebHookHandler;
-import eu.planlos.p2ncintegrator.pretix.model.Booking;
-import eu.planlos.p2ncintegrator.pretix.service.PretixBookingService;
-import eu.planlos.p2ncintegrator.pretix.service.PretixEventFilterService;
-import eu.planlos.p2ncintegrator.pretix.service.api.PretixApiOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
+import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
 
 /**
  * Core class of the application. Has callback interface for Pretix package and runs request against Nextcloud API
@@ -41,13 +44,26 @@ public class AccountService implements IPretixWebHookHandler {
     }
 
     @Override
-    public void handleApprovalNotification(String action, String event, String code) {
-        notifyAdmin("New order",
-                String.join(" ", "New order needs approval! See:", pretixApiOrderService.getEventUrl(event, code)));
+    public WebHookResult handleWebhook(PretixSupportedActions action, String event, String code) {
+
+        if (action.equals(ORDER_NEED_APPROVAL)) {
+            return handleApprovalNotification(ORDER_NEED_APPROVAL.getAction(), event, code);
+        }
+
+        if (action.equals(ORDER_APPROVED)) {
+            return handleUserCreation(ORDER_NEED_APPROVAL.getAction(), event, code);
+        }
+
+        throw new IllegalArgumentException("Unsupported action");
     }
 
-    @Override
-    public Optional<String> handleUserCreation(String action, String event, String code) {
+    private WebHookResult handleApprovalNotification(String action, String event, String code) {
+        notifyAdmin("New order",
+                String.format("New order needs approval! See Pretix: %s", pretixApiOrderService.getEventUrl(event, code)));
+        return new WebHookResult(true, "Notification has been sent.");
+    }
+
+    private WebHookResult handleUserCreation(String action, String event, String code) {
 
         try {
             Booking booking = pretixBookingService.loadOrFetch(event, code);
@@ -55,24 +71,25 @@ public class AccountService implements IPretixWebHookHandler {
 
             //TODO IT test
             if(pretixEventFilterService.bookingNotWantedByAnyFilter(action, booking)) {
-                String infoMessage = String.format("Order with code %s was excluded for account creation by filter", code);
-                log.info(infoMessage);
-                notifyAdmin(SUBJECT_IRRELEVANT, infoMessage);
-                return Optional.empty();
+                String filteredMessage = String.format("Order with code %s was excluded for account creation by filter", code);
+                notifyAdmin(SUBJECT_IRRELEVANT, filteredMessage);
+
+                log.info(filteredMessage);
+                return new WebHookResult(true, filteredMessage);
             }
 
             String userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
             String successMessage = String.format("Account %s / %s successfully created", userid, booking.getEmail());
             notifyAdmin(SUBJECT_OK, successMessage);
-            log.info(successMessage);
 
-            return Optional.of(successMessage);
+            log.info(successMessage);
+            return new WebHookResult(true, successMessage);
 
         } catch (Exception e) {
             String errorMessage = String.format("Error creating account for order code %s: %s", code, e.getMessage());
             log.error(errorMessage);
             notifyAdmin(SUBJECT_FAIL, errorMessage);
-            return Optional.empty();
+            return new WebHookResult(false, errorMessage);
         }
     }
 

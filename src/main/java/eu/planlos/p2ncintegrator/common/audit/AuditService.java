@@ -4,25 +4,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class AuditService implements IAuditService {
 
-    private final List<AuditEntry> webHookAuditRepository = new ArrayList<>();
+    private final AuditRepository webHookAuditRepository;
 
-    public AuditService() {
+    public AuditService(AuditRepository webHookAuditRepository) {
+        this.webHookAuditRepository = webHookAuditRepository;
     }
 
     public void log(String message) {
         log.info(message);
-        webHookAuditRepository.add(new AuditEntry(message));
+        webHookAuditRepository.save(new AuditEntry(message));
     }
 
+    @Override
+    public List<AuditEntry> getAll() {
+        return webHookAuditRepository.findAll();
+    }
+
+    @Override
     public List<AuditEntry> getAfter(ZonedDateTime zdt) {
-        return webHookAuditRepository.stream().filter(entry -> entry.getDate().isBefore(zdt)).collect(Collectors.toList());
+        return webHookAuditRepository.findByDateAfter(zdt);
     }
 }

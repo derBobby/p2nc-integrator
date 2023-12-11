@@ -53,6 +53,10 @@ jobs:
           push: true
           context: ${{ github.workspace }}
           tags: ${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:latest,${{ secrets.DOCKERHUB_USER }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${{ env.environment }}
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy on Server
         uses: garygrossgarten/github-action-ssh@0.7.0
         with:

@@ -4,10 +4,12 @@ import eu.planlos.p2ncintegrator.common.notification.config.SignalApiConfig;
 import eu.planlos.javapretixconnector.config.PretixApiConfig;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.util.ArrayList;
 
 @TestConfiguration
+@ComponentScan(basePackages = {"eu.planlos.p2ncintegrator", "eu.planlos.javapretixconnector"})
 public class TestConfig {
 
     @Bean

@@ -1,13 +1,11 @@
 # Pretix2Nextcloud integrator
-This applications main purpose is to handle incoming WebHooks of a Pretix ticket shop.
-Currently the project hosts additional classes required to access the Pretix API.
+This Spring Boot application creates Nextcloud accounts for incoming Webhooks from a Pretix ticket shop.
 
 ## Features
-* Handle incoming WebHooks:
-  * Create Nextcloud account (event "pretix.event.order.placed.require_approval")
-  * Notify if order needs approval (event "pretix.event.order.approved")
 * Filter for incoming WebHooks based on organization, event, questions and answers.
-* Notifications: Email, Signal
+* Handle incoming WebHooks:
+  * Notify via Signal messenger and Email, if order needs approval
+  * Create Nextcloud account
 
 ## Status
 

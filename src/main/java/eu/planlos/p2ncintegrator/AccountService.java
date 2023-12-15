@@ -8,8 +8,8 @@ import eu.planlos.javapretixconnector.model.dto.WebHookResult;
 import eu.planlos.javapretixconnector.service.PretixBookingService;
 import eu.planlos.javapretixconnector.service.PretixEventFilterService;
 import eu.planlos.javapretixconnector.service.api.PretixApiOrderService;
+import eu.planlos.javasignalconnector.SignalService;
 import eu.planlos.p2ncintegrator.common.notification.MailService;
-import eu.planlos.p2ncintegrator.common.notification.SignalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -95,6 +95,6 @@ public class AccountService implements IPretixWebHookHandler {
 
     private void notifyAdmin(String subject, String successMessage) {
         mailService.notifyAdmin(subject, successMessage);
-        signalService.notifyAdmin(subject, successMessage);
+        signalService.sendMessageToAdmin(String.format("%s - %s", subject, successMessage));
     }
 }

@@ -5,8 +5,8 @@ import eu.planlos.javapretixconnector.model.Booking;
 import eu.planlos.javapretixconnector.service.PretixBookingService;
 import eu.planlos.javapretixconnector.service.PretixEventFilterService;
 import eu.planlos.javapretixconnector.service.api.PretixApiOrderService;
+import eu.planlos.javasignalconnector.SignalService;
 import eu.planlos.p2ncintegrator.common.notification.MailService;
-import eu.planlos.p2ncintegrator.common.notification.SignalService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.*;
+import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
+import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
 import static eu.planlos.p2ncintegrator.AccountService.SUBJECT_IRRELEVANT;
 import static eu.planlos.p2ncintegrator.AccountService.SUBJECT_OK;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -74,7 +75,7 @@ public class AccountServiceTest {
 
         // Check
         verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", HOOK_CODE)));
-        verify(signalService).notifyAdmin(anyString(), matches(String.format(".*%s.*", HOOK_CODE)));
+        verify(signalService).sendMessageToAdmin(anyString());
     }
 
     /**
@@ -94,7 +95,7 @@ public class AccountServiceTest {
         // Check
         verifyNoInteractions(nextcloudApiUserService);
         verify(mailService).notifyAdmin(eq(SUBJECT_IRRELEVANT), anyString());
-        verify(signalService).notifyAdmin(eq(SUBJECT_IRRELEVANT), anyString());
+        verify(signalService).sendMessageToAdmin(contains(SUBJECT_IRRELEVANT));
     }
 
     @Test
@@ -111,7 +112,7 @@ public class AccountServiceTest {
         // Check
         verify(nextcloudApiUserService).createUser(anyString(), anyString(), anyString());
         verify(mailService).notifyAdmin(eq(SUBJECT_OK), anyString());
-        verify(signalService).notifyAdmin(eq(SUBJECT_OK), anyString());
+        verify(signalService).sendMessageToAdmin(contains(SUBJECT_OK));
     }
 
     private void positionFilterIrrelevant() {

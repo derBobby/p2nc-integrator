@@ -4,7 +4,6 @@
 This Spring Boot application creates Nextcloud accounts for incoming Webhooks from a Pretix ticket shop.
 
 ## Features
-* Filter for incoming WebHooks based on organization, event, questions and answers.
 * Handle incoming WebHooks:
   * Notify via Signal messenger and Email, if order needs approval
   * Create Nextcloud account

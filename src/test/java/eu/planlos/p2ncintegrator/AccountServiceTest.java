@@ -47,7 +47,8 @@ public class AccountServiceTest {
 
     private final static Booking mockBooking = mock(Booking.class);
 
-    private final static String HOOK_EVENT = "Event";
+    private final static String HOOK_ORGANIZER = "organizer";
+    private final static String HOOK_EVENT = "event";
     private final static String HOOK_CODE = "XCODE";
     private final static String EMAIL = "email@example.com";
     private final static String FIRSTNAME = "Firstname";
@@ -71,7 +72,7 @@ public class AccountServiceTest {
         when(pretixApiOrderService.getEventUrl(HOOK_EVENT, HOOK_CODE)).thenReturn(String.format("https://example.com/%s", HOOK_CODE));
 
         // Act
-        accountService.handleWebhook(ORDER_NEED_APPROVAL, HOOK_EVENT, HOOK_CODE);
+        accountService.handleWebhook(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE, ORDER_NEED_APPROVAL);
 
         // Check
         verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", HOOK_CODE)));
@@ -86,11 +87,11 @@ public class AccountServiceTest {
         // Prepare
         //      objects
         //      methods
-        when(pretixBookingService.loadOrFetch(HOOK_EVENT, HOOK_CODE)).thenReturn(mockBooking);
+        when(pretixBookingService.loadOrFetch(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE)).thenReturn(mockBooking);
         positionFilterIrrelevant();
 
         // Act
-        accountService.handleWebhook(ORDER_APPROVED, HOOK_EVENT, HOOK_CODE);
+        accountService.handleWebhook(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE, ORDER_APPROVED);
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
@@ -103,11 +104,11 @@ public class AccountServiceTest {
         // Prepare
         //      objects
         //      methods
-        when(pretixBookingService.loadOrFetch(HOOK_EVENT, HOOK_CODE)).thenReturn(mockBooking);
+        when(pretixBookingService.loadOrFetch(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE)).thenReturn(mockBooking);
         positionFilterRelevant();
 
         // Act
-        accountService.handleWebhook(ORDER_APPROVED, HOOK_EVENT, HOOK_CODE);
+        accountService.handleWebhook(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE, ORDER_APPROVED);
 
         // Check
         verify(nextcloudApiUserService).createUser(anyString(), anyString(), anyString());
@@ -116,10 +117,10 @@ public class AccountServiceTest {
     }
 
     private void positionFilterIrrelevant() {
-        when(pretixEventFilterService.bookingNotWantedByAnyFilter(anyString(), any())).thenReturn(true);
+        when(pretixEventFilterService.bookingNotWantedByAnyFilter(any(), any())).thenReturn(true);
     }
 
     private void positionFilterRelevant() {
-        when(pretixEventFilterService.bookingNotWantedByAnyFilter(anyString(), any())).thenReturn(false);
+        when(pretixEventFilterService.bookingNotWantedByAnyFilter(any(), any())).thenReturn(false);
     }
 }

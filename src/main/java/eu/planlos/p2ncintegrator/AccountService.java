@@ -44,29 +44,29 @@ public class AccountService implements IPretixWebHookHandler {
     }
 
     @Override
-    public WebHookResult handleWebhook(PretixSupportedActions action, String event, String code) {
+    public WebHookResult handleWebhook(String organizer, String event, String code, PretixSupportedActions action) {
 
         if (action.equals(ORDER_NEED_APPROVAL)) {
-            return handleApprovalNotification(ORDER_NEED_APPROVAL.getAction(), event, code);
+            return handleApprovalNotification(event, code);
         }
 
         if (action.equals(ORDER_APPROVED)) {
-            return handleUserCreation(ORDER_NEED_APPROVAL.getAction(), event, code);
+            return handleUserCreation(organizer, event, code, action);
         }
 
         throw new IllegalArgumentException("Unsupported action");
     }
 
-    private WebHookResult handleApprovalNotification(String action, String event, String code) {
+    private WebHookResult handleApprovalNotification(String event, String code) {
         notifyAdmin("New order",
                 String.format("New order needs approval! See Pretix: %s", pretixApiOrderService.getEventUrl(event, code)));
         return new WebHookResult(true, "Notification has been sent.");
     }
 
-    private WebHookResult handleUserCreation(String action, String event, String code) {
+    private WebHookResult handleUserCreation(String organizer, String event, String code, PretixSupportedActions action) {
 
         try {
-            Booking booking = pretixBookingService.loadOrFetch(event, code);
+            Booking booking = pretixBookingService.loadOrFetch(organizer, event, code);
             log.info("Order found: {}", booking);
 
             //TODO IT test

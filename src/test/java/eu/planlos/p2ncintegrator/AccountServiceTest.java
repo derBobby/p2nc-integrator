@@ -1,12 +1,12 @@
 package eu.planlos.p2ncintegrator;
 
+import eu.planlos.javamailconnector.MailService;
 import eu.planlos.javanextcloudconnector.service.NextcloudApiUserService;
 import eu.planlos.javapretixconnector.model.Booking;
 import eu.planlos.javapretixconnector.service.PretixBookingService;
 import eu.planlos.javapretixconnector.service.PretixEventFilterService;
 import eu.planlos.javapretixconnector.service.api.PretixApiOrderService;
 import eu.planlos.javasignalconnector.SignalService;
-import eu.planlos.p2ncintegrator.common.notification.MailService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,7 +75,7 @@ public class AccountServiceTest {
         accountService.handleWebhook(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE, ORDER_NEED_APPROVAL);
 
         // Check
-        verify(mailService).notifyAdmin(anyString(), matches(String.format(".*%s.*", HOOK_CODE)));
+        verify(mailService).sendMailToAdmin(anyString(), matches(String.format(".*%s.*", HOOK_CODE)));
         verify(signalService).sendMessageToAdmin(anyString());
     }
 
@@ -95,7 +95,7 @@ public class AccountServiceTest {
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
-        verify(mailService).notifyAdmin(eq(SUBJECT_IRRELEVANT), anyString());
+        verify(mailService).sendMailToAdmin(eq(SUBJECT_IRRELEVANT), anyString());
         verify(signalService).sendMessageToAdmin(contains(SUBJECT_IRRELEVANT));
     }
 
@@ -112,7 +112,7 @@ public class AccountServiceTest {
 
         // Check
         verify(nextcloudApiUserService).createUser(anyString(), anyString(), anyString());
-        verify(mailService).notifyAdmin(eq(SUBJECT_OK), anyString());
+        verify(mailService).sendMailToAdmin(eq(SUBJECT_OK), anyString());
         verify(signalService).sendMessageToAdmin(contains(SUBJECT_OK));
     }
 

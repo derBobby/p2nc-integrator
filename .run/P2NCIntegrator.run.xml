@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="P2NCIntegrator" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="DEVELOPMENT" />
+    <option name="ACTIVE_PROFILES" value="DEV" />
     <module name="p2nc-integrator" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="eu.planlos.p2ncintegrator.P2NCIntegrator" />
     <method v="2">

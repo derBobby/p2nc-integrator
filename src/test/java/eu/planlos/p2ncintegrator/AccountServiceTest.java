@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
 import static eu.planlos.p2ncintegrator.AccountService.SUBJECT_IRRELEVANT;
-import static eu.planlos.p2ncintegrator.AccountService.SUBJECT_OK;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -112,8 +111,8 @@ public class AccountServiceTest {
 
         // Check
         verify(nextcloudApiUserService).createUser(anyString(), anyString(), anyString());
-        verify(mailService).sendMailToRecipients(eq(SUBJECT_OK), anyString());
-        verify(signalService).sendMessageToRecipients(contains(SUBJECT_OK));
+        verify(mailService).sendMailToRecipients(eq(SUBJECT_IRRELEVANT), anyString());
+        verify(signalService).sendMessageToRecipients(contains(SUBJECT_IRRELEVANT));
     }
 
     private void positionFilterIrrelevant() {

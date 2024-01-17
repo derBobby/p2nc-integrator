@@ -75,8 +75,8 @@ public class AccountServiceTest {
         accountService.handleWebhook(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE, ORDER_NEED_APPROVAL);
 
         // Check
-        verify(mailService).sendMailToAdmin(anyString(), matches(String.format(".*%s.*", HOOK_CODE)));
-        verify(signalService).sendMessageToAdmin(anyString());
+        verify(mailService).sendMailToRecipients(anyString(), matches(String.format(".*%s.*", HOOK_CODE)));
+        verify(signalService).sendMessageToRecipients(anyString());
     }
 
     /**
@@ -112,8 +112,8 @@ public class AccountServiceTest {
 
         // Check
         verify(nextcloudApiUserService).createUser(anyString(), anyString(), anyString());
-        verify(mailService).sendMailToAdmin(eq(SUBJECT_OK), anyString());
-        verify(signalService).sendMessageToAdmin(contains(SUBJECT_OK));
+        verify(mailService).sendMailToRecipients(eq(SUBJECT_OK), anyString());
+        verify(signalService).sendMessageToRecipients(contains(SUBJECT_OK));
     }
 
     private void positionFilterIrrelevant() {

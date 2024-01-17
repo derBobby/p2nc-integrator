@@ -13,6 +13,8 @@ import eu.planlos.javasignalconnector.SignalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
 
@@ -80,12 +82,17 @@ public class AccountService implements IPretixWebHookHandler {
                 return new WebHookResult(true, filteredMessage);
             }
 
-            String userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
-            String successMessage = String.format("Account %s / %s successfully created", userid, booking.getEmail());
-            notifyRecipients(SUBJECT_OK, successMessage);
+            Optional<String> userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
+            String message = "Mail address already in use";
+            String subject = SUBJECT_IRRELEVANT;
+            if(userid.isPresent()) {
+                message = String.format("Account %s / %s successfully created", userid.get(), booking.getEmail());
+                subject = SUBJECT_OK;
+            }
 
-            log.info(successMessage);
-            return new WebHookResult(true, successMessage);
+            notifyRecipients(subject, message);
+            log.info(message);
+            return new WebHookResult(true, message);
 
         } catch (Exception e) {
             String errorMessage = String.format("Error creating account for order code %s: %s", code, e.getMessage());

@@ -46,6 +46,8 @@ public class AccountService implements IPretixWebHookHandler {
     @Override
     public WebHookResult handleWebhook(String organizer, String event, String code, PretixSupportedActions action) {
 
+        //TODO implement filter correctly!!!
+
         if (action.equals(ORDER_NEED_APPROVAL)) {
             return handleApprovalNotification(event, code);
         }
@@ -58,7 +60,7 @@ public class AccountService implements IPretixWebHookHandler {
     }
 
     private WebHookResult handleApprovalNotification(String event, String code) {
-        notifyAdmin("New order",
+        notifyRecipients("New order",
                 String.format("New order needs approval! See Pretix: %s", pretixApiOrderService.getEventUrl(event, code)));
         return new WebHookResult(true, "Notification has been sent.");
     }
@@ -80,7 +82,7 @@ public class AccountService implements IPretixWebHookHandler {
 
             String userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
             String successMessage = String.format("Account %s / %s successfully created", userid, booking.getEmail());
-            notifyAdmin(SUBJECT_OK, successMessage);
+            notifyRecipients(SUBJECT_OK, successMessage);
 
             log.info(successMessage);
             return new WebHookResult(true, successMessage);
@@ -96,5 +98,10 @@ public class AccountService implements IPretixWebHookHandler {
     private void notifyAdmin(String subject, String successMessage) {
         mailService.sendMailToAdmin(subject, successMessage);
         signalService.sendMessageToAdmin(String.format("%s - %s", subject, successMessage));
+    }
+
+    private void notifyRecipients(String subject, String successMessage) {
+        mailService.sendMailToRecipients(subject, successMessage);
+        signalService.sendMessageToRecipients(String.format("%s - %s", subject, successMessage));
     }
 }

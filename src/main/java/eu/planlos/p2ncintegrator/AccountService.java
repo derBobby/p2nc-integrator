@@ -25,9 +25,9 @@ import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.OR
 @Service
 public class AccountService implements IPretixWebHookHandler {
 
-    public static final String SUBJECT_OK = "Account creation successful";
-    public static final String SUBJECT_FAIL = "Account creation failed";
-    public static final String SUBJECT_IRRELEVANT = "Account creation not required";
+    public static final String SUBJECT_OK = "Nextcloud account creation successful ✅";
+    public static final String SUBJECT_FAIL = "Nextcloud account creation failed ❌";
+    public static final String SUBJECT_IRRELEVANT = "Nextcloud account not required";
 
     private final PretixBookingService pretixBookingService;
     private final PretixEventFilterService pretixEventFilterService;
@@ -49,6 +49,7 @@ public class AccountService implements IPretixWebHookHandler {
     public WebHookResult handleWebhook(String organizer, String event, String code, PretixSupportedActions action) {
 
         //TODO implement filter correctly!!!
+        //TODO does it work like it should? bookingNotWantedByAnyFilter: Addon? ...
 
         if (action.equals(ORDER_NEED_APPROVAL)) {
             return handleApprovalNotification(event, code);

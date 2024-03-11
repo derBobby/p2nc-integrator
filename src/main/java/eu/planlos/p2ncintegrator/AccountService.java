@@ -48,9 +48,6 @@ public class AccountService implements IPretixWebHookHandler {
     @Override
     public WebHookResult handleWebhook(String organizer, String event, String code, PretixSupportedActions action) {
 
-        //TODO implement filter correctly!!!
-        //TODO does it work like it should? bookingNotWantedByAnyFilter: Addon? ...
-
         if (action.equals(ORDER_NEED_APPROVAL)) {
             return handleApprovalNotification(event, code);
         }
@@ -74,7 +71,6 @@ public class AccountService implements IPretixWebHookHandler {
             Booking booking = pretixBookingService.loadOrFetch(organizer, event, code);
             log.info("Order found: {}", booking);
 
-            //TODO IT test
             if(pretixEventFilterService.bookingNotWantedByAnyFilter(action, booking)) {
                 String filteredMessage = String.format("Order with code %s was excluded for account creation by filter", code);
                 notifyAdmin(SUBJECT_IRRELEVANT, filteredMessage);

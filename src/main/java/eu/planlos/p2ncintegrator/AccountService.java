@@ -25,9 +25,9 @@ import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.OR
 @Service
 public class AccountService implements IPretixWebHookHandler {
 
-    public static final String SUBJECT_OK = "Nextcloud account creation successful ✅";
-    public static final String SUBJECT_FAIL = "Nextcloud account creation failed ❌";
-    public static final String SUBJECT_IRRELEVANT = "Nextcloud account not required";
+    public static final String MESSAGE_OK = "Nextcloud account creation successful ✅";
+    public static final String MESSAGE_FAIL = "Nextcloud account creation failed ❌";
+    public static final String MESSAGE_IRRELEVANT = "Nextcloud account not required";
 
     private final PretixBookingService pretixBookingService;
     private final PretixEventFilterService pretixEventFilterService;
@@ -60,8 +60,11 @@ public class AccountService implements IPretixWebHookHandler {
     }
 
     private WebHookResult handleApprovalNotification(String event, String code) {
-        notifyRecipients("New order",
-                String.format("New order needs approval! See Pretix: %s", pretixApiOrderService.getEventUrl(event, code)));
+
+        String url = pretixApiOrderService.getEventUrl(event, code);
+
+        String message = String.format("New order needs approval! See Pretix: %s", url);
+        notifyRecipients(code, message);
         return new WebHookResult(true, "Notification has been sent.");
     }
 
@@ -72,40 +75,45 @@ public class AccountService implements IPretixWebHookHandler {
             log.info("Order found: {}", booking);
 
             if(pretixEventFilterService.bookingNotWantedByAnyFilter(action, booking)) {
-                String filteredMessage = String.format("Order with code %s was excluded for account creation by filter", code);
-                notifyAdmin(SUBJECT_IRRELEVANT, filteredMessage);
+                String filteredMessage = String.format("%s: Order was excluded for account creation by filter", MESSAGE_IRRELEVANT);
+                notifyAdmin(code, filteredMessage);
 
                 log.info(filteredMessage);
                 return new WebHookResult(true, filteredMessage);
             }
 
             Optional<String> userid = nextcloudApiUserService.createUser(booking.getEmail(), booking.getFirstname(), booking.getLastname());
-            String message = "Mail address already in use";
-            String subject = SUBJECT_IRRELEVANT;
+
+            String message = String.format("%s: Mail address (%s) already in use", MESSAGE_IRRELEVANT, booking.getEmail());
             if(userid.isPresent()) {
-                message = String.format("Account %s / %s successfully created", userid.get(), booking.getEmail());
-                subject = SUBJECT_OK;
+                message = String.format("%s: %s / %s", MESSAGE_OK, userid.get(), booking.getEmail());
             }
 
-            notifyRecipients(subject, message);
+            notifyRecipients(code, message);
             log.info(message);
             return new WebHookResult(true, message);
 
         } catch (Exception e) {
-            String errorMessage = String.format("Error creating account for order code %s: %s", code, e.getMessage());
+            String errorMessage = String.format("Error creating account: %s", e.getMessage());
             log.error(errorMessage);
-            notifyAdmin(SUBJECT_FAIL, errorMessage);
+            notifyRecipients(MESSAGE_FAIL, errorMessage);
             return new WebHookResult(false, errorMessage);
         }
     }
 
-    private void notifyAdmin(String subject, String successMessage) {
-        mailService.sendMailToAdmin(subject, successMessage);
-        signalService.sendMessageToAdmin(String.format("%s - %s", subject, successMessage));
+    private void notifyAdmin(String code, String message) {
+        String subject = subject(code);
+        mailService.sendMailToAdmin(subject, message);
+        signalService.sendMessageToAdmin(String.format("%s - %s", subject, message));
     }
 
-    private void notifyRecipients(String subject, String successMessage) {
-        mailService.sendMailToRecipients(subject, successMessage);
-        signalService.sendMessageToRecipients(String.format("%s - %s", subject, successMessage));
+    private void notifyRecipients(String code, String message) {
+        String subject = subject(code);
+        mailService.sendMailToRecipients(subject, message);
+        signalService.sendMessageToRecipients(String.format("%s - %s", subject, message));
+    }
+
+    private String subject(String code) {
+        return String.format("Order %s", code);
     }
 }

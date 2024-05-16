@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
-import static eu.planlos.p2ncintegrator.AccountService.SUBJECT_IRRELEVANT;
+import static eu.planlos.p2ncintegrator.AccountService.MESSAGE_IRRELEVANT;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -94,8 +94,8 @@ public class AccountServiceTest {
 
         // Check
         verifyNoInteractions(nextcloudApiUserService);
-        verify(mailService).sendMailToAdmin(eq(SUBJECT_IRRELEVANT), anyString());
-        verify(signalService).sendMessageToAdmin(contains(SUBJECT_IRRELEVANT));
+        verify(mailService).sendMailToAdmin(anyString(), contains(MESSAGE_IRRELEVANT));
+        verify(signalService).sendMessageToAdmin(contains(MESSAGE_IRRELEVANT));
     }
 
     @Test
@@ -111,8 +111,8 @@ public class AccountServiceTest {
 
         // Check
         verify(nextcloudApiUserService).createUser(anyString(), anyString(), anyString());
-        verify(mailService).sendMailToRecipients(eq(SUBJECT_IRRELEVANT), anyString());
-        verify(signalService).sendMessageToRecipients(contains(SUBJECT_IRRELEVANT));
+        verify(mailService).sendMailToRecipients(anyString(), contains(MESSAGE_IRRELEVANT));
+        verify(signalService).sendMessageToRecipients(contains(MESSAGE_IRRELEVANT));
     }
 
     private void positionFilterIrrelevant() {

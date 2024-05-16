@@ -58,6 +58,8 @@ public class AccountServiceTest {
         when(mockBooking.getEmail()).thenReturn(EMAIL);
         when(mockBooking.getFirstname()).thenReturn(FIRSTNAME);
         when(mockBooking.getLastname()).thenReturn(LASTNAME);
+        when(mockBooking.getEvent()).thenReturn(HOOK_EVENT);
+        when(mockBooking.getCode()).thenReturn(HOOK_CODE);
     }
 
     /**
@@ -69,6 +71,7 @@ public class AccountServiceTest {
         //      objects
         //      methods
         when(pretixApiOrderService.getEventUrl(HOOK_EVENT, HOOK_CODE)).thenReturn(String.format("https://example.com/%s", HOOK_CODE));
+        when(pretixBookingService.loadOrFetch(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE)).thenReturn(mockBooking);
 
         // Act
         accountService.handleWebhook(HOOK_ORGANIZER, HOOK_EVENT, HOOK_CODE, ORDER_NEED_APPROVAL);

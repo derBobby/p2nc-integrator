@@ -1,3 +1,11 @@
+## [1.14.3](https://github.com/derBobby/p2nc-integrator/compare/v1.14.2...v1.14.3) (2025-02-23)
+
+
+### Bug Fixes
+
+* **pipeline:** update pipe version ([1346d21](https://github.com/derBobby/p2nc-integrator/commit/1346d21787292f1985c67f0cbc3f8384643406aa))
+* **pipeline:** update to existing version ([78f22c1](https://github.com/derBobby/p2nc-integrator/commit/78f22c16057362e504bfd45cbfe01b64d467e3a3))
+
 ## [1.14.2](https://github.com/derBobby/p2nc-integrator/compare/v1.14.1...v1.14.2) (2025-02-23)
 
 

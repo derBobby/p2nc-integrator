@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/derBobby/p2nc-integrator/compare/v1.14.1...v1.14.2) (2025-02-23)
+
+
+### Bug Fixes
+
+* **pipeline:** Add several files for dependabot sem-rel ([e8aaf16](https://github.com/derBobby/p2nc-integrator/commit/e8aaf16bf3a53068b17e6f10555c860b131890ba))
+
 ## [1.14.1](https://github.com/derBobby/p2nc-integrator/compare/v1.14.0...v1.14.1) (2025-02-22)
 
 
